@@ -1,0 +1,35 @@
+paths:
+  mapped_data: "data/expression"
+  phenodata: "data/phenodata.tsv"
+  output: "data/pipeline/main"
+  column_map:
+    arraydatafile_exprscolumnnames: "sample_id"
+    secondaryaccession: "dataset_id"
+    Gestational.Age.Category: "trimester"
+    Diagnosis: "condition"
+
+files:
+  suffix: ""
+  file_map:
+    GSE28551: "GSE28551.tsv"
+  datasets:
+    - "GSE100051"
+    - "GSE122214"
+    - "GSE28551"
+    - "GSE37901"
+    - "GSE93520"
+    - "GSE9984"
+
+sample_filter:
+  condition: ["healthy"]
+  trimester: ["First trimester", "Second trimester"]
+
+phenotype:
+  group_column: "trimester"
+  baseline: "First trimester"
+  contrast: "Second trimester"
+  covariates: ["fetux_sex_estimate"]
+  combat_bio_covariate: "ga_weeks"
+
+gene_filter:
+  protein_coding_only: true

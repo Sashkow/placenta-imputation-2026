@@ -1,0 +1,32 @@
+# Staircase color scheme: Fallout Vault / Retro Ads
+# Vault-Tec blue-yellow palette, rusted warnings, concrete neutrals
+#
+# Mapping logic:
+#   Observed data = Vault-Tec blue (trustworthy, institutional)
+#     Significant genes glow bright blue (attention-grabbing, like vault signage)
+#     Non-significant fades to dusty steel (background infrastructure)
+#   Imputable NAs = Vault-Tec yellow (the classic caution/utility color)
+#   Coverage-excluded = Rust orange (deterioration, structural concern)
+#   Group-excluded = Nuka-Cola red (danger, warning posters)
+#   Padding = Concrete gray (bare vault walls, nothing here)
+#   No FDR = Faded steel (present but unremarkable)
+
+background: "white"
+text_primary: "black"
+text_dim: "black"
+
+fdr_gradient:
+  significant: "#1565C0"    # vault-tec blue (FDR → 0)
+  nonsig: "#B0BEC5"         # dusty steel (FDR → 1)
+  min_alpha: 0.05
+
+categories:
+  no_fdr: "#CFD8DC"         # faded steel — observed, not in DE results
+  imputable_na: "#FFD600"   # vault-tec yellow — NA that softImpute fills
+  group_excluded: "#C62828" # nuka-cola red — one trimester group entirely absent
+  coverage_excluded: "#6A1B9A" # vault-worn purple — gene dropped, too much missing
+  padding: "#757575"        # concrete gray — gene not in this run at all
+
+legacy:
+  na: "#C62828"
+  excluded: "#C62828"

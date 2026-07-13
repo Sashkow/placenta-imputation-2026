@@ -1,0 +1,187 @@
+dataset_id	sample_id	platform_id	platform_manufacturer	trimester	fetus_week	fetus_range_week	fetus_week_minimal_info	condition	fetux_sex_estimate	should_be_included	scan_date	scan_batch	Batch	Estimated.Smoking.Status
+GSE9984	GSM252349	GPL570	Affymetrix	First trimester	0	6,7,8	6,7,8	healthy	f	TRUE				
+GSE9984	GSM252350	GPL570	Affymetrix	First trimester	0	6,7,8	6,7,8	healthy	f	TRUE				
+GSE9984	GSM252351	GPL570	Affymetrix	First trimester	0	6,7,8	6,7,8	healthy	m	TRUE				
+GSE9984	GSM252352	GPL570	Affymetrix	First trimester	0	6,7,8	6,7,8	healthy	m	TRUE				
+GSE9984	GSM252353	GPL570	Affymetrix	Second trimester	0	15,16	15,16	healthy	m	TRUE				
+GSE9984	GSM252354	GPL570	Affymetrix	Second trimester	0	15,16	15,16	healthy	f	TRUE				
+GSE9984	GSM252355	GPL570	Affymetrix	Second trimester	0	15,16	15,16	healthy	f	TRUE				
+GSE9984	GSM252356	GPL570	Affymetrix	Second trimester	0	15,16	15,16	healthy	f	TRUE				
+GSE9984	GSM252357	GPL570	Affymetrix	Third trimester	0	0	term	healthy	n/a	FALSE				
+GSE9984	GSM252358	GPL570	Affymetrix	Third trimester	0	0	term	healthy	n/a	FALSE				
+GSE9984	GSM252359	GPL570	Affymetrix	Third trimester	0	0	term	healthy	n/a	FALSE				
+GSE9984	GSM252360	GPL570	Affymetrix	Third trimester	0	0	term	healthy	n/a	FALSE				
+GSE122214	GSM3461184	GPL570	Affymetrix	First trimester	0	7,8	7,8	healthy	m	TRUE				
+GSE122214	GSM3461185	GPL570	Affymetrix	First trimester	0	7,8	7,8	healthy	f	TRUE				
+GSE122214	GSM3461186	GPL570	Affymetrix	First trimester	0	7,8	7,8	healthy	m	TRUE				
+GSE122214	GSM3461187	GPL570	Affymetrix	First trimester	0	7,8	7,8	healthy	f	TRUE				
+GSE22490	GSM558664	GPL570	Affymetrix	First trimester	8	8	8	healthy	m	TRUE				
+GSE22490	GSM558665	GPL570	Affymetrix	First trimester	8	8	8	healthy	m	TRUE				
+GSE22490	GSM558666	GPL570	Affymetrix	First trimester	8	8	8	healthy	f	TRUE				
+GSE22490	GSM558667	GPL570	Affymetrix	First trimester	4	4	4	healthy	f	TRUE				
+GSE22490	GSM558668	GPL570	Affymetrix	First trimester	11	11	11	healthy	f	TRUE				
+GSE22490	GSM558669	GPL570	Affymetrix	Second trimester	13	13	13	healthy	f	TRUE				
+GSE37901	GSM929667	GPL570	Affymetrix	Second trimester	18	18	18	healthy	m	TRUE				
+GSE37901	GSM929668	GPL570	Affymetrix	Second trimester	17	17	17	healthy	f	TRUE				
+GSE37901	GSM929669	GPL570	Affymetrix	Second trimester	17	17	17	healthy	m	TRUE				
+GSE37901	GSM929670	GPL570	Affymetrix	Second trimester	18	18	18	healthy	m	TRUE				
+GSE93520	GSM2453819	GPL6480	Agilent	First trimester	6	6	6	healthy	f	TRUE				
+GSE93520	GSM2453820	GPL6480	Agilent	First trimester	6	6	6	healthy	f	TRUE				
+GSE93520	GSM2453821	GPL6480	Agilent	First trimester	6	6	6	healthy	m	TRUE				
+GSE93520	GSM2453822	GPL6480	Agilent	First trimester	6	6	6	healthy	m	TRUE				
+GSE93520	GSM2453823	GPL6480	Agilent	First trimester	6	6	6	healthy	f	TRUE				
+GSE93520	GSM2453824	GPL6480	Agilent	First trimester	6	6	6	healthy	f	TRUE				
+GSE93520	GSM2453825	GPL6480	Agilent	First trimester	6	6	6	healthy	f	TRUE				
+GSE93520	GSM2453826	GPL6480	Agilent	First trimester	6	6	6	healthy	f	TRUE				
+GSE93520	GSM2453827	GPL6480	Agilent	First trimester	7	7	7	healthy	m	TRUE				
+GSE93520	GSM2453828	GPL6480	Agilent	First trimester	7	7	7	healthy	f	TRUE				
+GSE93520	GSM2453829	GPL6480	Agilent	First trimester	7	7	7	healthy	m	TRUE				
+GSE93520	GSM2453830	GPL6480	Agilent	First trimester	7	7	7	healthy	m	TRUE				
+GSE93520	GSM2453831	GPL6480	Agilent	First trimester	7	7	7	healthy	m	TRUE				
+GSE93520	GSM2453832	GPL6480	Agilent	First trimester	7	7	7	healthy	f	TRUE				
+GSE93520	GSM2453833	GPL6480	Agilent	First trimester	7	7	7	healthy	f	TRUE				
+GSE93520	GSM2453834	GPL6480	Agilent	First trimester	7	7	7	healthy	m	TRUE				
+GSE93520	GSM2453835	GPL6480	Agilent	First trimester	7	7	7	healthy	m	TRUE				
+GSE93520	GSM2453836	GPL6480	Agilent	First trimester	8	8	8	healthy	m	TRUE				
+GSE93520	GSM2453837	GPL6480	Agilent	First trimester	8	8	8	healthy	m	TRUE				
+GSE93520	GSM2453838	GPL6480	Agilent	First trimester	8	8	8	healthy	f	TRUE				
+GSE93520	GSM2453839	GPL6480	Agilent	First trimester	8	8	8	healthy	m	TRUE				
+GSE93520	GSM2453840	GPL6480	Agilent	First trimester	8	8	8	healthy	f	TRUE				
+GSE93520	GSM2453841	GPL6480	Agilent	First trimester	8	8	8	healthy	m	TRUE				
+GSE93520	GSM2453842	GPL6480	Agilent	First trimester	9	9	9	healthy	m	TRUE				
+GSE93520	GSM2453843	GPL6480	Agilent	First trimester	9	9	9	healthy	f	TRUE				
+GSE93520	GSM2453844	GPL6480	Agilent	First trimester	9	9	9	healthy	m	TRUE				
+GSE93520	GSM2453845	GPL6480	Agilent	First trimester	9	9	9	healthy	f	TRUE				
+GSE93520	GSM2453846	GPL6480	Agilent	First trimester	9	9	9	healthy	f	TRUE				
+GSE93520	GSM2453847	GPL6480	Agilent	First trimester	9	9	9	healthy	m	TRUE				
+GSE93520	GSM2453848	GPL6480	Agilent	First trimester	9	9	9	healthy	f	TRUE				
+GSE93520	GSM2453849	GPL6480	Agilent	First trimester	9	9	9	healthy	f	TRUE				
+GSE93520	GSM2453850	GPL6480	Agilent	First trimester	10	10	10	healthy	m	TRUE				
+GSE93520	GSM2453851	GPL6480	Agilent	First trimester	10	10	10	healthy	f	TRUE				
+GSE93520	GSM2453852	GPL6480	Agilent	First trimester	10	10	10	healthy	f	TRUE				
+GSE93520	GSM2453853	GPL6480	Agilent	First trimester	10	10	10	healthy	f	TRUE				
+GSE93520	GSM2453854	GPL6480	Agilent	First trimester	10	10	10	healthy	m	TRUE				
+GSE93520	GSM2453855	GPL6480	Agilent	Third trimester	0	0	term	healthy	n/a	FALSE				
+GSE93520	GSM2453856	GPL6480	Agilent	Third trimester	0	0	term	healthy	n/a	FALSE				
+GSE93520	GSM2453857	GPL6480	Agilent	Third trimester	0	0	term	healthy	n/a	FALSE				
+GSE93520	GSM2453858	GPL6480	Agilent	Third trimester	0	0	term	healthy	n/a	FALSE				
+GSE93520	GSM2453859	GPL6480	Agilent	Third trimester	0	0	term	healthy	n/a	FALSE				
+GSE93520	GSM2453860	GPL6480	Agilent	Third trimester	0	0	term	healthy	n/a	FALSE				
+GSE93520	GSM2453861	GPL6480	Agilent	Third trimester	0	0	term	healthy	n/a	FALSE				
+GSE93520	GSM2453862	GPL6480	Agilent	Third trimester	0	0	term	healthy	n/a	FALSE				
+GSE100051	GSM2668701	GPL10558	Illumina	First trimester	4	4	4	healthy	m	TRUE				
+GSE100051	GSM2668702	GPL10558	Illumina	First trimester	4	4	4	healthy	m	TRUE				
+GSE100051	GSM2668703	GPL10558	Illumina	First trimester	4	4	4	healthy	f	TRUE				
+GSE100051	GSM2668704	GPL10558	Illumina	First trimester	5	5	5	healthy	f	TRUE				
+GSE100051	GSM2668705	GPL10558	Illumina	First trimester	5	5	5	healthy	f	TRUE				
+GSE100051	GSM2668706	GPL10558	Illumina	First trimester	5	5	5	healthy	f	TRUE				
+GSE100051	GSM2668707	GPL10558	Illumina	First trimester	5	5	5	healthy	f	TRUE				
+GSE100051	GSM2668708	GPL10558	Illumina	First trimester	5	5	5	healthy	f	TRUE				
+GSE100051	GSM2668709	GPL10558	Illumina	First trimester	6	6	6	healthy	m	TRUE				
+GSE100051	GSM2668710	GPL10558	Illumina	First trimester	6	6	6	healthy	f	TRUE				
+GSE100051	GSM2668711	GPL10558	Illumina	First trimester	6	6	6	healthy	f	TRUE				
+GSE100051	GSM2668712	GPL10558	Illumina	First trimester	6	6	6	healthy	f	TRUE				
+GSE100051	GSM2668713	GPL10558	Illumina	First trimester	6	6	6	healthy	m	TRUE				
+GSE100051	GSM2668714	GPL10558	Illumina	First trimester	7	7	7	healthy	m	TRUE				
+GSE100051	GSM2668715	GPL10558	Illumina	First trimester	7	7	7	healthy	f	TRUE				
+GSE100051	GSM2668716	GPL10558	Illumina	First trimester	7	7	7	healthy	f	TRUE				
+GSE100051	GSM2668717	GPL10558	Illumina	First trimester	7	7	7	healthy	m	TRUE				
+GSE100051	GSM2668718	GPL10558	Illumina	First trimester	7	7	7	healthy	m	TRUE				
+GSE100051	GSM2668719	GPL10558	Illumina	First trimester	8	8	8	healthy	f	TRUE				
+GSE100051	GSM2668720	GPL10558	Illumina	First trimester	8	8	8	healthy	m	TRUE				
+GSE100051	GSM2668721	GPL10558	Illumina	First trimester	8	8	8	healthy	f	TRUE				
+GSE100051	GSM2668722	GPL10558	Illumina	First trimester	8	8	8	healthy	m	TRUE				
+GSE100051	GSM2668723	GPL10558	Illumina	First trimester	9	9	9	healthy	f	TRUE				
+GSE100051	GSM2668724	GPL10558	Illumina	First trimester	9	9	9	healthy	m	TRUE				
+GSE100051	GSM2668725	GPL10558	Illumina	First trimester	9	9	9	healthy	m	TRUE				
+GSE100051	GSM2668726	GPL10558	Illumina	First trimester	9	9	9	healthy	f	TRUE				
+GSE100051	GSM2668727	GPL10558	Illumina	First trimester	9	9	9	healthy	f	TRUE				
+GSE100051	GSM2668728	GPL10558	Illumina	First trimester	10	10	10	healthy	f	TRUE				
+GSE100051	GSM2668729	GPL10558	Illumina	First trimester	10	10	10	healthy	f	TRUE				
+GSE100051	GSM2668730	GPL10558	Illumina	First trimester	10	10	10	healthy	m	TRUE				
+GSE100051	GSM2668731	GPL10558	Illumina	First trimester	10	10	10	healthy	f	TRUE				
+GSE100051	GSM2668732	GPL10558	Illumina	First trimester	10	10	10	healthy	f	TRUE				
+GSE100051	GSM2668733	GPL10558	Illumina	First trimester	11	11	11	healthy	f	TRUE				
+GSE100051	GSM2668734	GPL10558	Illumina	First trimester	11	11	11	healthy	f	TRUE				
+GSE100051	GSM2668735	GPL10558	Illumina	First trimester	11	11	11	healthy	m	TRUE				
+GSE100051	GSM2668736	GPL10558	Illumina	First trimester	11	11	11	healthy	m	TRUE				
+GSE100051	GSM2668737	GPL10558	Illumina	First trimester	11	11	11	healthy	f	TRUE				
+GSE100051	GSM2668738	GPL10558	Illumina	First trimester	12	12	12	healthy	f	TRUE				
+GSE100051	GSM2668739	GPL10558	Illumina	First trimester	12	12	12	healthy	f	TRUE				
+GSE100051	GSM2668740	GPL10558	Illumina	First trimester	12	12	12	healthy	m	TRUE				
+GSE100051	GSM2668741	GPL10558	Illumina	First trimester	12	12	12	healthy	m	TRUE				
+GSE100051	GSM2668742	GPL10558	Illumina	First trimester	12	12	12	healthy	f	TRUE				
+GSE100051	GSM2668743	GPL10558	Illumina	Second trimester	14	14	14	healthy	f	TRUE				
+GSE100051	GSM2668744	GPL10558	Illumina	Second trimester	14	14	14	healthy	f	TRUE				
+GSE100051	GSM2668745	GPL10558	Illumina	Second trimester	14	14	14	healthy	f	TRUE				
+GSE100051	GSM2668746	GPL10558	Illumina	Second trimester	14	14	14	healthy	f	TRUE				
+GSE100051	GSM2668747	GPL10558	Illumina	Second trimester	14	14	14	healthy	m	TRUE				
+GSE100051	GSM2668748	GPL10558	Illumina	Second trimester	16	16	16	healthy	m	TRUE				
+GSE100051	GSM2668749	GPL10558	Illumina	Second trimester	16	16	16	healthy	f	TRUE				
+GSE100051	GSM2668750	GPL10558	Illumina	Third trimester	39	39	39	healthy	m	FALSE				
+GSE100051	GSM2668751	GPL10558	Illumina	Third trimester	39	39	39	healthy	f	FALSE				
+GSE100051	GSM2668752	GPL10558	Illumina	Third trimester	39	39	39	healthy	m	FALSE				
+GSE100051	GSM2668753	GPL10558	Illumina	Third trimester	39	39	39	healthy	f	FALSE				
+GSE100051	GSM2668754	GPL10558	Illumina	Third trimester	39	39	39	healthy	f	FALSE				
+GSE28551	GSM707051	GPL2986	ABI	First trimester	0	9,10,11,12	9,10,11,12	healthy	f	TRUE				Non-Smoker
+GSE28551	GSM707052	GPL2986	ABI	First trimester	0	9,10,11,12	9,10,11,12	healthy	m	TRUE				Smoker
+GSE28551	GSM707053	GPL2986	ABI	First trimester	0	9,10,11,12	9,10,11,12	healthy	f	TRUE				Smoker
+GSE28551	GSM707054	GPL2986	ABI	First trimester	0	9,10,11,12	9,10,11,12	healthy	m	TRUE				Smoker
+GSE28551	GSM707055	GPL2986	ABI	First trimester	0	9,10,11,12	9,10,11,12	healthy	f	TRUE				Smoker
+GSE28551	GSM707056	GPL2986	ABI	First trimester	0	9,10,11,12	9,10,11,12	healthy	f	TRUE				Non-Smoker
+GSE28551	GSM707057	GPL2986	ABI	First trimester	0	9,10,11,12	9,10,11,12	healthy	m	TRUE				Non-Smoker
+GSE28551	GSM707058	GPL2986	ABI	First trimester	0	9,10,11,12	9,10,11,12	healthy	f	TRUE				Non-Smoker
+GSE28551	GSM707059	GPL2986	ABI	First trimester	0	9,10,11,12	9,10,11,12	healthy	m	TRUE				Smoker
+GSE28551	GSM707060	GPL2986	ABI	First trimester	0	9,10,11,12	9,10,11,12	healthy	m	TRUE				Non-Smoker
+GSE28551	GSM707061	GPL2986	ABI	First trimester	0	9,10,11,12	9,10,11,12	healthy	m	TRUE				Smoker
+GSE28551	GSM707062	GPL2986	ABI	First trimester	0	9,10,11,12	9,10,11,12	healthy	m	TRUE				Smoker
+GSE28551	GSM707063	GPL2986	ABI	First trimester	0	9,10,11,12	9,10,11,12	healthy	f	TRUE				Non-Smoker
+GSE28551	GSM707064	GPL2986	ABI	First trimester	0	9,10,11,12	9,10,11,12	healthy	m	TRUE				Smoker
+GSE28551	GSM707065	GPL2986	ABI	First trimester	0	9,10,11,12	9,10,11,12	healthy	m	TRUE				Smoker
+GSE28551	GSM707066	GPL2986	ABI	First trimester	0	9,10,11,12	9,10,11,12	healthy	f	TRUE				Non-Smoker
+GSE28551	GSM707067	GPL2986	ABI	Third trimester	0	0	term	healthy	n/a	FALSE				
+GSE28551	GSM707068	GPL2986	ABI	Third trimester	0	0	term	healthy	n/a	FALSE				
+GSE28551	GSM707069	GPL2986	ABI	Third trimester	0	0	term	healthy	n/a	FALSE				
+GSE28551	GSM707070	GPL2986	ABI	Third trimester	0	0	term	healthy	n/a	FALSE				
+GSE28551	GSM707071	GPL2986	ABI	Third trimester	0	0	term	healthy	n/a	FALSE				
+GSE28551	GSM707072	GPL2986	ABI	Third trimester	0	0	term	healthy	n/a	FALSE				
+GSE28551	GSM707073	GPL2986	ABI	Third trimester	0	0	term	healthy	n/a	FALSE				
+GSE28551	GSM707074	GPL2986	ABI	Third trimester	0	0	term	healthy	n/a	FALSE				
+GSE28551	GSM707075	GPL2986	ABI	Third trimester	0	0	term	healthy	n/a	FALSE				
+GSE28551	GSM707076	GPL2986	ABI	Third trimester	0	0	term	healthy	n/a	FALSE				
+GSE28551	GSM707077	GPL2986	ABI	Third trimester	0	0	term	healthy	n/a	FALSE				
+GSE28551	GSM707078	GPL2986	ABI	Third trimester	0	0	term	healthy	n/a	FALSE				
+GSE28551	GSM707079	GPL2986	ABI	Third trimester	0	0	term	healthy	n/a	FALSE				
+GSE28551	GSM707080	GPL2986	ABI	Third trimester	0	0	term	healthy	n/a	FALSE				
+GSE28551	GSM707081	GPL2986	ABI	Third trimester	0	0	term	healthy	n/a	FALSE				
+GSE28551	GSM707082	GPL2986	ABI	Third trimester	0	0	term	healthy	n/a	FALSE				
+GSE28551	GSM707083	GPL2986	ABI	Third trimester	0	0	term	healthy	n/a	FALSE				
+GSE28551	GSM707084	GPL2986	ABI	Third trimester	0	0	term	healthy	n/a	FALSE				
+GSE28551	GSM707085	GPL2986	ABI	Third trimester	0	0	term	healthy	n/a	FALSE				
+GSE28551	GSM707086	GPL2986	ABI	Third trimester	0	0	term	healthy	n/a	FALSE				
+GSE28551	GSM707087	GPL2986	ABI	Third trimester	0	0	term	healthy	n/a	FALSE				
+GSE37653	GSM925071	GPL15491	NimbleGen	First trimester	6	6	6	healthy	m	TRUE	2009-12-05	Dec 2009 Singapore v2.5	Dec 2009 Singapore v2.5	
+GSE37653	GSM925072	GPL15491	NimbleGen	First trimester	6	6	6	healthy	f	TRUE	2009-12-05	Dec 2009 Singapore v2.5	Dec 2009 Singapore v2.5	
+GSE37653	GSM925073	GPL15491	NimbleGen	First trimester	6	6	6	healthy	f	TRUE	2009-12-05	Dec 2009 Singapore v2.5	Dec 2009 Singapore v2.5	
+GSE37653	GSM925074	GPL15491	NimbleGen	First trimester	6	6	6	healthy	m	TRUE	2009-12-05	Dec 2009 Singapore v2.5	Dec 2009 Singapore v2.5	
+GSE37653	GSM925079	GPL15491	NimbleGen	First trimester	7	7	7	healthy	m	TRUE	2009-12-05	Dec 2009 Singapore v2.5	Dec 2009 Singapore v2.5	
+GSE37653	GSM925080	GPL15491	NimbleGen	First trimester	7	7	7	healthy	f	TRUE	2009-12-05	Dec 2009 Singapore v2.5	Dec 2009 Singapore v2.5	
+GSE37653	GSM925081	GPL15491	NimbleGen	First trimester	7	7	7	healthy	m	TRUE	2009-12-05	Dec 2009 Singapore v2.5	Dec 2009 Singapore v2.5	
+GSE37653	GSM925082	GPL15491	NimbleGen	First trimester	7	7	7	healthy	m	TRUE	2009-12-05	Dec 2009 Singapore v2.5	Dec 2009 Singapore v2.5	
+GSE37653	GSM925088	GPL15491	NimbleGen	First trimester	8	8	8	healthy	f	TRUE	2009-12-05	Dec 2009 Singapore v2.5	Dec 2009 Singapore v2.5	
+GSE37653	GSM925089	GPL15491	NimbleGen	First trimester	8	8	8	healthy	f	TRUE	2009-12-05	Dec 2009 Singapore v2.5	Dec 2009 Singapore v2.5	
+GSE37653	GSM925090	GPL15491	NimbleGen	First trimester	8	8	8	healthy	f	TRUE	2009-12-05	Dec 2009 Singapore v2.5	Dec 2009 Singapore v2.5	
+GSE37653	GSM925091	GPL15491	NimbleGen	First trimester	8	8	8	healthy	m	TRUE	2009-12-05	Dec 2009 Singapore v2.5	Dec 2009 Singapore v2.5	
+GSE37653	GSM925075	GPL15491	NimbleGen	First trimester	6	6	6	healthy	f	TRUE			Feb 2010 India v2.5	
+GSE37653	GSM925076	GPL15491	NimbleGen	First trimester	6	6	6	healthy	f	TRUE			Feb 2010 India v2.5	
+GSE37653	GSM925077	GPL15491	NimbleGen	First trimester	6	6	6	healthy	f	TRUE			Jul 2010 India v2.6	
+GSE37653	GSM925078	GPL15491	NimbleGen	First trimester	6	6	6	healthy	f	TRUE			Jul 2010 India v2.6	
+GSE37653	GSM925083	GPL15491	NimbleGen	First trimester	7	7	7	healthy	f	TRUE			Feb 2010 India v2.5	
+GSE37653	GSM925084	GPL15491	NimbleGen	First trimester	7	7	7	healthy	f	TRUE			Feb 2010 India v2.5	
+GSE37653	GSM925085	GPL15491	NimbleGen	First trimester	7	7	7	healthy	f	TRUE			Jul 2010 India v2.6	
+GSE37653	GSM925086	GPL15491	NimbleGen	First trimester	7	7	7	healthy	f	TRUE			No header	
+GSE37653	GSM925087	GPL15491	NimbleGen	First trimester	7	7	7	healthy	f	TRUE			No header	
+GSE37653	GSM925092	GPL15491	NimbleGen	First trimester	8	8	8	healthy	f	TRUE			Feb 2010 India v2.5	
+GSE37653	GSM925093	GPL15491	NimbleGen	First trimester	8	8	8	healthy	f	TRUE			Feb 2010 India v2.5	
+GSE37653	GSM925094	GPL15491	NimbleGen	First trimester	8	8	8	healthy	f	TRUE			Jul 2010 India v2.6	
+GSE37653	GSM925095	GPL15491	NimbleGen	First trimester	8	8	8	healthy	f	TRUE			No header	

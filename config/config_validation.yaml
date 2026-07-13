@@ -1,0 +1,33 @@
+paths:
+  mapped_data: "data/expression"
+  phenodata: "data/phenodata.tsv"
+  reference_de: "data/pipeline/main/difexp_softimpute_combat_ref.tsv"
+  reference_imputed: "data/pipeline/main/exprs_imputed_softimpute.tsv"
+  balanced_reference_de: "data/pipeline/balanced/difexp_softimpute_combat_ref.tsv"
+  output: "data/pipeline/validation"
+  column_map:
+    arraydatafile_exprscolumnnames: "sample_id"
+    secondaryaccession: "dataset_id"
+    Gestational.Age.Category: "trimester"
+    Diagnosis: "condition"
+
+files:
+  suffix: ""
+  file_map:
+    GSE28551: "GSE28551.tsv"
+  datasets:
+    - "GSE100051"
+    - "GSE122214"
+    - "GSE28551"
+    - "GSE37901"
+    - "GSE93520"
+    - "GSE9984"
+
+sample_filter:
+  condition: ["healthy"]
+  trimester: ["First trimester", "Second trimester"]
+
+phenotype:
+  group_column: "trimester"
+  baseline: "First trimester"
+  contrast: "Second trimester"

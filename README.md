@@ -44,21 +44,12 @@ This repository contains the data, scripts, and article source for:
 
 All scripts run from the repository root.
 
-**Prerequisites:** R (>= 4.1) with packages: `limma`, `ggplot2`, `gridExtra`, `VennDiagram`, `openxlsx`, `yaml`, `org.Hs.eg.db`, `AnnotationDbi`, `softImpute`, `sva`, `clusterProfiler`, `enrichplot`.
-
-```r
-# Install CRAN packages
-install.packages(c("ggplot2", "gridExtra", "VennDiagram", "openxlsx",
-                    "yaml", "softImpute"))
-
-# Install Bioconductor packages
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-BiocManager::install(c("limma", "sva", "org.Hs.eg.db", "AnnotationDbi",
-                       "clusterProfiler", "enrichplot"))
-```
+**Prerequisites:** R (>= 4.1). All R package dependencies are pinned in `renv.lock`.
 
 ```bash
+# Install packages (first time only, ~5-15 min)
+Rscript -e 'renv::restore()'
+
 # Regenerate all figures
 Rscript scripts/generate_all.R
 

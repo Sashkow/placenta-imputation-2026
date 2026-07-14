@@ -1,13 +1,10 @@
-# Subsampling validation config
-# References the main pipeline output as ground truth
+# ComBat sensitivity analysis: same as main pipeline but without covariates
+# Produces matrices for comparing ComBat correction with/without imputed genes
 
 paths:
   mapped_data: "data/expression"
   phenodata: "data/phenodata.tsv"
-  reference_de: "data/pipeline/main/difexp_softimpute_combat_ref.tsv"
-  reference_imputed: "data/pipeline/main/exprs_imputed_softimpute.tsv"
-  balanced_reference_de: "data/pipeline/balanced/difexp_softimpute_combat_ref.tsv"
-  output: "data/pipeline/validation"
+  output: "data/pipeline/sensitivity"
   column_map:
     arraydatafile_exprscolumnnames: "sample_id"
     secondaryaccession: "dataset_id"
@@ -34,23 +31,25 @@ phenotype:
   group_column: "trimester"
   baseline: "First trimester"
   contrast: "Second trimester"
-  covariates: ["fetux_sex_estimate"]
 
 imputation:
   softimpute:
+    enabled: true
     rank_max: 30
     lambda: 0
     thresh: 1e-4
     maxit: 50
     type: "als"
+  none:
+    enabled: true
 
 normalization:
-  method: "combat_ref"
-  ref_batch: "GSE100051"
-  fallback: "combat"
+  combat_ref:
+    enabled: true
+    ref_batch: "GSE100051"
 
 coverage:
-  max_imputation_allowed: 1.0
+  min_datasets: 1
   drop_imputed_genes_missing_in_group: true
 
 de:
@@ -62,19 +61,13 @@ thresholds:
 
 gene_filter:
   protein_coding_only: true
+  min_variance: 0.01
 
-parallel:
-  n_cores: 10
+validation:
+  leave_out_fraction: 0
 
-test1:
-  sizes_1st_trim: [10, 16, 20, 25, 30, 40, 50, 60, 80, 100]
-  n_iter: 30
-  compute_within_size_jaccard: true
-
-test2:
-  sizes_per_trim: [4, 8, 12, 16]
-  n_iter: 30
-
-test3:
-  n_iter: 50
-  stratified: true
+output:
+  save_imputed_matrices: true
+  save_normalized_matrices: true
+  save_validation_report: false
+  save_comparison_plots: false

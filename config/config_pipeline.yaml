@@ -29,7 +29,45 @@ phenotype:
   baseline: "First trimester"
   contrast: "Second trimester"
   covariates: ["fetux_sex_estimate"]
-  combat_bio_covariate: "ga_weeks"
+
+imputation:
+  softimpute:
+    enabled: true
+    rank_max: 30
+    lambda: 0
+    thresh: 1e-4
+    maxit: 50
+    type: "als"
+  none:
+    enabled: true
+
+normalization:
+  combat_ref:
+    enabled: true
+    ref_batch: "GSE100051"
+
+coverage:
+  min_datasets: 1
+  drop_imputed_genes_missing_in_group: true
+
+de:
+  imputed_cell_weight: 0.0
+
+thresholds:
+  fdr: 0.05
+  logfc: 1.0
 
 gene_filter:
   protein_coding_only: true
+  min_variance: 0.01
+
+validation:
+  leave_out_fraction: 0.1
+  n_repeats: 3
+  mask_type: "gene_dataset_block"
+
+output:
+  save_imputed_matrices: true
+  save_normalized_matrices: true
+  save_validation_report: true
+  save_comparison_plots: true

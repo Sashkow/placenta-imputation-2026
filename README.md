@@ -4,15 +4,13 @@ This repository contains the data, scripts, and article source for:
 
 > **Imputation-based integration of placental gene expression datasets across pregnancy trimesters**
 >
-> Olexandr Lykhenko, Yehor Chernysh
+> Olexandr Lykhenko, Yehor Polyakov, Maria Obolenskaya
 
 ## Repository structure
 
 ```
 .
-├── article/              LaTeX source and pre-generated figures
-│   ├── main.tex
-│   ├── main.bbl
+├── article/              Pre-generated article figures
 │   └── figures/          Article figures (PNG, 300 DPI)
 ├── scripts/              R scripts that produce each figure
 │   ├── _common.R         Shared constants (paths, dimensions, phenodata)
@@ -46,7 +44,19 @@ This repository contains the data, scripts, and article source for:
 
 All scripts run from the repository root.
 
-**Prerequisites:** R (>= 4.1) with packages: `limma`, `ggplot2`, `gridExtra`, `VennDiagram`, `openxlsx`, `yaml`, `org.Hs.eg.db`, `softImpute`, `sva`.
+**Prerequisites:** R (>= 4.1) with packages: `limma`, `ggplot2`, `gridExtra`, `VennDiagram`, `openxlsx`, `yaml`, `org.Hs.eg.db`, `AnnotationDbi`, `softImpute`, `sva`, `clusterProfiler`, `enrichplot`.
+
+```r
+# Install CRAN packages
+install.packages(c("ggplot2", "gridExtra", "VennDiagram", "openxlsx",
+                    "yaml", "softImpute"))
+
+# Install Bioconductor packages
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install(c("limma", "sva", "org.Hs.eg.db", "AnnotationDbi",
+                       "clusterProfiler", "enrichplot"))
+```
 
 ```bash
 # Regenerate all figures
@@ -65,10 +75,10 @@ Expression data is derived from six GEO datasets:
 | Dataset    | Platform    | Samples | Trimester |
 |------------|-------------|---------|-----------|
 | GSE100051  | GPL6244     | 49      | 1st + 2nd |
-| GSE122214  | GPL6244     | 4       | 2nd       |
-| GSE28551   | GPL6947     | 16      | 1st + 2nd |
-| GSE37901   | GPL6947     | 4       | 1st       |
-| GSE93520   | GPL6244     | 36      | 1st + 2nd |
+| GSE122214  | GPL6244     | 4       | 1st       |
+| GSE28551   | GPL6947     | 16      | 1st       |
+| GSE37901   | GPL6947     | 4       | 2nd       |
+| GSE93520   | GPL6244     | 36      | 1st       |
 | GSE9984    | GPL570      | 8       | 1st + 2nd |
 
 The pipeline that produced the intermediate data files is available in the [main analysis repository](https://github.com/sashkow/integrative-gene-expression-analysis).

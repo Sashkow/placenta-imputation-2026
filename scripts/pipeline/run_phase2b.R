@@ -128,6 +128,31 @@ if (!file.exists(config_path)) {
 }
 config <- yaml::read_yaml(config_path)
 
+# Compute numeric gestational age (weeks) from phenodata columns
+compute_ga_weeks <- function(pdata) {
+  ga <- numeric(nrow(pdata))
+  for (i in seq_len(nrow(pdata))) {
+    fw <- suppressWarnings(as.numeric(pdata$fetus_week[i]))
+    if (!is.na(fw) && fw > 0) {
+      ga[i] <- fw
+    } else {
+      rw <- as.character(pdata$fetus_range_week[i])
+      if (!is.na(rw) && nchar(rw) > 0 && rw != "0") {
+        weeks <- as.numeric(strsplit(rw, ",")[[1]])
+        ga[i] <- mean(weeks, na.rm = TRUE)
+      } else {
+        tri <- as.character(pdata[[config$phenotype$group_column]][i])
+        ga[i] <- switch(tri,
+          "First Trimester" = 8, "First trimester" = 8,
+          "Second Trimester" = 16, "Second trimester" = 16,
+          "Third Trimester" = 39, "Third trimester" = 39,
+          12)
+      }
+    }
+  }
+  ga
+}
+
 # Apply overrides
 if (!is.null(override_output)) config$paths$output <- override_output
 
@@ -703,10 +728,40 @@ for (imp_method in imputation_methods) {
   bio_group <- merged_pdata[[config$phenotype$group_column]]
 
   # Build ComBat mod formula (biological group + covariates)
-  combat_mod_data <- data.frame(bio_group = bio_group,
-                                stringsAsFactors = FALSE)
-  for (cov in covariates) combat_mod_data[[cov]] <- merged_pdata[[cov]]
-  combat_mod_rhs <- paste(c("bio_group", covariates), collapse = " + ")
+  combat_bio_cov <- config$phenotype$combat_bio_covariate
+  if (!is.null(combat_bio_cov)) {
+    if (!combat_bio_cov %in% colnames(merged_pdata)) {
+      merged_pdata[[combat_bio_cov]] <- compute_ga_weeks(merged_pdata)
+    }
+    ga_vals <- merged_pdata[[combat_bio_cov]]
+    bio_degree <- config$phenotype$combat_bio_degree
+    bio_spline_df <- config$phenotype$combat_bio_spline_df
+    combat_mod_data <- data.frame(row.names = seq_along(ga_vals))
+    if (!is.null(bio_spline_df)) {
+      ns_mat <- splines::ns(ga_vals, df = bio_spline_df)
+      for (j in seq_len(ncol(ns_mat)))
+        combat_mod_data[[paste0("ga_ns", j)]] <- ns_mat[, j]
+      bio_terms <- paste0("ga_ns", seq_len(ncol(ns_mat)))
+      cat("  ComBat bio covariate: ns(", combat_bio_cov, ", df=", bio_spline_df, ")\n")
+    } else if (!is.null(bio_degree) && bio_degree > 1) {
+      poly_mat <- poly(ga_vals, degree = bio_degree)
+      for (j in seq_len(ncol(poly_mat)))
+        combat_mod_data[[paste0("ga_poly", j)]] <- poly_mat[, j]
+      bio_terms <- paste0("ga_poly", seq_len(ncol(poly_mat)))
+      cat("  ComBat bio covariate: poly(", combat_bio_cov, ",", bio_degree, ")\n")
+    } else {
+      combat_mod_data$ga_linear <- ga_vals
+      bio_terms <- "ga_linear"
+      cat("  ComBat bio covariate:", combat_bio_cov, "(linear)\n")
+    }
+    for (cov in covariates) combat_mod_data[[cov]] <- merged_pdata[[cov]]
+    combat_mod_rhs <- paste(c(bio_terms, covariates), collapse = " + ")
+  } else {
+    combat_mod_data <- data.frame(bio_group = bio_group,
+                                  stringsAsFactors = FALSE)
+    for (cov in covariates) combat_mod_data[[cov]] <- merged_pdata[[cov]]
+    combat_mod_rhs <- paste(c("bio_group", covariates), collapse = " + ")
+  }
   combat_mod <- model.matrix(as.formula(paste("~", combat_mod_rhs)),
                              data = combat_mod_data)
 

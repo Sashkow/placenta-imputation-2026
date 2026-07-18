@@ -6,7 +6,7 @@ paths:
   phenodata: "data/phenodata.tsv"
   reference_de: "data/pipeline/main/difexp_softimpute_combat_ref.tsv"
   reference_imputed: "data/pipeline/main/exprs_imputed_softimpute.tsv"
-  balanced_reference_de: "data/pipeline/balanced/difexp_softimpute_combat.tsv"
+  balanced_reference_de: "data/pipeline/balanced/difexp_softimpute_combat_ref.tsv"
   output: "data/pipeline/validation"
   column_map:
     arraydatafile_exprscolumnnames: "sample_id"
@@ -35,6 +35,7 @@ phenotype:
   baseline: "First trimester"
   contrast: "Second trimester"
   covariates: ["fetux_sex_estimate"]
+  combat_bio_covariate: "ga_weeks"
 
 imputation:
   softimpute:

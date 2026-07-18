@@ -26,6 +26,7 @@ phenotype:
   baseline: "First trimester"
   contrast: "Second trimester"
   covariates: ["fetux_sex_estimate"]
+  combat_bio_covariate: "ga_weeks"
 
 imputation:
   softimpute:
@@ -41,6 +42,9 @@ imputation:
 normalization:
   combat:
     enabled: true
+  combat_ref:
+    enabled: true
+    ref_batch: "GSE100051"
 
 coverage:
   max_imputation_allowed: 1.0

@@ -4,7 +4,7 @@
 
 source("scripts/_common.R")
 
-source("scripts/lib/subsampling_helpers.R")
+source("scripts/pipeline/subsampling_helpers.R")
 val_config <- parse_config_arg("config/config_validation.yaml")
 
 ref_de <- read.delim(val_config$paths$reference_de)

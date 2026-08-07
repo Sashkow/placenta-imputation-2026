@@ -1,0 +1,32 @@
+Phase 2B: Direct Merge Improvements Summary
+==========================================
+
+Date: 2026-07-18 23:20:59.957985
+Config: config/config_balanced.yaml
+
+Comparison: Second trimester vs First trimester
+Datasets: GSE100051, GSE9984
+Coverage mode: max_imputation_allowed = 1 -> selected min_datasets = 1 of 2
+
+Gene Recovery: skipped (compare_gene_recovery disabled)
+
+Method Comparison:
+                 method imputation normalization n_genes n_significant n_up
+1           none_combat       none        combat   11154           412  348
+2       none_combat_ref       none    combat_ref   11154           426  360
+3     softimpute_combat softimpute        combat   17531           458  382
+4 softimpute_combat_ref softimpute    combat_ref   17531           484  401
+  n_down
+1     64
+2     66
+3     76
+4     83
+
+Imputed-gene coverage per comparison group:
+Genes in all datasets (no imputation): 11154
+Genes needing imputation somewhere:    6377
+  In BOTH groups with >=1 real value: 6377 / 6377
+  Missing entirely from First trimester : 0
+  Missing entirely from Second trimester: 0
+
+Imputation validation: not run

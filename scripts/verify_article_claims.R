@@ -3,8 +3,6 @@
 # Run from the companion repo root: Rscript scripts/verify_article_claims.R
 # Works with git-tracked data only (no pipeline re-run required).
 
-library(tools)
-
 base_dir <- getwd()
 pipeline_dir <- file.path(base_dir, "data", "pipeline")
 main_dir <- file.path(pipeline_dir, "main")
@@ -24,7 +22,7 @@ results <- data.frame(
 
 add_result <- function(section, claim, article_val, reproduced_val, tol = NULL) {
   if (is.null(tol)) {
-    status <- if (article_val == reproduced_val) "MATCH" else "MISMATCH"
+    status <- if (as.character(article_val) == as.character(reproduced_val)) "MATCH" else "MISMATCH"
   } else {
     status <- if (abs(as.numeric(article_val) - as.numeric(reproduced_val)) <= tol) "MATCH" else "MISMATCH"
   }
@@ -73,8 +71,8 @@ if (!is.null(int_genes)) {
 }
 
 if (file.exists(soft_expr_file)) {
-  soft_expr <- read.delim(soft_expr_file, row.names = 1, check.names = FALSE)
-  add_result("Table 1", "Union gene count (k=1)", "17531", nrow(soft_expr))
+  n_union_genes <- length(readLines(soft_expr_file)) - 1L
+  add_result("Table 1", "Union gene count (k=1)", "17531", n_union_genes)
 } else {
   add_not_verified("Table 1", "Union gene count (k=1)", "exprs_imputed_softimpute.tsv missing")
 }
@@ -91,36 +89,33 @@ if (file.exists(summary_file)) {
 
 # --- 2. DEG counts (Table 4) ---
 
-degs_soft_ref_file <- file.path(main_dir, "difexp_significant_softimpute_combat_ref.tsv")
-degs_soft_ref <- read.delim(degs_soft_ref_file)
-add_result("Table 4", "SoftImpute+ComBat-ref total DEGs", "538", nrow(degs_soft_ref))
-add_result("Table 4", "SoftImpute+ComBat-ref up", "446",
-           sum(degs_soft_ref$logFC > 0))
-add_result("Table 4", "SoftImpute+ComBat-ref down", "92",
-           sum(degs_soft_ref$logFC < 0))
-
-degs_none_ref <- read.delim(file.path(main_dir,
-                            "difexp_significant_none_combat_ref.tsv"))
-add_result("Table 4", "Intersection-only (none+ref) total DEGs", "277",
-           nrow(degs_none_ref))
-add_result("Table 4", "Intersection-only up", "224",
-           sum(degs_none_ref$logFC > 0))
-add_result("Table 4", "Intersection-only down", "53",
-           sum(degs_none_ref$logFC < 0))
-
-degs_soft_file <- file.path(main_dir, "difexp_significant_softimpute_combat.tsv")
-if (file.exists(degs_soft_file)) {
-  degs_soft <- read.delim(degs_soft_file)
-  add_result("Table 4", "SoftImpute+ComBat (no ref) total DEGs", "504",
-             nrow(degs_soft))
-  add_result("Table 4", "SoftImpute+ComBat up", "421",
-             sum(degs_soft$logFC > 0))
-  add_result("Table 4", "SoftImpute+ComBat down", "83",
-             sum(degs_soft$logFC < 0))
-} else {
-  add_not_verified("Table 4", "SoftImpute+ComBat (no ref) DEGs",
-                   "difexp_significant_softimpute_combat.tsv missing")
+check_deg_counts <- function(section, label, file, expected_total, expected_up,
+                             expected_down, optional = FALSE) {
+  if (optional && !file.exists(file)) {
+    add_not_verified(section, paste0(label, " DEGs"), paste0(basename(file), " missing"))
+    return(NULL)
+  }
+  degs <- read.delim(file)
+  add_result(section, paste0(label, " total DEGs"), expected_total, nrow(degs))
+  add_result(section, paste0(label, " up"), expected_up, sum(degs$logFC > 0))
+  add_result(section, paste0(label, " down"), expected_down, sum(degs$logFC < 0))
+  degs
 }
+
+degs_soft_ref <- check_deg_counts(
+  "Table 4", "SoftImpute+ComBat-ref",
+  file.path(main_dir, "difexp_significant_softimpute_combat_ref.tsv"),
+  "538", "446", "92")
+
+check_deg_counts(
+  "Table 4", "Intersection-only (none+ref)",
+  file.path(main_dir, "difexp_significant_none_combat_ref.tsv"),
+  "277", "224", "53")
+
+check_deg_counts(
+  "Table 4", "SoftImpute+ComBat (no ref)",
+  file.path(main_dir, "difexp_significant_softimpute_combat.tsv"),
+  "504", "421", "83", optional = TRUE)
 
 # --- 3. Imputation validation (Table 3) ---
 
@@ -172,9 +167,9 @@ add_result("Section 3.4", "Balanced reference DEG count", "484",
 
 full_genes <- degs_soft_ref$gene
 bal_genes <- degs_balanced$gene
-jac_bal <- length(intersect(full_genes, bal_genes)) /
-           length(union(full_genes, bal_genes))
-ret_bal <- length(intersect(full_genes, bal_genes)) / length(full_genes)
+shared_genes <- intersect(full_genes, bal_genes)
+jac_bal <- length(shared_genes) / length(union(full_genes, bal_genes))
+ret_bal <- length(shared_genes) / length(full_genes)
 
 add_result("Section 3.4", "Balanced vs full Jaccard", "0.841",
            round(jac_bal, 3), tol = 0.001)
@@ -193,12 +188,13 @@ if (file.exists(file.path(sens_dir, "exprs_softimpute_combat_ref.tsv")) &&
                           row.names = 1, check.names = FALSE)
   shared_cols <- intersect(colnames(main_full), colnames(sens_full))
 
-  m_vec <- as.vector(as.matrix(main_full[int_genes, shared_cols]))
-  s_vec <- as.vector(as.matrix(sens_full[int_genes, shared_cols]))
+  m_sub <- main_full[int_genes, shared_cols]
+  s_sub <- sens_full[int_genes, shared_cols]
+  m_vec <- as.vector(as.matrix(m_sub))
+  s_vec <- as.vector(as.matrix(s_sub))
   sens_r <- cor(m_vec, s_vec)
-  sens_mad <- mean(abs(m_vec - s_vec))
-  gene_mae <- rowMeans(abs(main_full[int_genes, shared_cols] -
-                           sens_full[int_genes, shared_cols]))
+  gene_mae <- rowMeans(abs(m_sub - s_sub))
+  sens_mad <- mean(gene_mae)
   med_gene_mae <- median(gene_mae)
 
   add_result("Section 3.2", "Sensitivity Pearson r (8260 genes)", "0.9994",
@@ -219,26 +215,24 @@ if (dir.exists(enrichment_dir)) {
     sum(d$qvalue < 0.05, na.rm = TRUE)
   }
 
-  f538_go <- file.path(enrichment_dir, "enrichment_full_538_GO_BP.csv")
-  f538_kegg <- file.path(enrichment_dir, "enrichment_full_538_KEGG.csv")
-  f277_go <- file.path(enrichment_dir, "enrichment_intersection_277_GO_BP.csv")
-  f277_kegg <- file.path(enrichment_dir, "enrichment_intersection_277_KEGG.csv")
-  f262_go <- file.path(enrichment_dir, "enrichment_gained_262_GO_BP.csv")
-  f262_kegg <- file.path(enrichment_dir, "enrichment_gained_262_KEGG.csv")
+  enrichment_checks <- data.frame(
+    label = c("538-DEG GO BP terms (q<0.05)", "538-DEG KEGG pathways (q<0.05)",
+              "277-DEG GO BP terms", "277-DEG KEGG pathways",
+              "262-DEG GO BP terms", "262-DEG KEGG pathways"),
+    file = c("enrichment_full_538_GO_BP.csv", "enrichment_full_538_KEGG.csv",
+             "enrichment_intersection_277_GO_BP.csv", "enrichment_intersection_277_KEGG.csv",
+             "enrichment_gained_262_GO_BP.csv", "enrichment_gained_262_KEGG.csv"),
+    expected = c("678", "43", "292", "25", "240", "24"),
+    stringsAsFactors = FALSE
+  )
 
-  if (file.exists(f538_go)) {
-    add_result("Enrichment", "538-DEG GO BP terms (q<0.05)", "678",
-               count_sig(f538_go))
-    add_result("Enrichment", "538-DEG KEGG pathways (q<0.05)", "43",
-               count_sig(f538_kegg))
-    add_result("Enrichment", "277-DEG GO BP terms", "292",
-               count_sig(f277_go))
-    add_result("Enrichment", "277-DEG KEGG pathways", "25",
-               count_sig(f277_kegg))
-    add_result("Enrichment", "262-DEG GO BP terms", "240",
-               count_sig(f262_go))
-    add_result("Enrichment", "262-DEG KEGG pathways", "24",
-               count_sig(f262_kegg))
+  first_file <- file.path(enrichment_dir, enrichment_checks$file[1])
+  if (file.exists(first_file)) {
+    for (i in seq_len(nrow(enrichment_checks))) {
+      add_result("Enrichment", enrichment_checks$label[i],
+                 enrichment_checks$expected[i],
+                 count_sig(file.path(enrichment_dir, enrichment_checks$file[i])))
+    }
   } else {
     add_not_verified("Enrichment", "All enrichment counts",
                      "enrichment CSVs missing")

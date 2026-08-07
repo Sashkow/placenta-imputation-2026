@@ -1,7 +1,7 @@
 #' Normalization Module for Phase 2B
 #'
 #' Functions for cross-platform/batch normalization of gene expression data.
-#' Implements ComBat (baseline), DWD, and other alternatives.
+#' Implements ComBat (baseline) and other alternatives.
 #'
 #' @author Expression Integration Pipeline
 #' @date 2026-01
@@ -98,79 +98,6 @@ normalize_combat_ref <- function(exprs, batch, mod = NULL, ref_batch,
   )
 
   cat("Reference-batch ComBat correction complete\n")
-
-  corrected
-}
-
-
-#' Apply Distance Weighted Discrimination (DWD) normalization
-#'
-#' DWD is a margin-based method that works better than ComBat when:
-#' - Group sizes are unequal
-#' - Strong batch effects exist
-#' - Data is high-dimensional relative to sample size
-#'
-#' This implementation uses a simplified DWD approach based on
-#' mean-shift correction with distance weighting.
-#'
-#' @param exprs Expression matrix (genes x samples)
-#' @param batch Batch vector
-#' @param mod Model matrix for biological covariates (optional)
-#' @return Batch-corrected expression matrix
-#' @export
-normalize_dwd <- function(exprs, batch, mod = NULL) {
-
-  cat("\n=== DWD-style Batch Correction ===\n")
-
-  batch <- as.factor(batch)
-  batches <- levels(batch)
-  n_batches <- length(batches)
-
-  cat("Batches:", n_batches, "\n")
-  cat("Batch sizes:", paste(table(batch), collapse = ", "), "\n")
-
-  # Reference batch (largest)
-  batch_sizes <- table(batch)
-  ref_batch <- names(which.max(batch_sizes))
-  cat("Reference batch:", ref_batch, "\n")
-
-  exprs <- as.matrix(exprs)
-  corrected <- exprs
-
-  # Calculate reference batch statistics
-  ref_idx <- which(batch == ref_batch)
-  ref_mean <- rowMeans(exprs[, ref_idx, drop = FALSE], na.rm = TRUE)
-  ref_sd <- apply(exprs[, ref_idx, drop = FALSE], 1, sd, na.rm = TRUE)
-  ref_sd[ref_sd == 0] <- 1  # Avoid division by zero
-
-  # Correct each non-reference batch
-  for (b in setdiff(batches, ref_batch)) {
-    batch_idx <- which(batch == b)
-    cat("  Correcting batch", b, "(", length(batch_idx), "samples)...\n")
-
-    # Calculate batch statistics
-    batch_mean <- rowMeans(exprs[, batch_idx, drop = FALSE], na.rm = TRUE)
-    batch_sd <- apply(exprs[, batch_idx, drop = FALSE], 1, sd, na.rm = TRUE)
-    batch_sd[batch_sd == 0] <- 1
-
-    # DWD-style correction: scale then shift
-    # 1. Z-score within batch
-    z_batch <- sweep(exprs[, batch_idx, drop = FALSE], 1, batch_mean, "-")
-    z_batch <- sweep(z_batch, 1, batch_sd, "/")
-
-    # 2. Rescale to reference distribution
-    corrected[, batch_idx] <- sweep(z_batch, 1, ref_sd, "*")
-    corrected[, batch_idx] <- sweep(corrected[, batch_idx], 1, ref_mean, "+")
-  }
-
-  # Verify correction
-  for (b in batches) {
-    batch_idx <- which(batch == b)
-    new_mean <- mean(rowMeans(corrected[, batch_idx, drop = FALSE], na.rm = TRUE))
-    cat("  Batch", b, "mean after correction:", round(new_mean, 2), "\n")
-  }
-
-  cat("DWD correction complete\n")
 
   corrected
 }
@@ -715,7 +642,7 @@ normalize_github_harmonizr <- function(incomplete_matrix, batch,
 compare_normalizations <- function(exprs,
                                     batch,
                                     biological_group = NULL,
-                                    methods = c("none", "combat", "dwd", "mean_center")) {
+                                    methods = c("none", "combat", "mean_center")) {
 
   cat("\n=== Comparing Normalization Methods ===\n\n")
 
@@ -729,7 +656,6 @@ compare_normalizations <- function(exprs,
       method,
       "none" = as.matrix(exprs),
       "combat" = normalize_combat(exprs, batch),
-      "dwd" = normalize_dwd(exprs, batch),
       "mean_center" = normalize_mean_center(exprs, batch),
       "quantile" = normalize_quantile(exprs, batch),
       stop("Unknown method: ", method)

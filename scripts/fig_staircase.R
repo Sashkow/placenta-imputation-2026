@@ -8,7 +8,7 @@ suppressPackageStartupMessages(library(yaml))
 suppressPackageStartupMessages(library(org.Hs.eg.db))
 
 Sys.setenv(STAIRCASE_COLORS = "config/staircase_colors.yaml")
-source("scripts/lib/plot_na_staircase.R")
+source("scripts/pipeline/plot_na_staircase.R")
 
 cfg <- yaml::read_yaml("config/config_pipeline.yaml")
 

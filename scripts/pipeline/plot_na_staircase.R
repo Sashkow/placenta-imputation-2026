@@ -1,99 +1,8 @@
 #' NA staircase diagram for merged expression matrices.
 #'
-#' Callable standalone or sourced by run_phase2b.R.
-#'
-#' Two entry points:
-#'   plot_na_staircase_from_config(config_path, out_png)
-#'   plot_na_staircase(mat, sample_ds, title, out_png, ...)
+#' Entry points: prepare_staircase() + render_staircase()
 
 suppressPackageStartupMessages(library(yaml))
-
-build_merged_from_config <- function(config_path) {
-  cfg <- yaml::read_yaml(config_path)
-
-  ext <- tools::file_ext(cfg$paths$phenodata)
-  if (ext == "csv") {
-    phen <- read.csv(cfg$paths$phenodata, stringsAsFactors = FALSE, check.names = FALSE)
-  } else {
-    phen <- read.delim(cfg$paths$phenodata, stringsAsFactors = FALSE, check.names = FALSE)
-  }
-
-  if (!is.null(cfg$paths$column_map)) {
-    for (to_col in names(cfg$paths$column_map)) {
-      from_col <- cfg$paths$column_map[[to_col]]
-      if (from_col %in% colnames(phen)) {
-        phen[[to_col]] <- phen[[from_col]]
-      }
-    }
-  }
-
-  mask <- rep(TRUE, nrow(phen))
-  for (col in names(cfg$sample_filter)) {
-    mask <- mask & phen[[col]] %in% cfg$sample_filter[[col]]
-  }
-  allowed <- phen$arraydatafile_exprscolumnnames[mask]
-
-  file_suffix <- if (!is.null(cfg$files$suffix)) cfg$files$suffix else ""
-
-  exprs_list <- list()
-  for (ds in cfg$files$datasets) {
-    fp <- file.path(cfg$paths$mapped_data, paste0(ds, file_suffix, ".tsv"))
-    if (!file.exists(fp)) next
-    e <- read.delim(fp, row.names = 1, check.names = FALSE)
-    keep <- intersect(colnames(e), allowed)
-    if (length(keep) == 0) next
-    exprs_list[[ds]] <- e[, keep, drop = FALSE]
-  }
-
-  if (isTRUE(cfg$gene_filter$protein_coding_only)) {
-    suppressPackageStartupMessages(require(AnnotationDbi))
-    suppressPackageStartupMessages(require(org.Hs.eg.db))
-    gt <- AnnotationDbi::select(
-      org.Hs.eg.db, keys = keys(org.Hs.eg.db, "ENTREZID"),
-      columns = c("ENTREZID", "GENETYPE"), keytype = "ENTREZID"
-    )
-    pc <- gt$ENTREZID[gt$GENETYPE == "protein-coding"]
-    for (ds in names(exprs_list)) {
-      exprs_list[[ds]] <- exprs_list[[ds]][rownames(exprs_list[[ds]]) %in% pc, , drop = FALSE]
-    }
-  }
-
-  all_genes   <- unique(unlist(lapply(exprs_list, rownames)))
-  all_samples <- unlist(lapply(exprs_list, colnames))
-  sample_ds   <- rep(names(exprs_list), sapply(exprs_list, ncol))
-  names(sample_ds) <- all_samples
-
-  # Sample group assignment from phenodata
-  group_col <- cfg$phenotype$group_column
-  sample_group <- setNames(
-    phen[[group_col]][match(all_samples, phen$arraydatafile_exprscolumnnames)],
-    all_samples
-  )
-
-  combined <- matrix(NA, length(all_genes), length(all_samples),
-                     dimnames = list(all_genes, all_samples))
-  for (ds in names(exprs_list)) {
-    e <- exprs_list[[ds]]
-    cg <- intersect(all_genes, rownames(e))
-    combined[cg, colnames(e)] <- as.matrix(e[cg, ])
-  }
-
-  # Load FDR from all available DE result files
-  imp_methods <- c("none", "softimpute", "knn", "missmda", "sample_knn")
-  de_files <- list.files(cfg$paths$output, pattern = "^difexp_(none|softimpute|knn|missmda|sample_knn)_.*\\.tsv$")
-  de_files <- de_files[!grepl("^difexp_significant_", de_files)]
-  gene_fdr_list <- list()
-  for (f in de_files) {
-    m <- sub("^difexp_(none|softimpute|knn|missmda|sample_knn)_.*\\.tsv$", "\\1", f)
-    de_path <- file.path(cfg$paths$output, f)
-    de <- read.table(de_path, header = TRUE, sep = "\t",
-                     stringsAsFactors = FALSE, check.names = FALSE, quote = "")
-    gene_fdr_list[[m]] <- setNames(de$adj.P.Val, as.character(de$gene))
-  }
-
-  list(matrix = combined, sample_ds = sample_ds, datasets = names(exprs_list),
-       sample_group = sample_group, gene_fdr_list = gene_fdr_list, config = cfg)
-}
 
 downsample_rows <- function(mat_bool, max_rows = 1600) {
   nr <- nrow(mat_bool)
@@ -236,7 +145,10 @@ COL_PADDING           <- STAIRCASE_COLORS$categories$padding
 render_staircase <- function(staircase, title, sample_ds = NULL,
                              xlim = NULL, ylim = NULL,
                              show_legend = TRUE, cex_main = 1.1,
-                             cex_legend = 0.5) {
+                             cex_legend = 0.5,
+                             cex_axis = 0.6, cex_lab = 0.7,
+                             cex_ds = 0.38, line_lab = 3.5,
+                             line_ds = 0.8) {
   sorted_na <- downsample_rows(staircase$sorted_na, 1600)
   excluded  <- staircase$excluded
   padding   <- if (!is.null(staircase$padding)) staircase$padding else rep(FALSE, length(excluded))
@@ -307,12 +219,24 @@ render_staircase <- function(staircase, title, sample_ds = NULL,
   rasterImage(rimg, 0, 0, nc, nr, interpolate = FALSE)
   box(col = dim_col)
 
-  mtext(sprintf("Samples (%d)", nc), side = 1, line = 1.5, cex = 0.7, col = dim_col)
-  actual_genes <- if (!is.null(staircase$actual_genes)) staircase$actual_genes else nr_orig
-  if (actual_genes < nr_orig) {
-    mtext(sprintf("Genes (%d / %d)", actual_genes, nr_orig), side = 2, line = 1.5, cex = 0.7, col = dim_col)
+  # Y-axis: round tick marks
+  y_breaks <- pretty(c(0, nr_orig), n = 5)
+  y_breaks <- y_breaks[y_breaks >= 0 & y_breaks <= nr_orig]
+  y_scaled <- y_breaks * (nr / nr_orig)
+  axis(2, at = y_scaled, labels = y_breaks, las = 1, cex.axis = cex_axis, col = dim_col, col.axis = txt_col)
+  mtext("Genes", side = 2, line = line_lab, cex = cex_lab, col = dim_col)
+
+  # X-axis: dataset boundary ticks and labels
+  if (!is.null(sample_ds)) {
+    ds_order <- unique(sample_ds)
+    ds_counts <- table(factor(sample_ds, levels = ds_order))
+    cumpos <- cumsum(as.numeric(ds_counts))
+    midpos <- c(0, cumpos[-length(cumpos)]) + as.numeric(ds_counts) / 2
+    axis(1, at = cumpos, labels = FALSE, col = dim_col, tcl = -0.3)
+    ds_labels <- paste0(ds_order, "\n(n=", ds_counts, ")")
+    mtext(ds_labels, side = 1, at = midpos, line = line_ds, cex = cex_ds, col = dim_col)
   } else {
-    mtext(sprintf("Genes (%d)", nr_orig), side = 2, line = 1.5, cex = 0.7, col = dim_col)
+    mtext(sprintf("Samples (%d)", nc), side = 1, line = 1.5, cex = 0.7, col = dim_col)
   }
 
   if (show_legend) {
@@ -406,53 +330,4 @@ render_staircase <- function(staircase, title, sample_ds = NULL,
     }
   }
 
-  if (!is.null(sample_ds)) {
-    ds_counts <- table(factor(sample_ds, levels = unique(sample_ds)))
-    ds_str <- paste(names(ds_counts), sprintf("(%d)", ds_counts), collapse = "  ")
-    mtext(ds_str, side = 1, line = 2.8, cex = 0.4, adj = 0.5, col = dim_col)
-  }
-}
-
-#' Plot NA staircase to PNG — one per FDR method.
-#' Called from run_phase2b.R with the already-built matrix.
-#' gene_fdr_list: named list of method → named FDR vector.
-#' out_png: base path; method name is inserted before .png.
-plot_na_staircase <- function(mat, sample_ds, title, out_png,
-                              sample_group = NULL, gene_fdr_list = NULL,
-                              baseline = NULL, contrast = NULL,
-                              coverage_threshold = NULL,
-                              width = 2400, height = 1600) {
-  if (is.null(gene_fdr_list) || length(gene_fdr_list) == 0) {
-    gene_fdr_list <- list(none = NULL)
-  }
-  for (m in names(gene_fdr_list)) {
-    gf <- gene_fdr_list[[m]]
-    staircase <- prepare_staircase(mat, sample_group, gf,
-                                   baseline, contrast, coverage_threshold)
-    cat(sprintf("NA staircase [%s]: %d genes x %d samples, %.1f%% NA\n",
-                m, staircase$nr_orig, staircase$nc, staircase$na_pct))
-    m_png <- sub("\\.png$", paste0("_", m, ".png"), out_png)
-    png(m_png, width = width, height = height, res = 200)
-    par(mar = c(4, 5, 3, 1))
-    render_staircase(staircase, paste0(title, " [FDR: ", m, "]"), sample_ds)
-    dev.off()
-    cat("Wrote:", m_png, "\n")
-  }
-}
-
-#' Plot from a config YAML (standalone use).
-plot_na_staircase_from_config <- function(config_path, out_png,
-                                          width = 2400, height = 1600) {
-  merged <- build_merged_from_config(config_path)
-  cfg <- merged$config
-  title <- sub("^config_phase2b_", "", sub("\\.yaml$", "", basename(config_path)))
-  plot_na_staircase(
-    merged$matrix, merged$sample_ds, title, out_png,
-    sample_group = merged$sample_group,
-    gene_fdr_list = merged$gene_fdr_list,
-    baseline = cfg$phenotype$baseline,
-    contrast = cfg$phenotype$contrast,
-    coverage_threshold = cfg$coverage$max_imputation_allowed,
-    width = width, height = height
-  )
 }

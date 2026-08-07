@@ -11,7 +11,7 @@
 #' Options:
 #'   --config=PATH         Path to config YAML (default: config_phase2b.yaml)
 #'   --imputation=METHOD   Run only specific imputation: softimpute, knn, none
-#'   --normalization=METHOD Run only specific normalization: combat, dwd, mean_center
+#'   --normalization=METHOD Run only specific normalization: combat, mean_center
 #'   --validate_only       Only run imputation validation (no DE analysis)
 #'   --output_dir=PATH     Override output directory
 #'   --no_archive          Don't archive previous results
@@ -35,36 +35,26 @@ get_script_dir <- function() {
 
 script_dir <- get_script_dir()
 
-# Source utilities
-utils_path <- "scripts/utils/logging_utils.R"
-if (!file.exists(utils_path)) {
-  utils_path <- file.path("..", "..", "utils", "logging_utils.R")
+setup_logging <- function(dir, prefix = "log") {
+  log_file <- file.path(dir, paste0(prefix, "_", format(Sys.time(), "%Y-%m-%d_%H%M%S"), ".txt"))
+  cat("Logging to:", log_file, "\n")
+  log_file
 }
-if (file.exists(utils_path)) {
-  source(utils_path)
-} else {
-  # Fallback logging functions
-  setup_logging <- function(dir, prefix = "log") {
-    log_file <- file.path(dir, paste0(prefix, "_", format(Sys.time(), "%Y-%m-%d_%H%M%S"), ".txt"))
-    cat("Logging to:", log_file, "\n")
-    log_file
-  }
-  close_logging <- function(log_file) invisible(NULL)
-  archive_previous_results <- function(output_dir) {
-    if (dir.exists(output_dir) && length(list.files(output_dir)) > 0) {
-      archive_dir <- file.path(output_dir, "archive",
-                               format(Sys.time(), "%Y-%m-%d_%H%M%S"))
-      dir.create(archive_dir, recursive = TRUE, showWarnings = FALSE)
-      files <- list.files(output_dir, full.names = TRUE)
-      files <- files[!grepl("archive", files)]
-      if (length(files) > 0) {
-        file.copy(files, archive_dir, recursive = TRUE)
-        unlink(files, recursive = TRUE)
-        cat("Archived previous results to:", archive_dir, "\n")
-      }
+close_logging <- function(log_file) invisible(NULL)
+archive_previous_results <- function(output_dir) {
+  if (dir.exists(output_dir) && length(list.files(output_dir)) > 0) {
+    archive_dir <- file.path(output_dir, "archive",
+                             format(Sys.time(), "%Y-%m-%d_%H%M%S"))
+    dir.create(archive_dir, recursive = TRUE, showWarnings = FALSE)
+    files <- list.files(output_dir, full.names = TRUE)
+    files <- files[!grepl("archive", files)]
+    if (length(files) > 0) {
+      file.copy(files, archive_dir, recursive = TRUE)
+      unlink(files, recursive = TRUE)
+      cat("Archived previous results to:", archive_dir, "\n")
     }
-    dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
   }
+  dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 }
 
 # Source module files
@@ -95,7 +85,7 @@ Usage:
 Options:
   --config=PATH           Path to config YAML (default: config_phase2b.yaml)
   --imputation=METHOD     Run only specific imputation: softimpute, knn, none
-  --normalization=METHOD  Run only specific normalization: combat, dwd, mean_center
+  --normalization=METHOD  Run only specific normalization: combat, mean_center
   --validate_only         Only run imputation validation (no DE analysis)
   --output_dir=PATH       Override output directory
   --no_archive            Don't archive previous results
@@ -103,7 +93,7 @@ Options:
 
 Examples:
   Rscript run_phase2b.R
-  Rscript run_phase2b.R --imputation=softimpute --normalization=dwd
+  Rscript run_phase2b.R --imputation=softimpute --normalization=combat
   Rscript run_phase2b.R --validate_only
 ")
     quit(status = 0)
@@ -590,8 +580,6 @@ if (config[["normalization"]][["bruv"]][["enabled"]] %||% FALSE) normalization_m
 if (config[["normalization"]][["combat_ref"]][["enabled"]] %||% FALSE) normalization_methods <- c(normalization_methods, "combat_ref")
 if (config[["normalization"]][["harmonizr"]][["enabled"]] %||% FALSE) normalization_methods <- c(normalization_methods, "harmonizr")
 if (config[["normalization"]][["github_harmonizr"]][["enabled"]] %||% FALSE) normalization_methods <- c(normalization_methods, "github_harmonizr")
-# DWD disabled: normalize_dwd() fails on single-sample batches (see 2_3 run).
-# if (config[["normalization"]][["dwd"]][["enabled"]] %||% FALSE) normalization_methods <- c(normalization_methods, "dwd")
 
 if (!is.null(override_normalization)) {
   normalization_methods <- override_normalization
@@ -776,7 +764,6 @@ for (imp_method in imputation_methods) {
     result_key <- paste0(imp_method, "_", norm_method)
 
     # Apply normalization
-    # "dwd" branch disabled: fails on single-sample batches.
     ruv_W <- NULL
     normalized <- switch(
       norm_method,
@@ -787,7 +774,6 @@ for (imp_method in imputation_methods) {
         normalize_combat_ref(merged_exprs, batch, mod = combat_mod,
                              ref_batch = ref_batch)
       },
-      # "dwd" = normalize_dwd(merged_exprs, batch),
       "mean_center" = normalize_mean_center(merged_exprs, batch),
       "batch_in_limma" = merged_exprs,
       "ruv" = {
@@ -1104,13 +1090,23 @@ if (length(dropped_group_genes) > 0) {
   staircase_matrix <- incomplete$matrix
 }
 
-plot_na_staircase(staircase_matrix, staircase_sample_ds,
-                  staircase_title, file.path(output_dir, "na_staircase.png"),
-                  sample_group = staircase_group,
-                  gene_fdr_list = gene_fdr_list,
-                  baseline = config$phenotype$baseline,
-                  contrast = config$phenotype$contrast,
-                  coverage_threshold = selected_threshold / n_datasets_total)
+if (is.null(gene_fdr_list) || length(gene_fdr_list) == 0) {
+  gene_fdr_list <- list(none = NULL)
+}
+for (m in names(gene_fdr_list)) {
+  gf <- gene_fdr_list[[m]]
+  staircase <- prepare_staircase(staircase_matrix, staircase_group, gf,
+                                 config$phenotype$baseline, config$phenotype$contrast,
+                                 coverage_threshold = selected_threshold / n_datasets_total)
+  cat(sprintf("NA staircase [%s]: %d genes x %d samples, %.1f%% NA\n",
+              m, staircase$nr_orig, staircase$nc, staircase$na_pct))
+  m_png <- file.path(output_dir, paste0("na_staircase_", m, ".png"))
+  png(m_png, width = 2400, height = 1600, res = 200)
+  par(mar = c(4, 5, 3, 1))
+  render_staircase(staircase, paste0(staircase_title, " [FDR: ", m, "]"), staircase_sample_ds)
+  dev.off()
+  cat("Wrote:", m_png, "\n")
+}
 
 # ============================================================
 # Save Summary

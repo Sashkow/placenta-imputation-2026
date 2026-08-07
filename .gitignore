@@ -2,3 +2,4 @@
 .RData
 *.log
 VennDiagram.*
+data/pipeline/*/archive/

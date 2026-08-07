@@ -1,7 +1,7 @@
 Phase 2B: Direct Merge Improvements Summary
 ==========================================
 
-Date: 2026-07-18 23:15:46.156057
+Date: 2026-08-07 16:34:20.717878
 Config: config/config_pipeline.yaml
 
 Comparison: Second trimester vs First trimester

@@ -2,9 +2,9 @@
 
 This repository contains the data, scripts, and article source for:
 
-> **Imputation-based integration of placental gene expression datasets across pregnancy trimesters**
+> **Filling the gaps: matrix completion imputation for broader gene coverage in cross-dataset direct-merge expression analysis**
 >
-> Olexandr Lykhenko, Yehor Polyakov, Maria Obolenskaya
+> Oleksandr Lykhenko, Yehor Polyakov, Maria Obolenskaya
 
 ## Repository structure
 
@@ -87,6 +87,64 @@ Rscript scripts/pipeline/test3_split_half.R --config=config/config_validation.ya
 ```
 
 Validation tests use parallel execution (`n_cores: 10` in config) and take ~30-60 minutes total.
+
+## Article figures
+
+| # | Caption | Generating script | Input data |
+|---|---------|-------------------|------------|
+| 1 | Missingness staircase | `scripts/fig_staircase.R` | `data/pipeline/main/exprs_imputed_softimpute.tsv`, `data/pipeline/main/difexp_softimpute_combat_ref.tsv` |
+| 2 | PCA before/after ComBat | `scripts/fig_pca_before_after_combat.R` | `data/pipeline/main/exprs_imputed_softimpute.tsv`, `data/pipeline/main/exprs_softimpute_combat_ref.tsv`, `data/phenodata.tsv` |
+| 3 | PCA intersection vs softImpute | `scripts/fig_pca_intersection_softimpute.R` | `data/pipeline/main/exprs_none_combat_ref.tsv`, `data/pipeline/main/exprs_softimpute_combat_ref.tsv` |
+| 4 | ComBat sensitivity (scatter + MAE) | `scripts/fig_combat_sensitivity.R` | `data/pipeline/main/exprs_none_combat_ref.tsv`, `data/pipeline/main/exprs_softimpute_combat_ref.tsv` |
+| 5 | Subsampling convergence | `scripts/fig_validation.R` | `data/pipeline/validation/test1_first_trim_subsample.tsv`, `data/pipeline/validation/test1b_vs_balanced.tsv` |
+| 6 | DEG retention across sizes | `scripts/fig_validation.R` | same as above |
+| 7 | Lin's CCC agreement | `scripts/fig_validation.R` | same as above |
+| 8 | Split-half validation | `scripts/fig_validation.R` | `data/pipeline/validation/test3_split_half.tsv` |
+| 9 | Three-way Venn | `scripts/fig_venn.R` | `data/pipeline/main/difexp_significant_*.tsv`, `data/references/lykhenko_2021_deg.csv` |
+| 10 | RNA-seq concordance (Prater) | `scripts/fig_rnaseq_concordance.R` | `data/pipeline/main/difexp_softimpute_combat_ref.tsv`, `data/references/prater_2021_supp_tables.xlsx` |
+| 11 | Pipeline overview diagram | manually created | — |
+
+## Article tables
+
+| # | Caption | Source data | How numbers were obtained |
+|---|---------|-------------|--------------------------|
+| 1 | Gene recovery & missingness (k thresholds) | `data/pipeline/main/summary.txt`, `imputed_gene_group_coverage.csv` | Pipeline run (`scripts/pipeline/run_phase2b.R` with `config/config_pipeline.yaml`) |
+| 2 | Per-group safety audit | same as above | Same pipeline, per-group safety filter step |
+| 3 | Imputation accuracy (leave-out CV) | `data/pipeline/main/imputation_validation.csv` | `scripts/pipeline/imputation.R` cross-validation |
+| 4 | DE counts (4 method combos + Lykhenko 2021) | `data/pipeline/main/difexp_significant_*.tsv`, `data/references/lykhenko_2021_deg.csv` | Pipeline DE step; Lykhenko reference from prior publication |
+| 5 | ComBat covariate comparison | `data/pipeline/main/method_comparison.csv`, sensitivity pipeline outputs | `scripts/pipeline/combat_sensitivity.R` with `config/config_sensitivity.yaml` |
+| 6 | Per-dataset ENTREZID coverage | `data/expression/GSE*.tsv`, `data/phenodata.tsv` | Row counts from input expression files |
+| 7 | Software & data resources | — | Manual/curated |
+
+## Key numbers
+
+| Claim | Value | Derived from |
+|-------|-------|-------------|
+| Genes at intersection (k=6) | 8,260 | `data/pipeline/main/exprs_imputed_none.tsv` row count |
+| Genes after imputation | 17,531 | `data/pipeline/main/exprs_imputed_softimpute.tsv` row count |
+| Samples | 117 | `data/phenodata.tsv` row count |
+| softImpute CV accuracy (random) | r=0.994, RMSE=0.330 | `data/pipeline/main/imputation_validation.csv` |
+| softImpute CV accuracy (block) | r=0.816, RMSE=1.52 | same |
+| DEGs (softImpute + ComBat-ref) | 538 | `data/pipeline/main/difexp_significant_softimpute_combat_ref.tsv` |
+| DEGs (intersection + ComBat-ref) | 277 | `data/pipeline/main/difexp_significant_none_combat_ref.tsv` |
+| Gained DEGs | 262 | difference of above two sets |
+| ComBat sensitivity r | 0.9994 | `scripts/fig_combat_sensitivity.R` computation |
+| Prater concordance | r=0.646, CCC=0.529, 370 shared DEGs | `scripts/fig_rnaseq_concordance.R` |
+| Balanced reference DEGs | 484 | `data/pipeline/balanced/difexp_significant_softimpute_combat_ref.tsv` |
+| Balanced overlap | 86.8% (467/538) | `data/pipeline/validation/test1b_vs_balanced.tsv` |
+| Subsampling Jaccard @N=30 | 0.689 | `data/pipeline/validation/test1_first_trim_subsample.tsv` |
+| Split-half Jaccard | 0.45 | `data/pipeline/validation/test3_split_half.tsv` |
+| GO BP terms (full 538) | 678 | `scripts/fig_enrichment.R` output |
+| KEGG pathways (full 538) | 43 | same |
+| qPCR-validated genes recovered | 11/17 | `scripts/pipeline/combat_sensitivity.R` |
+
+## Verifying article claims
+
+```bash
+Rscript scripts/verify_article_claims.R
+```
+
+Produces `replication_report.md` with a claim-by-claim comparison against companion data.
 
 ## Data sources
 

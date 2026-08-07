@@ -626,12 +626,3 @@ normalize_github_harmonizr <- function(incomplete_matrix, batch,
   cat("GitHub HarmonizR correction complete\n")
   result
 }
-
-
-#' Compare normalization methods
-#'
-#' Runs multiple normalization methods and compares their effects
-#' using PCA and batch effect metrics.
-#'
-#' @param exprs Expression matrix (genes x samples)
-#' @param batch Batch vector

@@ -1,6 +1,6 @@
 # Replication Report: Companion Repository vs Article Claims
 
-**Generated:** 2026-08-07
+**Generated:** 2026-08-08
 **R version:** R version 4.5.0 (2025-04-11)
 **Platform:** x86_64-pc-linux-gnu
 

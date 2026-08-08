@@ -14,6 +14,7 @@ This repository contains the data, scripts, and article source for:
 │   └── figures/          Article figures (PNG, 300 DPI)
 ├── scripts/
 │   ├── fig_*.R           Figure scripts (one per article figure)
+│   ├── table_platform_coverage.R  Table 6: per-dataset ENTREZID coverage
 │   ├── generate_all.R    Regenerate all figures in one command
 │   ├── _common.R         Shared constants (paths, dimensions, phenodata)
 │   ├── lib/              Helper functions sourced by figure scripts
@@ -113,7 +114,7 @@ Validation tests use parallel execution (`n_cores: 10` in config) and take ~30-6
 | 3 | Imputation accuracy (leave-out CV) | `data/pipeline/main/imputation_validation.csv` | `scripts/pipeline/imputation.R` cross-validation |
 | 4 | DE counts (4 method combos + Lykhenko 2021) | `data/pipeline/main/difexp_significant_*.tsv`, `data/references/lykhenko_2021_deg.csv` | Pipeline DE step; Lykhenko reference from prior publication |
 | 5 | ComBat covariate comparison | `data/pipeline/main/method_comparison.csv`, sensitivity pipeline outputs | `scripts/pipeline/combat_sensitivity.R` with `config/config_sensitivity.yaml` |
-| 6 | Per-dataset ENTREZID coverage | `data/expression/GSE*.tsv`, `data/phenodata.tsv` | Row counts from input expression files |
+| 6 | Per-dataset ENTREZID coverage | `data/expression/GSE*.tsv` | `scripts/table_platform_coverage.R` |
 | 7 | Software & data resources | — | Manual/curated |
 
 ## Key numbers

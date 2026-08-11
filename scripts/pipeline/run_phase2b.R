@@ -1101,8 +1101,8 @@ for (m in names(gene_fdr_list)) {
   cat(sprintf("NA staircase [%s]: %d genes x %d samples, %.1f%% NA\n",
               m, staircase$nr_orig, staircase$nc, staircase$na_pct))
   m_png <- file.path(output_dir, paste0("na_staircase_", m, ".png"))
-  png(m_png, width = 2400, height = 1600, res = 200)
-  par(mar = c(4, 5, 3, 1))
+  png(m_png, width = 2400, height = 1800, res = 200)
+  par(mar = c(4, 5, 2, 1))
   render_staircase(staircase, paste0(staircase_title, " [FDR: ", m, "]"), staircase_sample_ds)
   dev.off()
   cat("Wrote:", m_png, "\n")

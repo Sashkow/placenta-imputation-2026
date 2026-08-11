@@ -67,6 +67,8 @@ prepare_staircase <- function(mat, sample_group = NULL, gene_fdr = NULL,
 
   # Group-excluded: one comparison group has zero real values
   is_group_excluded <- rep(FALSE, nrow(mat))
+  n_baseline_missing <- 0L
+  n_contrast_missing <- 0L
   if (!is.null(sample_group) && !is.null(baseline) && !is.null(contrast)) {
     bl_idx <- which(sample_group == baseline)
     ct_idx <- which(sample_group == contrast)
@@ -74,6 +76,8 @@ prepare_staircase <- function(mat, sample_group = NULL, gene_fdr = NULL,
       bl_real <- rowSums(!is_na[, bl_idx, drop = FALSE])
       ct_real <- rowSums(!is_na[, ct_idx, drop = FALSE])
       is_group_excluded <- !is_padding & (bl_real == 0 | ct_real == 0)
+      n_baseline_missing <- sum(!is_padding & bl_real == 0 & ct_real > 0)
+      n_contrast_missing <- sum(!is_padding & ct_real == 0 & bl_real > 0)
     }
   }
 
@@ -126,6 +130,8 @@ prepare_staircase <- function(mat, sample_group = NULL, gene_fdr = NULL,
     genes_excluded = sum(gene_excluded),
     n_padding         = sum(is_padding),
     n_group_excluded  = sum(is_group_excluded),
+    n_baseline_missing = n_baseline_missing,
+    n_contrast_missing = n_contrast_missing,
     n_coverage_excluded = sum(is_coverage_excluded),
     sample_group  = sample_group,
     gene_fdr      = gene_fdr,
@@ -240,75 +246,132 @@ render_staircase <- function(staircase, title, sample_ds = NULL,
   }
 
   if (show_legend) {
+    n_imp <- staircase$genes_partial -
+      staircase$n_group_excluded -
+      staircase$n_coverage_excluded
+    final_size <- staircase$genes_full + n_imp
+
+    usr <- par("usr")
+    lx <- usr[2] - (usr[2] - usr[1]) * 0.01   # right edge
+    ly <- usr[3] + (usr[4] - usr[3]) * 0.01   # bottom edge
+    line_h <- (usr[4] - usr[3]) * 0.033
+    swatch_w <- (usr[2] - usr[1]) * 0.025
+    swatch_h <- line_h * 0.7
+    pad_x <- (usr[2] - usr[1]) * 0.01
+    num_col_x <- lx - pad_x  # right-aligned numbers column
+
+    # Build legend entries: list of (label, fill, number_or_NULL)
+    entries <- list()
+    add_entry <- function(label, fill, number = NULL)
+      entries[[length(entries) + 1L]] <<- list(l = label, f = fill, n = number)
+
     if (has_categories) {
-      leg_labels  <- c()
-      leg_fills   <- c()
-      leg_borders <- c()
-      n_imp <- sum(!padding & !grp_excl & !cov_excl & rowSums(sorted_na) > 0)
-      if (n_imp > 0) {
-        leg_labels  <- c(leg_labels, sprintf("Imputable NA: %d genes", n_imp))
-        leg_fills   <- c(leg_fills, COL_IMPUTABLE_NA)
-        leg_borders <- c(leg_borders, "black")
-      }
-      if (!is.null(staircase$n_group_excluded) && staircase$n_group_excluded > 0) {
-        leg_labels  <- c(leg_labels, sprintf("1 group all-NA: %d", staircase$n_group_excluded))
-        leg_fills   <- c(leg_fills, COL_GROUP_EXCLUDED)
-        leg_borders <- c(leg_borders, "black")
-      }
-      if (!is.null(staircase$n_coverage_excluded) && staircase$n_coverage_excluded > 0) {
-        leg_labels  <- c(leg_labels, sprintf("Coverage excl: %d", staircase$n_coverage_excluded))
-        leg_fills   <- c(leg_fills, COL_COVERAGE_EXCLUDED)
-        leg_borders <- c(leg_borders, "black")
-      }
-      if (!is.null(staircase$n_padding) && staircase$n_padding > 0) {
-        leg_labels  <- c(leg_labels, sprintf("Not in run: %d", staircase$n_padding))
-        leg_fills   <- c(leg_fills, COL_PADDING)
-        leg_borders <- c(leg_borders, "black")
-      }
-      leg_labels  <- c(leg_labels,
-                        sprintf("No FDR data"),
-                        sprintf("Complete: %d", staircase$genes_full),
-                        sprintf("Partial: %d", staircase$genes_partial))
-      leg_fills   <- c(leg_fills, COL_NO_FDR, NA, NA)
-      leg_borders <- c(leg_borders, "black", NA, NA)
+      fdr_mid <- fdr_to_color(0.01)
+      add_entry("Observed (FDR shading)", fdr_mid)
+      add_entry("Observed (no DE result)", COL_NO_FDR)
+      if (n_imp > 0)
+        add_entry("Missing, imputable", COL_IMPUTABLE_NA)
+      if (!is.null(staircase$n_group_excluded) && staircase$n_group_excluded > 0)
+        add_entry("One group all-NA (dropped)", COL_GROUP_EXCLUDED)
+      if (!is.null(staircase$n_coverage_excluded) && staircase$n_coverage_excluded > 0)
+        add_entry("Coverage excluded", COL_COVERAGE_EXCLUDED)
+      if (!is.null(staircase$n_padding) && staircase$n_padding > 0)
+        add_entry("Not in run", COL_PADDING)
     } else {
-      leg_labels <- c(
-        sprintf("NA (%.1f%%)", na_pct),
-        sprintf("No FDR data"),
-        sprintf("Complete: %d", staircase$genes_full),
-        sprintf("Partial: %d", staircase$genes_partial)
-      )
-      leg_fills   <- c(COL_NA, COL_NO_FDR, NA, NA)
-      leg_borders <- c("black", "black", NA, NA)
-      if (staircase$genes_excluded > 0) {
-        leg_labels  <- c(leg_labels, sprintf("Excluded: %d", staircase$genes_excluded))
-        leg_fills   <- c(leg_fills, COL_EXCLUDED)
-        leg_borders <- c(leg_borders, "black")
+      add_entry(sprintf("NA (%.1f%%)", na_pct), COL_NA)
+      add_entry("Observed (no DE result)", COL_NO_FDR)
+      if (staircase$genes_excluded > 0)
+        add_entry("Excluded", COL_EXCLUDED,
+                  formatC(staircase$genes_excluded, format = "d", big.mark = ","))
+    }
+
+    # Separator + summary rows (no swatch)
+    add_entry("---", NA)
+    add_entry("Fully observed genes",  NA,
+              formatC(staircase$genes_full, format = "d", big.mark = ","))
+    add_entry("Genes needing imputation", NA,
+              formatC(staircase$genes_partial, format = "d", big.mark = ","))
+    add_entry("  kept (both groups real)", NA,
+              formatC(n_imp, format = "d", big.mark = ","))
+
+    n_bl <- staircase$n_baseline_missing %||% 0L
+    n_ct <- staircase$n_contrast_missing %||% 0L
+    bl_short <- sub(" [Tt]rimester$", " Trim", staircase$baseline %||% "group 1")
+    ct_short <- sub(" [Tt]rimester$", " Trim", staircase$contrast %||% "group 2")
+    if (n_ct > 0 || n_bl > 0) {
+      add_entry(sprintf("  dropped (all-NA in %s)", ct_short), NA,
+                formatC(n_ct, format = "d", big.mark = ","))
+      add_entry(sprintf("  dropped (all-NA in %s)", bl_short), NA,
+                formatC(n_bl, format = "d", big.mark = ","))
+    } else if (staircase$n_group_excluded > 0) {
+      add_entry("  dropped (one group all-NA)", NA,
+                formatC(staircase$n_group_excluded, format = "d", big.mark = ","))
+    }
+    if (staircase$n_coverage_excluded > 0)
+      add_entry("  dropped (low coverage)", NA,
+                formatC(staircase$n_coverage_excluded, format = "d", big.mark = ","))
+    add_entry("Final merged matrix", NA,
+              paste0(formatC(final_size, format = "d", big.mark = ","), " genes"))
+
+    n_entries <- length(entries)
+    # count non-separator entries for height
+    n_visible <- sum(sapply(entries, function(e) e$l != "---"))
+    box_h <- (n_visible + 1.2) * line_h
+    box_w <- (usr[2] - usr[1]) * 0.46
+    box_x0 <- lx - box_w
+    box_y0 <- ly
+
+    rect(box_x0, box_y0, lx, box_y0 + box_h,
+         col = adjustcolor(bg_col, alpha.f = 0.93), border = dim_col, lwd = 0.5)
+
+    row_i <- 0
+    for (e in entries) {
+      if (e$l == "---") {
+        # draw separator line
+        sep_y <- box_y0 + box_h - (row_i + 0.7) * line_h
+        segments(box_x0 + pad_x, sep_y, lx - pad_x, sep_y,
+                 col = dim_col, lwd = 0.5)
+        row_i <- row_i + 0.4
+        next
+      }
+      row_i <- row_i + 1
+      y_pos <- box_y0 + box_h - row_i * line_h
+
+      # swatch
+      if (!is.na(e$f)) {
+        rect(box_x0 + pad_x, y_pos - swatch_h / 2,
+             box_x0 + pad_x + swatch_w, y_pos + swatch_h / 2,
+             col = e$f, border = "black", lwd = 0.5)
+        text(box_x0 + pad_x + swatch_w + pad_x * 0.5, y_pos,
+             e$l, adj = 0, cex = cex_legend, col = txt_col)
+      } else {
+        text(box_x0 + pad_x, y_pos,
+             e$l, adj = 0, cex = cex_legend, col = txt_col)
+      }
+
+      # right-aligned number
+      if (!is.null(e$n)) {
+        text(num_col_x, y_pos, e$n, adj = 1, cex = cex_legend,
+             col = txt_col, family = "mono")
       }
     }
-    legend("bottomright", legend = leg_labels,
-           fill = leg_fills, border = leg_borders,
-           bg = bg_col, text.col = txt_col,
-           cex = cex_legend, inset = c(0.01, 0.01))
 
+    # FDR gradient bar (bottom-left)
     if (!is.null(gf)) {
-      usr <- par("usr")
       bar_x0 <- usr[1] + (usr[2] - usr[1]) * 0.01
       bar_x1 <- usr[1] + (usr[2] - usr[1]) * 0.12
       bar_y1 <- usr[3] + (usr[4] - usr[3]) * 0.20
       bar_y0 <- usr[3] + (usr[4] - usr[3]) * 0.03
       bar_h  <- bar_y1 - bar_y0
 
-      # Log-scale bar: map FDR via -log10, clamped at 1e-4
-      fdr_min_log <- 4   # -log10(1e-4)
-      fdr_max_log <- 0   # -log10(1)
+      fdr_min_log <- 4
+      fdr_max_log <- 0
       fdr_to_barfrac <- function(f) {
         nlog <- -log10(pmax(f, 1e-4))
         (nlog - fdr_max_log) / (fdr_min_log - fdr_max_log)
       }
 
       n_steps <- 64
-      # FDR from small (deep teal) to large (pale teal)
       fdr_seq <- 10^(-seq(fdr_min_log, 0, length.out = n_steps))
       col_seq <- fdr_to_color(fdr_seq)
       rect(bar_x0, bar_y0, bar_x1, bar_y1, col = NA, border = dim_col, lwd = 0.5)

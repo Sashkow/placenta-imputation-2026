@@ -47,8 +47,8 @@ staircase <- prepare_staircase(merged, sample_group, gene_fdr,
                                coverage_threshold = NULL)
 
 out_png <- file.path(fig_dir, "fig_na_staircase.png")
-png(out_png, width = TW, height = TW * 0.55, units = "in", res = DPI, pointsize = PT)
-par(mar = c(5, 5, 3, 1))
+png(out_png, width = TW, height = TW * 0.65, units = "in", res = DPI, pointsize = PT)
+par(mar = c(5, 5, 1.5, 1))
 render_staircase(staircase, "", sample_ds,
                  cex_main = 1.0, cex_legend = 0.8,
                  cex_axis = 0.9, cex_lab = 1.0, cex_ds = 0.55,

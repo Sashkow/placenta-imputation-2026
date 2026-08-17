@@ -9,7 +9,7 @@ PT  <- 11
 
 fig_dir      <- "article/figures"
 base_dir     <- "data/pipeline/main"
-combat_dir   <- "data/pipeline/sensitivity"
+combat_dir   <- "data/pipeline/main"
 val_dir      <- "data/pipeline/validation"
 pheno_path   <- "data/phenodata.tsv"
 

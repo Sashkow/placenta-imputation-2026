@@ -328,9 +328,16 @@ run_lean_pipeline_inner <- function(exprs_sub_list, pdata_sub, config,
   rownames(merged_pdata) <- merged_pdata$arraydatafile_exprscolumnnames
   merged_pdata <- merged_pdata[merged_samples, ]
 
-  # --- ComBat ---
+  # --- Batch handling ---
+  # Two modes. Default: ComBat (optionally reference-batch) applied to the
+  # matrix, then limma on the corrected values. With
+  # normalization.method == "batch_in_limma": the matrix is left uncorrected
+  # and dataset of origin enters the limma design instead, so the uncertainty
+  # in the batch estimate propagates into the standard errors
+  # (Nygaard et al. 2016).
   batch <- as.factor(merged_pdata$secondaryaccession)
   bio_group <- merged_pdata[[group_col]]
+  batch_in_limma <- identical(config$normalization$method, "batch_in_limma")
 
   combat_bio_cov <- config$phenotype$combat_bio_covariate
   if (!is.null(combat_bio_cov)) {
@@ -376,7 +383,9 @@ run_lean_pipeline_inner <- function(exprs_sub_list, pdata_sub, config,
                              data = combat_mod_data)
 
   ref_batch <- config$normalization$ref_batch
-  if (!is.null(ref_batch) && ref_batch %in% levels(batch)) {
+  if (batch_in_limma) {
+    normalized <- merged_exprs
+  } else if (!is.null(ref_batch) && ref_batch %in% levels(batch)) {
     normalized <- tryCatch(
       normalize_combat_ref(merged_exprs, batch, mod = combat_mod,
                            ref_batch = ref_batch),
@@ -397,6 +406,13 @@ run_lean_pipeline_inner <- function(exprs_sub_list, pdata_sub, config,
   group <- factor(de_pdata[[group_col]], levels = c(baseline, contrast))
   design_data <- data.frame(group = group, stringsAsFactors = FALSE)
   design_terms <- c("group")
+  if (batch_in_limma) {
+    de_batch <- droplevels(as.factor(de_pdata$secondaryaccession))
+    if (nlevels(de_batch) > 1) {
+      design_data$batch <- de_batch
+      design_terms <- c(design_terms, "batch")
+    }
+  }
   for (cov in covariates) {
     design_data[[cov]] <- de_pdata[[cov]]
     design_terms <- c(design_terms, cov)

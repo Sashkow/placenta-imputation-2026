@@ -3,3 +3,5 @@
 *.log
 VennDiagram.*
 data/pipeline/*/archive/
+data/pipeline/batch_in_limma/exprs_*.tsv
+data/pipeline/balanced_batch_in_limma/exprs_*.tsv

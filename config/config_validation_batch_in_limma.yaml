@@ -1,0 +1,79 @@
+# Subsampling validation config
+# References the main pipeline output as ground truth
+
+paths:
+  mapped_data: "data/expression"
+  phenodata: "data/phenodata.tsv"
+  reference_de: "data/pipeline/batch_in_limma/difexp_softimpute_batch_in_limma.tsv"
+  reference_imputed: "data/pipeline/batch_in_limma/exprs_imputed_softimpute.tsv"
+  balanced_reference_de: "data/pipeline/balanced_batch_in_limma/difexp_softimpute_batch_in_limma.tsv"
+  output: "data/pipeline/validation_batch_in_limma"
+  column_map:
+    arraydatafile_exprscolumnnames: "sample_id"
+    secondaryaccession: "dataset_id"
+    Gestational.Age.Category: "trimester"
+    Diagnosis: "condition"
+
+files:
+  suffix: ""
+  file_map:
+    GSE28551: "GSE28551.tsv"
+  datasets:
+    - "GSE100051"
+    - "GSE122214"
+    - "GSE28551"
+    - "GSE37901"
+    - "GSE93520"
+    - "GSE9984"
+
+sample_filter:
+  condition: ["healthy"]
+  trimester: ["First trimester", "Second trimester"]
+
+phenotype:
+  group_column: "trimester"
+  baseline: "First trimester"
+  contrast: "Second trimester"
+  covariates: ["fetux_sex_estimate"]
+  combat_bio_covariate: "ga_weeks"
+
+imputation:
+  softimpute:
+    rank_max: 30
+    lambda: 0
+    thresh: 1e-4
+    maxit: 50
+    type: "als"
+
+normalization:
+  method: "batch_in_limma"
+
+coverage:
+  max_imputation_allowed: 1.0
+  drop_imputed_genes_missing_in_group: true
+
+de:
+  imputed_cell_weight: 0.0
+
+thresholds:
+  fdr: 0.05
+  logfc: 1.0
+
+gene_filter:
+  protein_coding_only: true
+
+parallel:
+  n_cores: 10
+
+test1:
+  sizes_1st_trim: [10, 16, 20, 25, 30, 40, 50, 60, 80, 100]
+  n_iter: 30
+  compute_within_size_jaccard: true
+
+test2:
+  sizes_per_trim: [4, 8, 12, 16]
+  n_iter: 30
+
+test3:
+  n_iter: 50
+  stratified: true

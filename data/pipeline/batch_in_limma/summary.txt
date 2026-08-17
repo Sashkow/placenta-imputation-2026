@@ -1,8 +1,8 @@
 Phase 2B: Direct Merge Improvements Summary
 ==========================================
 
-Date: 2026-08-12 23:36:45.148736
-Config: config/config_pipeline.yaml
+Date: 2026-08-12 23:39:44.275427
+Config: config/config_batch_in_limma.yaml
 
 Comparison: Second trimester vs First trimester
 Datasets: GSE100051, GSE122214, GSE28551, GSE37901, GSE93520, GSE9984
@@ -11,16 +11,16 @@ Coverage mode: fixed min_datasets = 1 of 6
 Gene Recovery: skipped (compare_gene_recovery disabled)
 
 Method Comparison:
-                 method imputation normalization n_genes n_significant n_up
-1           none_combat       none        combat    8260           277  223
-2       none_combat_ref       none    combat_ref    8260           277  224
-3     softimpute_combat softimpute        combat   17531           504  421
-4 softimpute_combat_ref softimpute    combat_ref   17531           538  446
-  n_down
-1     54
-2     53
-3     83
-4     92
+                     method imputation  normalization n_genes n_significant
+1               none_combat       none         combat    8260           277
+2       none_batch_in_limma       none batch_in_limma    8260           219
+3         softimpute_combat softimpute         combat   17531           504
+4 softimpute_batch_in_limma softimpute batch_in_limma   17531           444
+  n_up n_down
+1  223     54
+2  175     44
+3  421     83
+4  357     87
 
 Imputed-gene coverage per comparison group:
 Genes in all datasets (no imputation): 8260

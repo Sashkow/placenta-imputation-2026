@@ -1,0 +1,32 @@
+Phase 2B: Direct Merge Improvements Summary
+==========================================
+
+Date: 2026-08-13 09:25:05.129316
+Config: config/config_balanced_batch_in_limma.yaml
+
+Comparison: Second trimester vs First trimester
+Datasets: GSE100051, GSE9984
+Coverage mode: max_imputation_allowed = 1 -> selected min_datasets = 1 of 2
+
+Gene Recovery: skipped (compare_gene_recovery disabled)
+
+Method Comparison:
+                     method imputation  normalization n_genes n_significant
+1               none_combat       none         combat   11154           412
+2       none_batch_in_limma       none batch_in_limma   11154           390
+3         softimpute_combat softimpute         combat   17531           458
+4 softimpute_batch_in_limma softimpute batch_in_limma   17531           424
+  n_up n_down
+1  348     64
+2  325     65
+3  382     76
+4  351     73
+
+Imputed-gene coverage per comparison group:
+Genes in all datasets (no imputation): 11154
+Genes needing imputation somewhere:    6377
+  In BOTH groups with >=1 real value: 6377 / 6377
+  Missing entirely from First trimester : 0
+  Missing entirely from Second trimester: 0
+
+Imputation validation: not run

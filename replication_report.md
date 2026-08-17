@@ -1,6 +1,6 @@
 # Replication Report: Companion Repository vs Article Claims
 
-**Generated:** 2026-08-08
+**Generated:** 2026-08-17
 **R version:** R version 4.5.0 (2025-04-11)
 **Platform:** x86_64-pc-linux-gnu
 
@@ -10,10 +10,10 @@
 
 ## Summary
 
-- **Total claims verified:** 24
-- **Matches:** 23
+- **Total claims verified:** 35
+- **Matches:** 35
 - **Mismatches:** 0
-- **Not verified:** 1
+- **Not verified:** 0
 
 ## Comparison Table
 
@@ -39,11 +39,23 @@
 | Section 3.4 | Balanced reference DEG count | 484 | 484 | MATCH |
 | Section 3.4 | Balanced vs full Jaccard | 0.841 | 0.841 | MATCH |
 | Section 3.4 | Balanced retention of full DEGs | 86.8% | 86.8% | MATCH |
-| Section 3.2 | Sensitivity Pearson r (8260 genes) | 0.9994 | 0.9991 | MATCH |
-| Section 3.2 | Sensitivity mean abs diff | 0.031 | 0.033 | MATCH |
-| Section 3.2 | Sensitivity median per-gene MAE | 0.027 | 0.024 | MATCH |
-| Enrichment | All enrichment counts | — | — | NOT VERIFIED (enrichment dir missing) |
+| Results 2.3 | Shared genes compared | 8260 | 8260 | MATCH |
+| Results 2.3 | Post-ComBat Pearson r (all cells) | 0.9994 | 0.9994 | MATCH |
+| Results 2.3 | Mean abs diff | 0.031 | 0.031 | MATCH |
+| Results 2.3 | Median per-gene MAE | 0.027 | 0.027 | MATCH |
+| Enrichment | 538-DEG GO BP terms (q<0.05) | 678 | 678 | MATCH |
+| Enrichment | 538-DEG KEGG pathways (q<0.05) | 43 | 43 | MATCH |
+| Enrichment | 277-DEG GO BP terms | 292 | 292 | MATCH |
+| Enrichment | 277-DEG KEGG pathways | 25 | 25 | MATCH |
+| Enrichment | 262-DEG GO BP terms | 240 | 240 | MATCH |
+| Enrichment | 262-DEG KEGG pathways | 24 | 24 | MATCH |
+| Discussion 3.2 | Gained DEGs (538 set minus 277 set) | 262 | 262 | MATCH |
+| Discussion 3.2 | Gained genes present in Lykhenko 2021 limma table | 242 | 242 | MATCH |
+| Discussion 3.2 | Same direction of change (%) | 88.8 | 88.8 | MATCH |
+| Discussion 3.2 | logFC Pearson r vs Lykhenko 2021 | 0.600 | 0.6 | MATCH |
+| Discussion 3.2 | Already FDR-significant in Lykhenko 2021 (%) | 61.2 | 61.2 | MATCH |
 
 ## Reproduction Outcome
 
-All 23 verified claims match the article. 1 claim(s) could not be verified due to missing data.
+All verified quantitative claims in the article are reproduced by
+the companion repository pipeline.

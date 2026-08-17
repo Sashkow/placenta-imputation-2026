@@ -6,7 +6,6 @@
 base_dir <- getwd()
 pipeline_dir <- file.path(base_dir, "data", "pipeline")
 main_dir <- file.path(pipeline_dir, "main")
-sens_dir <- file.path(pipeline_dir, "sensitivity")
 balanced_dir <- file.path(pipeline_dir, "balanced")
 validation_dir <- file.path(pipeline_dir, "validation")
 enrichment_dir <- file.path(main_dir, "enrichment")
@@ -176,35 +175,33 @@ add_result("Section 3.4", "Balanced vs full Jaccard", "0.841",
 add_result("Section 3.4", "Balanced retention of full DEGs", "86.8%",
            paste0(round(ret_bal * 100, 1), "%"))
 
-# --- 7. ComBat sensitivity (Section 3.2) ---
+# --- 7. Batch-correction distortion check (Results 2.3) ---
+# Article claim: post-ComBat-ref values for the 8,260 shared genes are
+# practically identical between the intersection-only and softImpute runs.
+# Both matrices come from the main pipeline run.
 
-if (file.exists(file.path(sens_dir, "exprs_softimpute_combat_ref.tsv")) &&
-    !is.null(int_genes)) {
-  main_full <- read.delim(file.path(main_dir,
-                          "exprs_softimpute_combat_ref.tsv"),
-                          row.names = 1, check.names = FALSE)
-  sens_full <- read.delim(file.path(sens_dir,
-                          "exprs_softimpute_combat_ref.tsv"),
-                          row.names = 1, check.names = FALSE)
-  shared_cols <- intersect(colnames(main_full), colnames(sens_full))
+inter_file <- file.path(main_dir, "exprs_none_combat_ref.tsv")
+soft_file <- file.path(main_dir, "exprs_softimpute_combat_ref.tsv")
 
-  m_sub <- main_full[int_genes, shared_cols]
-  s_sub <- sens_full[int_genes, shared_cols]
-  m_vec <- as.vector(as.matrix(m_sub))
-  s_vec <- as.vector(as.matrix(s_sub))
-  sens_r <- cor(m_vec, s_vec)
-  gene_mae <- rowMeans(abs(m_sub - s_sub))
-  sens_mad <- mean(gene_mae)
-  med_gene_mae <- median(gene_mae)
+if (file.exists(inter_file) && file.exists(soft_file)) {
+  inter_post <- read.delim(inter_file, row.names = 1, check.names = FALSE)
+  soft_post <- read.delim(soft_file, row.names = 1, check.names = FALSE)
+  shared_genes <- intersect(rownames(inter_post), rownames(soft_post))
+  i_sub <- as.matrix(inter_post[shared_genes, ])
+  s_sub <- as.matrix(soft_post[shared_genes, colnames(inter_post)])
 
-  add_result("Section 3.2", "Sensitivity Pearson r (8260 genes)", "0.9994",
-             round(sens_r, 4), tol = 0.0005)
-  add_result("Section 3.2", "Sensitivity mean abs diff", "0.031",
-             round(sens_mad, 3), tol = 0.005)
-  add_result("Section 3.2", "Sensitivity median per-gene MAE", "0.027",
-             round(med_gene_mae, 3), tol = 0.005)
+  add_result("Results 2.3", "Shared genes compared", "8260",
+             length(shared_genes))
+  add_result("Results 2.3", "Post-ComBat Pearson r (all cells)", "0.9994",
+             round(cor(as.vector(i_sub), as.vector(s_sub)), 4), tol = 0.0005)
+  gene_mae <- rowMeans(abs(i_sub - s_sub))
+  add_result("Results 2.3", "Mean abs diff", "0.031",
+             round(mean(abs(i_sub - s_sub)), 3), tol = 0.005)
+  add_result("Results 2.3", "Median per-gene MAE", "0.027",
+             round(median(gene_mae), 3), tol = 0.005)
 } else {
-  add_not_verified("Section 3.2", "Sensitivity analysis", "data missing")
+  add_not_verified("Results 2.3", "Batch-correction distortion check",
+                   "post-ComBat matrices missing")
 }
 
 # --- 8. Enrichment (Section 3.5) ---
@@ -240,6 +237,38 @@ if (dir.exists(enrichment_dir)) {
 } else {
   add_not_verified("Enrichment", "All enrichment counts",
                    "enrichment dir missing")
+}
+
+# --- 9. External concordance with Lykhenko 2021 (Discussion 3.2) ---
+# "Gained" DEGs = significant in softImpute+ComBat-ref but not in the
+# intersection-only run. Their direction and FDR in the prior study come
+# from the FULL protein-coding limma table (most are below the 2021
+# significance threshold, so the filtered DEG list cannot back this claim).
+
+lykhenko_full_file <- file.path(base_dir, "data", "references",
+                                "lykhenko_2021_full_protein_coding.csv")
+none_sig_file <- file.path(main_dir, "difexp_significant_none_combat_ref.tsv")
+
+if (file.exists(lykhenko_full_file) && !is.null(degs_soft_ref) &&
+    file.exists(none_sig_file)) {
+  lykhenko_full <- read.csv(lykhenko_full_file)
+  degs_int <- read.delim(none_sig_file)
+  gained <- degs_soft_ref[!(degs_soft_ref$gene %in% degs_int$gene), ]
+  add_result("Discussion 3.2", "Gained DEGs (538 set minus 277 set)",
+             "262", nrow(gained))
+  matched <- merge(gained, lykhenko_full, by.x = "gene", by.y = "ENTREZID")
+  add_result("Discussion 3.2", "Gained genes present in Lykhenko 2021 limma table",
+             "242", nrow(matched))
+  same_dir <- sign(matched$logFC.x) == sign(matched$logFC.y)
+  add_result("Discussion 3.2", "Same direction of change (%)",
+             "88.8", round(100 * mean(same_dir), 1), tol = 0.05)
+  add_result("Discussion 3.2", "logFC Pearson r vs Lykhenko 2021",
+             "0.600", round(cor(matched$logFC.x, matched$logFC.y), 3), tol = 0.0051)
+  add_result("Discussion 3.2", "Already FDR-significant in Lykhenko 2021 (%)",
+             "61.2", round(100 * mean(matched$adj.P.Val.y < 0.05), 1), tol = 0.05)
+} else {
+  add_not_verified("Discussion 3.2", "External concordance with Lykhenko 2021",
+                   "lykhenko_2021_full_protein_coding.csv or DEG tables missing")
 }
 
 # --- Build report ---

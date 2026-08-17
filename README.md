@@ -33,11 +33,11 @@ This repository contains the data, scripts, and article source for:
 │   ├── expression/       Per-dataset expression matrices (ENTREZID-keyed)
 │   ├── pipeline/         Pre-computed pipeline outputs
 │   │   ├── main/         6-dataset integration (softImpute + ComBat-ref)
-│   │   ├── sensitivity/  ComBat sensitivity analysis
 │   │   ├── balanced/     Balanced 2-dataset reference
 │   │   └── validation/   Subsampling validation results
 │   └── references/       External reference data
-│       ├── lykhenko_2021_deg.csv           Lykhenko 2021 DEG list
+│       ├── lykhenko_2021_deg.csv           Lykhenko 2021 DEG list (310 significant genes)
+│       ├── lykhenko_2021_full_protein_coding.csv  Lykhenko 2021 full limma table (16,889 genes)
 │       └── prater_2021_supp_tables.xlsx    Prater 2021 RNA-seq DEGs
 └── config/               Configuration files
     ├── config_pipeline.yaml     Main 6-dataset integration pipeline
@@ -137,6 +137,9 @@ Validation tests use parallel execution (`n_cores: 10` in config) and take ~30-6
 | Split-half Jaccard | 0.45 | `data/pipeline/validation/test3_split_half.tsv` |
 | GO BP terms (full 538) | 678 | `scripts/fig_enrichment.R` output |
 | KEGG pathways (full 538) | 43 | same |
+| Gained genes in Lykhenko 2021 limma table | 242/262 | `scripts/verify_article_claims.R` vs `data/references/lykhenko_2021_full_protein_coding.csv` |
+| Gained-gene direction concordance (Lykhenko 2021) | 88.8% (215/242), r=0.600 | same |
+| Gained genes already FDR<0.05 in Lykhenko 2021 | 61.2% (148/242) | same |
 | qPCR-validated genes recovered | 11/17 | `scripts/pipeline/combat_sensitivity.R` |
 
 ## Verifying article claims
@@ -161,6 +164,8 @@ Expression data is derived from six GEO datasets:
 | GSE9984    | GPL570      | 8       | 1st + 2nd |
 
 The pipeline that produced the intermediate data files is available in the [main analysis repository](https://github.com/sashkow/integrative-gene-expression-analysis).
+
+Reference tables in `data/references/`: `lykhenko_2021_deg.csv` and `lykhenko_2021_full_protein_coding.csv` are, respectively, the significant-DEG list and the full protein-coding limma table from the prior Affymetrix-only analysis (Lykhenko et al. 2021, 4 datasets, 22 samples); the full table backs the article's external-concordance claim (Discussion 3.2), since most gained genes fall below the 2021 significance threshold. `prater_2021_supp_tables.xlsx` is the published supplementary data of Prater et al. 2021.
 
 ## License
 

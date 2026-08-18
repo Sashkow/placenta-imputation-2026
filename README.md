@@ -55,6 +55,8 @@ All scripts run from the repository root.
 
 **Determinism notes:** the softImpute ALS solver starts from a random matrix; the pipeline seeds it (`imputation.softimpute.seed: 42` in the config), so re-runs are repeatable. The committed outputs in `data/pipeline/` predate the seeding and were produced by an unseeded run — a fresh seeded run reproduces the article's numbers up to a few borderline genes at the |logFC| = 1 cutoff, and `verify_article_claims.R` checks the claims against the committed outputs, not a re-run. KEGG enrichment (`fig_enrichment.R`) queries the live KEGG database (accessed 2026-08-17) and is not version-pinned; the committed enrichment tables are the reference.
 
+**Reproducibility disclaimer:** re-running the pipeline is not guaranteed to produce exactly the numbers reported in the article. Beyond the seeded softImpute step, R libraries may contain internal sources of randomness that the pipeline does not control, and floating-point results can differ across BLAS builds and thread counts. Package versions also drift: `renv.lock` pins the versions used here, but if you install newer releases instead of running `renv::restore()`, algorithmic changes in those releases may shift results slightly. Genes near the significance thresholds (adj.P.Val = 0.05, |logFC| = 1) are the most sensitive to such perturbations, so DEG counts may differ by a few genes even when effect-size estimates agree closely. The committed outputs in `data/pipeline/` are the authoritative record of what the article reports.
+
 ```bash
 # Install packages (first time only, ~5-15 min)
 Rscript -e 'renv::restore()'

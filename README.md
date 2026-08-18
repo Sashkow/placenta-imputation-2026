@@ -53,6 +53,8 @@ All scripts run from the repository root.
 
 **Prerequisites:** R (>= 4.1). All R package dependencies are pinned in `renv.lock`.
 
+**Determinism notes:** the softImpute ALS solver starts from a random matrix; the pipeline seeds it (`imputation.softimpute.seed: 42` in the config), so re-runs are repeatable. The committed outputs in `data/pipeline/` predate the seeding and were produced by an unseeded run — a fresh seeded run reproduces the article's numbers up to a few borderline genes at the |logFC| = 1 cutoff, and `verify_article_claims.R` checks the claims against the committed outputs, not a re-run. KEGG enrichment (`fig_enrichment.R`) queries the live KEGG database (accessed 2026-08-17) and is not version-pinned; the committed enrichment tables are the reference.
+
 ```bash
 # Install packages (first time only, ~5-15 min)
 Rscript -e 'renv::restore()'

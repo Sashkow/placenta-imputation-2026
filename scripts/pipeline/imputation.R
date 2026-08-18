@@ -104,6 +104,9 @@ create_incomplete_matrix <- function(exprs_list, min_datasets = 1L) {
 #' @param thresh Convergence threshold
 #' @param maxit Maximum iterations
 #' @param type Algorithm type: "als" or "svd"
+#' @param seed RNG seed set before fitting. The ALS solver starts from a
+#'   random matrix, so without a fixed seed each run converges to a
+#'   slightly different completion.
 #' @return List with: matrix (imputed), fit (softImpute object), validation
 #' @export
 impute_softimpute <- function(incomplete,
@@ -111,9 +114,12 @@ impute_softimpute <- function(incomplete,
                                lambda = 0,
                                thresh = 1e-5,
                                maxit = 100,
-                               type = "als") {
+                               type = "als",
+                               seed = 42) {
 
   cat("\n=== softImpute Matrix Completion ===\n")
+  set.seed(seed)
+  cat("RNG seed:", seed, "\n")
 
   X <- incomplete$matrix
   cat("Input matrix:", nrow(X), "genes x", ncol(X), "samples\n")
@@ -850,7 +856,8 @@ IMPUTERS <- list(
       lambda   = cfg$lambda   %||% 0,
       thresh   = cfg$thresh   %||% 1e-5,
       maxit    = cfg$maxit    %||% 100,
-      type     = cfg$type     %||% "als"
+      type     = cfg$type     %||% "als",
+      seed     = cfg$seed     %||% 42
     )
   },
   knn = function(incomplete, cfg = list()) {

@@ -1,0 +1,56 @@
+# Imputation cross-validation comparator sweep.
+# Reproduces Supplementary Table S1: five imputation methods x three
+# masking strategies, 3 repeats each.
+#
+# Run with: Rscript scripts/cv_comparators.R
+
+paths:
+  mapped_data: "data/expression"
+  phenodata: "data/phenodata.tsv"
+  output: "data/pipeline/cv_comparators"
+  column_map:
+    arraydatafile_exprscolumnnames: "sample_id"
+    secondaryaccession: "dataset_id"
+    Gestational.Age.Category: "trimester"
+    Diagnosis: "condition"
+
+files:
+  suffix: ""
+  file_map:
+    GSE28551: "GSE28551.tsv"
+  datasets:
+    - "GSE100051"
+    - "GSE122214"
+    - "GSE28551"
+    - "GSE37901"
+    - "GSE93520"
+    - "GSE9984"
+
+sample_filter:
+  condition: ["healthy"]
+  trimester: ["First trimester", "Second trimester"]
+
+phenotype:
+  group_column: "trimester"
+
+coverage:
+  min_datasets: 1
+
+cv:
+  leave_out_fraction: 0.1
+  n_repeats: 3
+  rank_max: 30
+  k: 10
+  # "worst case" in the article = gene--dataset block masking, which removes a
+  # gene's entire block in a dataset (the realistic pattern). The "_hard"
+  # variant additionally refuses to leave a gene below the observation floor.
+  mask_types:
+    - "random_cells"
+    - "gene_dataset_block"
+    - "gene_dataset_block_hard"
+  methods:
+    - "softimpute"
+    - "missmda"
+    - "knn"
+    - "gene_mean"
+    - "batch_mean"

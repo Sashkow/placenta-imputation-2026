@@ -1,6 +1,6 @@
 # Companion code: Imputation-based integration of placental gene expression datasets
 
-This repository contains the data, scripts, and article source for:
+This repository contains the data, scripts, and pre-generated figures for:
 
 > **Filling the gaps: matrix completion imputation for broader gene coverage in cross-dataset direct-merge expression analysis**
 >
@@ -13,11 +13,20 @@ This repository contains the data, scripts, and article source for:
 ├── article/              Pre-generated article figures
 │   └── figures/          Article figures (PNG, 300 DPI)
 ├── scripts/
+│   ├── run_everything.R  One entry point: figures-only by default, --full to
+│   │                     regenerate data/pipeline/ (see "Reproducing" below)
 │   ├── fig_*.R           Figure scripts (one per article figure)
 │   ├── table_platform_coverage.R  Table 6: per-dataset ENTREZID coverage
 │   ├── generate_all.R    Regenerate all figures in one command
+│   ├── verify_article_claims.R    Check every numeric claim against the data
+│   ├── covariate_sweep.R          Supp Tables S3/S4: ComBat covariate variants
+│   ├── cv_comparators.R           Supp Table S1: methods x masking strategies
+│   ├── ga_matched_prater.R        Supp S6: GA-matched RNA-seq concordance
+│   ├── qpcr_recovery.R            17-gene benchmark recovery (11/17)
+│   ├── test4_coverage_patterns.R  Which datasets measure which genes
+│   ├── test4_block_holdout_de.R   Supp S5: block-holdout DE validation
+│   ├── test4b_coverage_cv.R       Coverage-stratified imputation accuracy
 │   ├── _common.R         Shared constants (paths, dimensions, phenodata)
-│   ├── lib/              Helper functions sourced by figure scripts
 │   └── pipeline/         Data integration pipeline (reproduces data/pipeline/)
 │       ├── run_phase2b.R             Main pipeline: merge → impute → ComBat → limma DE
 │       ├── imputation.R              softImpute and other imputation methods
@@ -47,11 +56,30 @@ This repository contains the data, scripts, and article source for:
     └── staircase_colors.yaml    Color scheme for staircase plot
 ```
 
+## Reproducing everything
+
+One entry point covers both the fast and the full case:
+
+```bash
+Rscript scripts/run_everything.R          # minutes: regenerate every figure and
+                                          # table from the shipped data/pipeline/,
+                                          # then verify the article's numbers
+Rscript scripts/run_everything.R --full   # hours: regenerate data/pipeline/ itself
+Rscript scripts/run_everything.R --full --force        # ignore existing outputs
+Rscript scripts/run_everything.R --full --only=pipeline
+Rscript scripts/run_everything.R --dry-run             # print the plan, run nothing
+```
+
+Stages whose outputs already exist are skipped unless `--force`, and every skip is
+printed — nothing is silently omitted. A run log is written to `run_everything.log`,
+and the run ends with `verify_article_claims.R`. The sections below document the
+individual steps that `run_everything.R` chains together.
+
 ## Reproducing figures
 
 All scripts run from the repository root.
 
-**Prerequisites:** R (>= 4.1). All R package dependencies are pinned in `renv.lock`.
+**Prerequisites:** R 4.5.0 (the version pinned in `renv.lock`, which also pins every package dependency).
 
 **Determinism notes:** the softImpute ALS solver starts from a random matrix; the pipeline seeds it (`imputation.softimpute.seed: 42` in the config), so re-runs are repeatable. The committed outputs in `data/pipeline/` predate the seeding and were produced by an unseeded run — a fresh seeded run reproduces the article's numbers up to a few borderline genes at the |logFC| = 1 cutoff, and `verify_article_claims.R` checks the claims against the committed outputs, not a re-run. KEGG enrichment (`fig_enrichment.R`) queries the live KEGG database (accessed 2026-08-17) and is not version-pinned; the committed enrichment tables are the reference.
 
@@ -89,9 +117,36 @@ Rscript scripts/pipeline/test1_first_trim_subsample.R --config=config/config_val
 Rscript scripts/pipeline/test1b_vs_balanced.R --config=config/config_validation.yaml
 Rscript scripts/pipeline/test2_balanced_subsample.R --config=config/config_validation.yaml
 Rscript scripts/pipeline/test3_split_half.R --config=config/config_validation.yaml
+
+# ComBat covariate sweep -- Supplementary Tables S3 and S4
+Rscript scripts/pipeline/run_phase2b.R --config=config/config_covariate_categorical.yaml
+Rscript scripts/pipeline/run_phase2b.R --config=config/config_covariate_poly2.yaml
+Rscript scripts/pipeline/run_phase2b.R --config=config/config_covariate_ns3.yaml
+for v in linear categorical poly2 ns3; do
+  Rscript scripts/pipeline/test1_first_trim_subsample.R \
+    --config=config/config_validation_covariate_$v.yaml
+done
+Rscript scripts/covariate_sweep.R
+
+# GA-matched cohort for the Prater comparison -- Supplementary Section 6
+Rscript scripts/pipeline/run_phase2b.R --config=config/config_ga_matched_prater.yaml
+Rscript scripts/ga_matched_prater.R
+
+# Imputation-method comparison -- Supplementary Table S1
+Rscript scripts/cv_comparators.R
+
+# Block-holdout DE validation -- Supplementary Section 5
+Rscript scripts/test4_coverage_patterns.R
+Rscript scripts/test4_block_holdout_de.R
+Rscript scripts/test4b_coverage_cv.R
 ```
 
 Validation tests use parallel execution (`n_cores: 10` in config) and take ~30-60 minutes total.
+
+Note that the covariate-variant subsampling runs write to
+`data/pipeline/validation_covariate_*/`, deliberately separate from
+`data/pipeline/validation/`, so the canonical validation outputs the article's
+numbers derive from are never overwritten.
 
 ## Article figures
 
@@ -137,8 +192,12 @@ Validation tests use parallel execution (`n_cores: 10` in config) and take ~30-6
 | Prater concordance | r=0.646, CCC=0.529, 370 shared DEGs | `scripts/fig_rnaseq_concordance.R` |
 | Balanced reference DEGs | 484 | `data/pipeline/balanced/difexp_significant_softimpute_combat_ref.tsv` |
 | Balanced overlap | 86.8% (467/538) | `data/pipeline/validation/test1b_vs_balanced.tsv` |
-| Subsampling Jaccard @N=30 | 0.689 | `data/pipeline/validation/test1_first_trim_subsample.tsv` |
-| Split-half Jaccard | 0.45 | `data/pipeline/validation/test3_split_half.tsv` |
+| Subsampling Jaccard @N=30 | 0.712 | `data/pipeline/validation/test1_first_trim_subsample.tsv` |
+| Subsampling DEG retention @N=10 → N=30 | 90.3% → 91.8% | same |
+| Subsampling CCC @N=10 | 0.88 | same |
+| Split-half Jaccard | 0.402 | `data/pipeline/validation/test3_split_half.tsv` |
+| Split-half DEG retention | 84.1% | same |
+| Split-half logFC CCC | 0.705 | same |
 | GO BP terms (full 538) | 678 | `scripts/fig_enrichment.R` output |
 | KEGG pathways (full 538) | 43 | same |
 | Gained genes in Lykhenko 2021 limma table | 242/262 | `scripts/verify_article_claims.R` vs `data/references/lykhenko_2021_full_protein_coding.csv` |
@@ -158,14 +217,17 @@ Produces `replication_report.md` with a claim-by-claim comparison against compan
 
 Expression data is derived from six GEO datasets:
 
-| Dataset    | Platform    | Samples | Trimester |
-|------------|-------------|---------|-----------|
-| GSE100051  | GPL6244     | 49      | 1st + 2nd |
-| GSE122214  | GPL6244     | 4       | 1st       |
-| GSE28551   | GPL6947     | 16      | 1st       |
-| GSE37901   | GPL6947     | 4       | 2nd       |
-| GSE93520   | GPL6244     | 36      | 1st       |
-| GSE9984    | GPL570      | 8       | 1st + 2nd |
+| Dataset    | Platform  | Array                              | Samples | 1st | 2nd |
+|------------|-----------|------------------------------------|---------|-----|-----|
+| GSE100051  | GPL10558  | Illumina HumanHT-12 V4.0           | 49      | 42  | 7   |
+| GSE122214  | GPL570    | Affymetrix HG-U133 Plus 2.0        | 4       | 4   | 0   |
+| GSE28551   | GPL2986   | ABI Human Genome Survey v2         | 16      | 16  | 0   |
+| GSE37901   | GPL570    | Affymetrix HG-U133 Plus 2.0        | 4       | 0   | 4   |
+| GSE93520   | GPL6480   | Agilent Whole Human Genome 4x44K   | 36      | 36  | 0   |
+| GSE9984    | GPL570    | Affymetrix HG-U133 Plus 2.0        | 8       | 4   | 4   |
+
+Platform IDs and per-trimester counts are taken from `data/phenodata.tsv`
+(healthy samples, first and second trimester only; 117 total).
 
 The pipeline that produced the intermediate data files is available in the [main analysis repository](https://github.com/sashkow/integrative-gene-expression-analysis).
 
@@ -173,4 +235,18 @@ Reference tables in `data/references/`: `lykhenko_2021_deg.csv` and `lykhenko_20
 
 ## License
 
-This work is provided for research reproducibility. Expression data originates from NCBI GEO and is subject to the original depositors' terms.
+The **code** in this repository (`scripts/`, `config/`) is released under the
+MIT License — see [LICENSE](LICENSE).
+
+**Redistributed data** is not covered by that license and carries the terms of
+its original source:
+
+| Content | Source | Terms |
+|---------|--------|-------|
+| `data/expression/GSE*.tsv` | NCBI GEO series GSE100051, GSE122214, GSE28551, GSE37901, GSE93520, GSE9984 | Processed derivatives (probe-to-gene collapsed, ENTREZID-keyed) of publicly available GEO records; subject to the original depositors' terms. Cite the source studies, not this repository, when reusing the measurements. |
+| `data/references/prater_2021_supp_tables.xlsx` | Supplementary tables of Prater et al. 2021 | Redistributed for verification of the concordance analysis under the publisher's terms for supplementary data; cite Prater et al. 2021. |
+| `data/references/lykhenko_2021_*.csv` | Lykhenko et al. 2021 | Authors' own prior published results, redistributed here for comparison. |
+| `data/pipeline/**` | Generated by this repository's scripts from the above inputs | MIT, same as the code. |
+
+If you redistribute the GEO-derived matrices, retain the accession
+attributions above.

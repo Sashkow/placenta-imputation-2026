@@ -1,0 +1,28 @@
+=== Coverage patterns in the merged matrix ===
+Datasets: GSE100051, GSE122214, GSE28551, GSE37901, GSE93520, GSE9984  (reference batch: GSE100051)
+Genes: 17531   intersection (k=6): 8260   non-intersection: 9271
+
+Genes per coverage tier k:
+  k=1: 144
+  k=2: 164
+  k=3: 3606
+  k=4: 2378
+  k=5: 2979
+  k=6: 8260
+
+Distinct presence patterns among non-intersection genes: 11
+Non-intersection genes WITHOUT the reference batch: 5770 (62.2%)
+
+=== Gained DEGs ===
+Gained DEGs: 262 (234 outside the intersection, 28 intersection genes crossing threshold)
+Gained DEGs carrying the reference batch: 262/262
+
+Reference-batch enrichment among non-intersection gained DEGs:
+  observed with ref batch: 234/234
+  expected if independent: 88.4
+  Fisher exact p = <2e-16   odds ratio = Inf
+
+Interpretation: a gene whose blocks must be anchored entirely on imputed
+values in the reference batch is far less likely to be called differentially
+expressed. This is the population test4 masks into, so replicate masks must
+reproduce the real pattern frequencies rather than sampling k uniformly.

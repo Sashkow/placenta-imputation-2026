@@ -1,0 +1,80 @@
+# ComBat covariate sweep - variant 4/4: ns(GA, df=3).
+# ComBat model matrix is ~ ns(ga_weeks, df=3) + fetux_sex_estimate.
+# Reproduces the 'ns(GA, df=3)' row of Supplementary Table S2 (518 DEGs).
+
+paths:
+  mapped_data: "data/expression"
+  phenodata: "data/phenodata.tsv"
+  output: "data/pipeline/covariate_ns3"
+  column_map:
+    arraydatafile_exprscolumnnames: "sample_id"
+    secondaryaccession: "dataset_id"
+    Gestational.Age.Category: "trimester"
+    Diagnosis: "condition"
+
+files:
+  suffix: ""
+  file_map:
+    GSE28551: "GSE28551.tsv"
+  datasets:
+    - "GSE100051"
+    - "GSE122214"
+    - "GSE28551"
+    - "GSE37901"
+    - "GSE93520"
+    - "GSE9984"
+
+sample_filter:
+  condition: ["healthy"]
+  trimester: ["First trimester", "Second trimester"]
+
+phenotype:
+  group_column: "trimester"
+  baseline: "First trimester"
+  contrast: "Second trimester"
+  covariates: ["fetux_sex_estimate"]
+  combat_bio_covariate: "ga_weeks"
+  combat_bio_spline_df: 3
+
+imputation:
+  softimpute:
+    enabled: true
+    rank_max: 30
+    lambda: 0
+    thresh: 1e-4
+    maxit: 50
+    type: "als"
+    seed: 42  # ALS starts from a random matrix; fixed seed makes runs repeatable
+  none:
+    enabled: true
+
+normalization:
+  combat_ref:
+    enabled: true
+    ref_batch: "GSE100051"
+
+coverage:
+  min_datasets: 1
+  drop_imputed_genes_missing_in_group: true
+
+de:
+  imputed_cell_weight: 0.0
+
+thresholds:
+  fdr: 0.05
+  logfc: 1.0
+
+gene_filter:
+  protein_coding_only: true
+  # min_variance: 0.01   # not read by the pipeline; retained for documentation only
+
+validation:
+  leave_out_fraction: 0.1
+  n_repeats: 3
+  mask_type: "gene_dataset_block"
+
+output:
+  save_imputed_matrices: true
+  save_normalized_matrices: true
+  save_validation_report: true
+  save_comparison_plots: true

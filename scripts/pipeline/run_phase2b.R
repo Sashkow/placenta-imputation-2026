@@ -273,6 +273,41 @@ if (!is.null(config$sample_filter) && length(config$sample_filter) > 0) {
   cat("  ", length(exprs_list), "datasets retained after filter\n")
 }
 
+## Gestational-age window filter.
+## Optional. Restricts each biological group to a closed GA window, e.g.
+##
+##   ga_filter:
+##     "First trimester":  [7, 8]
+##     "Second trimester": [13, 14]
+##
+## GA is resolved with compute_ga_weeks() (exact week, else midpoint of the
+## reported range, else trimester midpoint). Used to build the GA-matched
+## cohort for the Prater cross-technology comparison.
+if (!is.null(config$ga_filter) && length(config$ga_filter) > 0) {
+  cat("\nApplying gestational-age window filter:\n")
+  ga_all <- compute_ga_weeks(phenodata)
+  grp_all <- as.character(phenodata[[config$phenotype$group_column]])
+  ga_mask <- rep(FALSE, nrow(phenodata))
+  for (grp in names(config$ga_filter)) {
+    win <- as.numeric(unlist(config$ga_filter[[grp]]))
+    if (length(win) != 2) stop("ga_filter['", grp, "'] must be [min, max]")
+    hit <- !is.na(ga_all) & grp_all == grp & ga_all >= win[1] & ga_all <= win[2]
+    cat("  ", grp, ": weeks", win[1], "-", win[2], "->", sum(hit), "samples\n")
+    ga_mask <- ga_mask | hit
+  }
+  ga_samples <- phenodata$arraydatafile_exprscolumnnames[ga_mask]
+  cat("  ", length(ga_samples), "samples pass GA filter globally\n")
+
+  for (ds in names(exprs_list)) {
+    before <- ncol(exprs_list[[ds]])
+    keep_cols <- intersect(colnames(exprs_list[[ds]]), ga_samples)
+    exprs_list[[ds]] <- exprs_list[[ds]][, keep_cols, drop = FALSE]
+    cat("  ", ds, ":", before, "->", ncol(exprs_list[[ds]]), "samples\n")
+  }
+  exprs_list <- exprs_list[sapply(exprs_list, ncol) > 0]
+  cat("  ", length(exprs_list), "datasets retained after GA filter\n")
+}
+
 if (!is.null(config$per_dataset_filter)) {
   cat("\nApplying per-dataset filters:\n")
   for (ds in names(config$per_dataset_filter)) {

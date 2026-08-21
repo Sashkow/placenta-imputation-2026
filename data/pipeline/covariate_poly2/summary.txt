@@ -1,0 +1,36 @@
+Phase 2B: Direct Merge Improvements Summary
+==========================================
+
+Date: 2026-08-20 18:51:20.935388
+Config: config/config_covariate_poly2.yaml
+
+Comparison: Second trimester vs First trimester
+Datasets: GSE100051, GSE122214, GSE28551, GSE37901, GSE93520, GSE9984
+Coverage mode: fixed min_datasets = 1 of 6
+
+Gene Recovery: skipped (compare_gene_recovery disabled)
+
+Method Comparison:
+                 method imputation normalization n_genes n_significant n_up
+1           none_combat       none        combat    8260           224  165
+2       none_combat_ref       none    combat_ref    8260           225  165
+3     softimpute_combat softimpute        combat   17531           465  348
+4 softimpute_combat_ref softimpute    combat_ref   17531           472  358
+  n_down
+1     59
+2     60
+3    117
+4    114
+
+Imputed-gene coverage per comparison group:
+Genes in all datasets (no imputation): 8260
+Genes needing imputation somewhere:    9569
+  In BOTH groups with >=1 real value: 9271 / 9569
+  Missing entirely from First trimester : 0
+  Missing entirely from Second trimester: 298
+WARNING: some imputed genes lack real values in one comparison group - softimpute will synthesize their expression under that condition.
+Dropping 298 imputed genes without real values in both groups.
+
+Imputation Validation:
+      method correlation
+1 softimpute   0.8163613

@@ -57,7 +57,7 @@ thresholds:
 
 gene_filter:
   protein_coding_only: true
-  min_variance: 0.01
+  # min_variance: 0.01   # not read by the pipeline; retained for documentation only
 
 output:
   save_imputed_matrices: true

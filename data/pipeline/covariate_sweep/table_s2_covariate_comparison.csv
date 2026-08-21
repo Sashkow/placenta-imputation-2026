@@ -1,0 +1,5 @@
+"variant","label","genes_tested","fdr_only","degs","prater_r","prater_ccc","prater_shared_sig","qpcr_recovered","qpcr_total"
+"categorical","Categorical trimester",17531,6685,447,0.668646760752148,0.516661285224273,333,9,17
+"linear","Linear GA",17531,7340,538,0.646398430478026,0.52853986254793,370,11,17
+"poly2","Poly(GA, 2)",17531,7736,472,0.686789219921576,0.538995119802405,326,8,17
+"ns3","ns(GA, df=3)",17531,7790,518,0.67339350208968,0.536117916748513,361,10,17

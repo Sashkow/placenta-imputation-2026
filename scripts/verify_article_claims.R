@@ -15,6 +15,7 @@ results <- data.frame(
   claim = character(),
   article_value = character(),
   reproduced_value = character(),
+  tolerance = character(),
   status = character(),
   stringsAsFactors = FALSE
 )
@@ -30,6 +31,7 @@ add_result <- function(section, claim, article_val, reproduced_val, tol = NULL) 
     claim = claim,
     article_value = as.character(article_val),
     reproduced_value = as.character(reproduced_val),
+    tolerance = if (is.null(tol)) "exact" else format(tol, scientific = FALSE),
     status = status,
     stringsAsFactors = FALSE
   ))
@@ -41,6 +43,7 @@ add_not_verified <- function(section, claim, reason) {
     claim = claim,
     article_value = "—",
     reproduced_value = "—",
+    tolerance = "—",
     status = paste0("NOT VERIFIED (", reason, ")"),
     stringsAsFactors = FALSE
   ))
@@ -146,8 +149,28 @@ add_result("Section 3.4", "Jaccard at N=10", "0.54",
 test3 <- read.delim(file.path(validation_dir, "test3_split_half.tsv"))
 med_j_ab <- median(test3$jaccard_a_vs_b)
 
-add_result("Section 3.4", "Split-half median Jaccard between halves", "0.45",
-           round(med_j_ab, 2), tol = 0.05)
+# Tolerance tightened from 0.05 to 0.01: the loose value masked the fact that
+# the article prose quoted an older validation run (0.45) while the shipped
+# data gives 0.402.
+add_result("Section 3.4", "Split-half median Jaccard between halves", "0.402",
+           round(med_j_ab, 3), tol = 0.01)
+add_result("Supp S3", "Split-half DEG retention", "84.1",
+           round(100 * median(c(test3$overlap_a_vs_full, test3$overlap_b_vs_full)), 1),
+           tol = 0.1)
+add_result("Supp S3", "Split-half logFC CCC between halves", "0.705",
+           round(median(test3$logfc_ccc_a_vs_b), 3), tol = 0.01)
+
+# --- 4b. Convergence numbers synced to the canonical run ---
+add_result("Supp S3", "Subsampling DEG retention at N=10", "90.3",
+           round(100 * median(test1$overlap_vs_full[test1$N_1st == 10]), 1), tol = 0.1)
+add_result("Supp S3", "Subsampling DEG retention at N=30", "91.8",
+           round(100 * median(test1$overlap_vs_full[test1$N_1st == 30]), 1), tol = 0.1)
+add_result("Supp S3", "Subsampling logFC CCC at N=10", "0.88",
+           round(median(test1$logfc_ccc_vs_full[test1$N_1st == 10]), 2), tol = 0.01)
+add_result("Supp S3", "Subsampling logFC CCC at N=100", "1.00",
+           round(median(test1$logfc_ccc_vs_full[test1$N_1st == 100]), 2), tol = 0.01)
+add_result("Section 3.4", "Jaccard at N=100", "0.98",
+           round(median(test1$jaccard_vs_full[test1$N_1st == 100]), 2), tol = 0.01)
 
 # --- 6. Balanced reference (Section 3.4) ---
 
@@ -271,6 +294,170 @@ if (file.exists(lykhenko_full_file) && !is.null(degs_soft_ref) &&
                    "lykhenko_2021_full_protein_coding.csv or DEG tables missing")
 }
 
+# --- 9. Enrichment q-values and term counts (Section 3.3) ---
+# Previously unchecked; the article's q-values had drifted from the shipped CSVs.
+
+enr <- function(f) {
+  p <- file.path(enrichment_dir, f)
+  if (file.exists(p)) read.csv(p, stringsAsFactors = FALSE) else NULL
+}
+q_of <- function(d, desc) {
+  if (is.null(d)) return(NA_real_)
+  i <- which(d$Description == desc)
+  if (!length(i)) NA_real_ else d$qvalue[i[1]]
+}
+fmt_q <- function(x) if (is.na(x)) "NA" else signif(x, 2)
+
+go_full  <- enr("enrichment_full_538_GO_BP.csv")
+kegg_full <- enr("enrichment_full_538_KEGG.csv")
+go_int   <- enr("enrichment_intersection_277_GO_BP.csv")
+kegg_int <- enr("enrichment_intersection_277_KEGG.csv")
+go_gain  <- enr("enrichment_gained_262_GO_BP.csv")
+kegg_gain <- enr("enrichment_gained_262_KEGG.csv")
+
+if (!is.null(go_full) && !is.null(kegg_full)) {
+  add_result("Section 3.3", "GO BP terms (full 538)", "678", nrow(go_full))
+  add_result("Section 3.3", "KEGG pathways (full 538)", "43", nrow(kegg_full))
+  add_result("Section 3.3", "GO BP terms (intersection 277)", "292", nrow(go_int))
+  add_result("Section 3.3", "KEGG pathways (intersection 277)", "25", nrow(kegg_int))
+  add_result("Section 3.3", "GO BP terms (gained 262)", "240", nrow(go_gain))
+  add_result("Section 3.3", "KEGG pathways (gained 262)", "24", nrow(kegg_gain))
+
+  add_result("Section 3.3", "q: positive regulation of cytokine production (full)",
+             "7.9e-15", fmt_q(q_of(go_full, "positive regulation of cytokine production")),
+             tol = 1e-15)
+  add_result("Section 3.3", "q: leukocyte migration (full)",
+             "1.3e-11", fmt_q(q_of(go_full, "leukocyte migration")), tol = 1e-12)
+  add_result("Section 3.3", "q: chemotaxis (full)",
+             "6.9e-11", fmt_q(q_of(go_full, "chemotaxis")), tol = 1e-12)
+  add_result("Section 3.3", "q: humoral immune response (full)",
+             "1.1e-10", fmt_q(q_of(go_full, "humoral immune response")), tol = 1e-11)
+  add_result("Section 3.3", "q: hsa05150 S. aureus infection (full)",
+             "3.2e-10", fmt_q(q_of(kegg_full, "Staphylococcus aureus infection")), tol = 1e-11)
+  add_result("Section 3.3", "q: hsa04610 complement and coagulation (full)",
+             "1.5e-09", fmt_q(q_of(kegg_full, "Complement and coagulation cascades")), tol = 1e-10)
+  add_result("Section 3.3", "q: hsa04514 cell adhesion molecules (full)",
+             "3.1e-06", fmt_q(q_of(kegg_full, "Cell adhesion molecule (CAM) interaction")), tol = 1e-7)
+  add_result("Section 3.3", "q: chemotaxis (gained)",
+             "6.5e-07", fmt_q(q_of(go_gain, "chemotaxis")), tol = 1e-7)
+  add_result("Section 3.3", "q: leukocyte migration (gained)",
+             "6.5e-07", fmt_q(q_of(go_gain, "leukocyte migration")), tol = 1e-7)
+  add_result("Section 3.3", "q: hsa04145 phagocytosis (gained)",
+             "3.2e-03", fmt_q(q_of(kegg_gain, "Phagocytosis")), tol = 1e-4)
+
+  shared_go <- length(intersect(go_gain$Description, go_int$Description))
+  shared_kegg <- length(intersect(kegg_gain$Description, kegg_int$Description))
+  add_result("Section 3.4", "Gained GO BP terms shared with intersection", "83", shared_go)
+  add_result("Section 3.4", "Gained KEGG pathways shared with intersection", "8", shared_kegg)
+} else {
+  add_not_verified("Section 3.3", "Enrichment q-values",
+                   "data/pipeline/main/enrichment/ CSVs missing")
+}
+
+# --- 10. Gained-DEG composition (Section 3.3) ---
+if (!is.null(degs_soft_ref) && file.exists(none_sig_file) &&
+    file.exists(file.path(main_dir, "exprs_imputed_none.tsv"))) {
+  int_only <- rownames(read.delim(file.path(main_dir, "exprs_imputed_none.tsv"),
+                                  row.names = 1, check.names = FALSE))
+  degs_int2 <- read.delim(none_sig_file)
+  gained2 <- setdiff(degs_soft_ref$gene, degs_int2$gene)
+  add_result("Section 3.3", "Gained DEGs that are intersection genes", "28",
+             sum(gained2 %in% int_only))
+  add_result("Section 3.3", "Gained DEGs testable only via imputation", "234",
+             sum(!(gained2 %in% int_only)))
+}
+
+# --- 11. qPCR benchmark recovery (Supp S6) ---
+qpcr_file <- file.path(base_dir, "data", "references", "qpcr_benchmark_genes.csv")
+full_de_file <- file.path(main_dir, "difexp_softimpute_combat_ref.tsv")
+if (file.exists(qpcr_file) && file.exists(full_de_file)) {
+  bench <- read.csv(qpcr_file, stringsAsFactors = FALSE)
+  full_de <- read.delim(full_de_file, stringsAsFactors = FALSE)
+  idx <- match(as.character(bench$entrez_id), as.character(full_de$gene))
+  hit <- !is.na(idx) & full_de$adj.P.Val[idx] < 0.05 &
+         abs(full_de$logFC[idx]) > 1
+  add_result("Supp S6", "qPCR benchmark genes recovered as DEGs", "11", sum(hit, na.rm = TRUE))
+} else {
+  add_not_verified("Supp S6", "qPCR benchmark recovery",
+                   "qpcr_benchmark_genes.csv or full DE table missing")
+}
+
+# --- 12. GA-matched Prater re-analysis (Supp S5) ---
+ga_file <- file.path(pipeline_dir, "ga_matched_prater", "prater_concordance.csv")
+if (file.exists(ga_file)) {
+  ga <- read.csv(ga_file)
+  add_result("Supp S5", "GA-matched testable genes", "11761", ga$genes_tested[1])
+  add_result("Supp S5", "GA-matched DEGs", "603", ga$degs[1])
+  add_result("Supp S5", "GA-matched shared genes with Prater", "1992", ga$shared_genes[1])
+  add_result("Supp S5", "GA-matched Prater Pearson r", "0.808",
+             round(ga$prater_r[1], 3), tol = 0.002)
+  add_result("Supp S5", "GA-matched Prater CCC", "0.755",
+             round(ga$prater_ccc[1], 3), tol = 0.002)
+} else {
+  add_not_verified("Supp S5", "GA-matched Prater re-analysis",
+                   "run scripts/ga_matched_prater.R first")
+}
+
+# --- 13. ComBat covariate sweep (Supp Tables S2/S3) ---
+sweep_file <- file.path(pipeline_dir, "covariate_sweep", "table_s2_covariate_comparison.csv")
+if (file.exists(sweep_file)) {
+  sw <- read.csv(sweep_file, stringsAsFactors = FALSE)
+  want <- c(categorical = 447, linear = 538, poly2 = 472, ns3 = 518)
+  for (v in names(want)) {
+    r <- sw[sw$variant == v, ]
+    if (nrow(r)) add_result("Supp S6", paste0("Covariate sweep DEGs (", v, ")"),
+                            want[[v]], r$degs[1])
+  }
+  wq <- c(categorical = 9, linear = 11, poly2 = 8, ns3 = 10)
+  for (v in names(wq)) {
+    r <- sw[sw$variant == v, ]
+    if (nrow(r)) add_result("Supp S6", paste0("Covariate sweep qPCR recovered (", v, ")"),
+                            wq[[v]], r$qpcr_recovered[1])
+  }
+} else {
+  add_not_verified("Supp S6", "ComBat covariate sweep (Tables S2/S3)",
+                   "run scripts/covariate_sweep.R first")
+}
+
+# --- 13b. Subsampling stability of the four covariate specs (Supp Table S4) ---
+jac_file <- file.path(pipeline_dir, "covariate_sweep", "table_s3_covariate_stability.csv")
+if (file.exists(jac_file)) {
+  jc <- read.csv(jac_file, stringsAsFactors = FALSE)
+  published <- list(
+    "10"  = c(categorical = 0.453, linear = 0.484, poly2 = 0.437, ns3 = 0.451),
+    "30"  = c(categorical = 0.639, linear = 0.662, poly2 = 0.579, ns3 = 0.594),
+    "100" = c(categorical = 0.970, linear = 0.978, poly2 = 0.959, ns3 = 0.951))
+  for (n in names(published)) {
+    row <- jc[jc$N_1st == as.integer(n), ]
+    if (!nrow(row)) next
+    for (v in names(published[[n]])) {
+      if (!v %in% colnames(row)) next
+      add_result("Supp S6", sprintf("Within-size Jaccard N=%s (%s)", n, v),
+                 published[[n]][[v]], round(row[[v]][1], 3), tol = 0.001)
+    }
+  }
+  # the property the covariate choice actually rests on
+  all_best <- all(jc$linear > jc$categorical & jc$linear > jc$poly2 & jc$linear > jc$ns3)
+  add_result("Supp S6", "Linear GA most reproducible at every subsample size",
+             "TRUE", as.character(all_best))
+} else {
+  add_not_verified("Supp S6", "Covariate subsampling stability (Table S4)",
+                   "run the four config_validation_covariate_*.yaml test1 runs first")
+}
+
+# --- 14. Coverage patterns / reference-batch finding (test 4.1) ---
+cov_file <- file.path(pipeline_dir, "test4", "coverage_patterns_gained.csv")
+if (file.exists(cov_file)) {
+  cp <- read.csv(cov_file, stringsAsFactors = FALSE)
+  add_result("Section 3.3", "Gained DEGs carrying the ComBat reference batch",
+             "262", sum(cp$n_genes[cp$has_ref_batch]))
+  add_result("Section 3.3", "Gained DEGs lacking the ComBat reference batch",
+             "0", sum(cp$n_genes[!cp$has_ref_batch]))
+} else {
+  add_not_verified("Section 3.3", "Coverage patterns of gained DEGs",
+                   "run scripts/test4_coverage_patterns.R first")
+}
+
 # --- Build report ---
 
 n_match <- sum(results$status == "MATCH")
@@ -307,14 +494,14 @@ report <- c(report,
   "",
   "## Comparison Table",
   "",
-  "| Section | Claim | Article | Reproduced | Status |",
-  "|---------|-------|---------|------------|--------|"
+  "| Section | Claim | Article | Reproduced | Tolerance | Status |",
+  "|---------|-------|---------|------------|-----------|--------|"
 )
 
 for (i in seq_len(nrow(results))) {
-  report <- c(report, sprintf("| %s | %s | %s | %s | %s |",
+  report <- c(report, sprintf("| %s | %s | %s | %s | %s | %s |",
     results$section[i], results$claim[i], results$article_value[i],
-    results$reproduced_value[i], results$status[i]))
+    results$reproduced_value[i], results$tolerance[i], results$status[i]))
 }
 
 report <- c(report, "", "## Reproduction Outcome", "")

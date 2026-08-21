@@ -61,7 +61,7 @@ thresholds:
 
 gene_filter:
   protein_coding_only: true
-  min_variance: 0.01
+  # min_variance: 0.01   # not read by the pipeline; retained for documentation only
 
 validation:
   leave_out_fraction: 0.1

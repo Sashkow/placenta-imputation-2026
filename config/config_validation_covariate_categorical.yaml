@@ -43,7 +43,7 @@ imputation:
   softimpute:
     rank_max: 30
     lambda: 0
-    thresh: 1e-4
+    thresh: 1.0e-4
     maxit: 50
     type: "als"
 

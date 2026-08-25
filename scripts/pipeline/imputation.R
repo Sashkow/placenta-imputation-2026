@@ -850,14 +850,20 @@ impute_batch_mean <- function(incomplete) {
 #' @export
 IMPUTERS <- list(
   softimpute = function(incomplete, cfg = list()) {
+    ## YAML 1.1 (R's yaml package) reads exponent notation without a dot, such
+    ## as `thresh: 1e-4`, as a STRING. softImpute's ALS loop then compares
+    ## `ratio > thresh` as strings ("1" > "1e-4" is FALSE) and never iterates,
+    ## leaving the biScale gene+sample means as the "imputation". Coerce every
+    ## numeric option so the config value is honoured regardless of notation.
+    num <- function(v, d) if (is.null(v)) d else as.numeric(v)
     impute_softimpute(
       incomplete,
-      rank_max = cfg$rank_max %||% 50,
-      lambda   = cfg$lambda   %||% 0,
-      thresh   = cfg$thresh   %||% 1e-5,
-      maxit    = cfg$maxit    %||% 100,
+      rank_max = num(cfg$rank_max, 50),
+      lambda   = num(cfg$lambda,   0),
+      thresh   = num(cfg$thresh,   1e-5),
+      maxit    = num(cfg$maxit,    100),
       type     = cfg$type     %||% "als",
-      seed     = cfg$seed     %||% 42
+      seed     = num(cfg$seed,     42)
     )
   },
   knn = function(incomplete, cfg = list()) {

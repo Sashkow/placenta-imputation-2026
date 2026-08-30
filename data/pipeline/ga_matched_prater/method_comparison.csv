@@ -1,5 +1,5 @@
 "method","imputation","normalization","n_genes","n_significant","n_up","n_down"
 "none_combat","none","combat",9677,373,243,130
 "none_combat_ref","none","combat_ref",9677,374,244,130
-"softimpute_combat","softimpute","combat",11761,604,456,148
-"softimpute_combat_ref","softimpute","combat_ref",11761,603,455,148
+"softimpute_combat","softimpute","combat",11761,603,455,148
+"softimpute_combat_ref","softimpute","combat_ref",11761,602,454,148

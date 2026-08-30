@@ -1,5 +1,5 @@
 "method","imputation","normalization","n_genes","n_significant","n_up","n_down"
 "none_combat","none","combat",11154,412,348,64
 "none_batch_in_limma","none","batch_in_limma",11154,390,325,65
-"softimpute_combat","softimpute","combat",17531,458,382,76
+"softimpute_combat","softimpute","combat",17531,459,383,76
 "softimpute_batch_in_limma","softimpute","batch_in_limma",17531,424,351,73

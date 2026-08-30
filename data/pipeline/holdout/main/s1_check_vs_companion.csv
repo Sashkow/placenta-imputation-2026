@@ -1,0 +1,4 @@
+"scheme","r_mean","rmse_mean","companion_scheme","companion_r","diff","note"
+"random_cells",0.993203605395762,0.332219900713548,"random_cells",0.993,0.000203605395762363,""
+"gene_dataset_block",0.817415279112078,1.51712204616235,"gene_dataset_block",0.816,0.00141527911207806,""
+"progressive_tax_block",0.824247946948337,1.5986476405143,"gene_dataset_block_hard",0.85,-0.0257520530516626,"companion ran gene_dataset_block_hard under the worst-case label; not the same scheme"

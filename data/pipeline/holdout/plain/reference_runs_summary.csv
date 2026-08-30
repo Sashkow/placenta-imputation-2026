@@ -1,0 +1,2 @@
+"method","label","n_genes_tested","n_nonfinite","n_deg","shared_with_softimpute","jaccard_vs_softimpute","logfc_r_vs_softimpute","logfc_ccc_vs_softimpute","imputation_seconds"
+"softimpute","softImpute",17531,0,525,525,1,1,1,32.3

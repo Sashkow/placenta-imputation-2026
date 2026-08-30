@@ -20,12 +20,24 @@ This repository contains the data, scripts, and pre-generated figures for:
 │   ├── generate_all.R    Regenerate all figures in one command
 │   ├── verify_article_claims.R    Check every numeric claim against the data
 │   ├── covariate_sweep.R          Supp Tables S3/S4: ComBat covariate variants
-│   ├── cv_comparators.R           Supp Table S1: methods x masking strategies
+│   ├── cv_comparators.R           Earlier imputation-method comparison (superseded by holdout_*)
 │   ├── ga_matched_prater.R        Supp S6: GA-matched RNA-seq concordance
 │   ├── qpcr_recovery.R            17-gene benchmark recovery (11/17)
-│   ├── test4_coverage_patterns.R  Which datasets measure which genes
-│   ├── test4_block_holdout_de.R   Supp S5: block-holdout DE validation
-│   ├── test4b_coverage_cv.R       Coverage-stratified imputation accuracy
+│   ├── test4_coverage_patterns.R  Which datasets measure which genes (coverage census)
+│   │   (batch-in-limma variants: config_batch_in_limma.yaml, config_balanced_batch_in_limma.yaml,
+│   │    config_validation_batch_in_limma.yaml -- exploratory one-step model, NOT reported in the article)
+│   ├── holdout_common.R           Unified holdout: shared setup (masks, ComBat, limma)
+│   ├── holdout_reference_runs.R   Full-data run per imputer (the known answer)
+│   ├── holdout_unified.R          One mask, two readouts: imputed values + DE calls (M/F/O arms)
+│   ├── holdout_tables.R           Supp Tables S1, S2, S5, S6 from the holdout outputs
+│   ├── holdout_confusion.R        Main-text holdout table, Supp Table S3, weight-1 summary
+│   ├── holdout_by_dataset.R       Supp Table S4: split by hidden dataset, ComBat-ref vs plain
+│   ├── de_sweep_numbers.R         Every DE-derived article number as name/value rows
+│   ├── verify_holdout_claims.R    Audit of the article's holdout/DE numbers (claims_article.csv)
+│   ├── test4_block_holdout_de.R   SUPERSEDED by holdout_*.R (kept for the record)
+│   ├── test4b_coverage_cv.R       SUPERSEDED by holdout_*.R (kept for the record)
+│   ├── test4b_refbatch_split.R    SUPERSEDED by holdout_*.R (kept for the record)
+│   ├── fig_imputation_range.R     Supp Fig S1: CV range plot (reads holdout table_s1.csv)
 │   ├── _common.R         Shared constants (paths, dimensions, phenodata)
 │   └── pipeline/         Data integration pipeline (reproduces data/pipeline/)
 │       ├── run_phase2b.R             Main pipeline: merge → impute → ComBat → limma DE
@@ -66,7 +78,7 @@ Rscript scripts/run_everything.R          # minutes: regenerate every figure and
                                           # then verify the article's numbers
 Rscript scripts/run_everything.R --full   # hours: regenerate data/pipeline/ itself
 Rscript scripts/run_everything.R --full --force        # ignore existing outputs
-Rscript scripts/run_everything.R --full --only=pipeline
+Rscript scripts/run_everything.R --full --only=pipeline     # groups: pipeline, validation, holdout, analysis, figures
 Rscript scripts/run_everything.R --dry-run             # print the plan, run nothing
 ```
 
@@ -132,14 +144,37 @@ Rscript scripts/covariate_sweep.R
 Rscript scripts/pipeline/run_phase2b.R --config=config/config_ga_matched_prater.yaml
 Rscript scripts/ga_matched_prater.R
 
-# Imputation-method comparison -- Supplementary Table S1
-Rscript scripts/cv_comparators.R
-
-# Block-holdout DE validation -- Supplementary Section 5
+# Coverage census (which datasets measure which genes)
 Rscript scripts/test4_coverage_patterns.R
-Rscript scripts/test4_block_holdout_de.R
-Rscript scripts/test4b_coverage_cv.R
+
+# Unified holdout validation -- Supp Tables S1-S6 and the main-text holdout table.
+# One set of masks (random cells / gene-dataset block / worst-case block; 10% of
+# observed cells, 3 seeded repeats) is imputed by every method; the hidden cells are
+# scored against the truth AND the imputed matrix is carried through ComBat and limma
+# so the DE calls of the masked genes are scored against each imputer's own full run.
+Rscript scripts/holdout_reference_runs.R                       # full-data run per imputer
+Rscript scripts/holdout_unified.R                              # 3 schemes x 3 repeats x 5 imputers (~3 h; imputePCA dominates)
+Rscript scripts/holdout_reference_runs.R --config=config/config_holdout_w1.yaml --methods=softimpute
+Rscript scripts/holdout_unified.R        --config=config/config_holdout_w1.yaml --methods=softimpute      # imputed cells at weight 1
+Rscript scripts/holdout_reference_runs.R --config=config/config_holdout_plain_combat.yaml --methods=softimpute
+Rscript scripts/holdout_unified.R        --config=config/config_holdout_plain_combat.yaml --methods=softimpute  # plain ComBat
+Rscript scripts/holdout_tables.R
+Rscript scripts/holdout_by_dataset.R --dirs=data/pipeline/holdout/main,data/pipeline/holdout/plain --labels="ComBat-ref,plain ComBat"
+Rscript scripts/holdout_confusion.R
+Rscript scripts/holdout_confusion.R --config=config/config_holdout_w1.yaml --w1_ref=data/pipeline/holdout/main/reference/softimpute_difexp.csv
+Rscript scripts/holdout_confusion.R --config=config/config_holdout_plain_combat.yaml
+Rscript scripts/de_sweep_numbers.R
+Rscript scripts/verify_holdout_claims.R                        # 281 article numbers vs their source CSVs
 ```
+
+Holdout outputs live in `data/pipeline/holdout/{main,w1,plain}/`: `masks/` (the
+saved masks), `reference/` (full-data DE tables and corrected matrices per imputer),
+`values/` and `de/` (per scheme x repeat x imputer), and the summary tables
+(`table_s1.csv`, `table_s3_arms.csv`, `table_s2.csv`, `confusion_full_vs_masked.csv`,
+`by_dataset.csv`, `de_sweep_numbers.csv`, `claims_article.csv`). `run_everything.R
+--full` runs these as the `holdout` stage group and `analysis:holdout_tables`;
+the earlier `test4_block_holdout_de.R` / `test4b_*` stages were retired in 2026-08
+when the unified design replaced them.
 
 Validation tests use parallel execution (`n_cores: 10` in config) and take ~30-60 minutes total.
 
@@ -163,6 +198,7 @@ numbers derive from are never overwritten.
 | 9 | Three-way Venn | `scripts/fig_venn.R` | `data/pipeline/main/difexp_significant_*.tsv`, `data/references/lykhenko_2021_deg.csv` |
 | 10 | RNA-seq concordance (Prater) | `scripts/fig_rnaseq_concordance.R` | `data/pipeline/main/difexp_softimpute_combat_ref.tsv`, `data/references/prater_2021_supp_tables.xlsx` |
 | 11 | Pipeline overview diagram | manually created | — |
+| S1 | Imputation CV range plot (renders Supp Table S1) | `scripts/fig_imputation_range.R` | `data/pipeline/holdout/main/table_s1.csv`; no-skill anchors computed from the union matrix |
 
 ## Article tables
 

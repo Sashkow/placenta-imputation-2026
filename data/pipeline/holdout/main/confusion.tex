@@ -1,0 +1,22 @@
+\begingroup\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lrrrrrrr@{}}
+\toprule
+\textbf{Stratum} & \textbf{Genes} & \textbf{Stayed DEG} & \textbf{DEG $\to$ not} & \textbf{Not $\to$ DEG} & \textbf{Stayed not} & \textbf{Lost \%} & \textbf{Gained \%} \\
+\midrule
+\multicolumn{8}{@{}l}{\textit{random cells} (17{,}531 genes per run; 0 dropped before testing)} \\[2pt]
+all masked genes & 17{,}531 & 508 $\pm$ 4 & 22 $\pm$ 4 & 27 $\pm$ 3 & 16974 $\pm$ 3 & 4.2 & 0.16 \\
+GSE100051 visible & 11{,}761 & 501 $\pm$ 4 & 21 $\pm$ 4 & 26 $\pm$ 3 & 11213 $\pm$ 3 & 4.1 & 0.23 \\
+GSE100051 hidden & 5{,}770 & 7 $\pm$ 0 & 1 $\pm$ 0 & 0 $\pm$ 1 & 5762 $\pm$ 1 & 12.5 & 0.01 \\
+\addlinespace
+\multicolumn{8}{@{}l}{\textit{gene--dataset block} (5{,}157 genes per run; 28 dropped before testing)} \\[2pt]
+all masked genes & 5{,}157 & 137 $\pm$ 9 & 45 $\pm$ 5 & 10 $\pm$ 1 & 4965 $\pm$ 60 & 24.8 & 0.21 \\
+GSE100051 visible & 3{,}911 & 131 $\pm$ 11 & 9 $\pm$ 1 & 10 $\pm$ 0 & 3761 $\pm$ 61 & 6.4 & 0.27 \\
+GSE100051 hidden & 1{,}246 & 5 $\pm$ 3 & 36 $\pm$ 4 & 0 $\pm$ 1 & 1204 $\pm$ 6 & 87.1 & 0.03 \\
+\addlinespace
+\multicolumn{8}{@{}l}{\textit{worst-case block} (2{,}815 genes per run; 407 dropped before testing)} \\[2pt]
+all masked genes & 2{,}815 & 32 $\pm$ 9 & 57 $\pm$ 12 & 5 $\pm$ 4 & 2721 $\pm$ 20 & 63.9 & 0.18 \\
+GSE100051 visible & 690 & 30 $\pm$ 8 & 3 $\pm$ 1 & 4 $\pm$ 3 & 653 $\pm$ 26 & 8.2 & 0.66 \\
+GSE100051 hidden & 2{,}125 & 2 $\pm$ 1 & 54 $\pm$ 11 & 1 $\pm$ 1 & 2068 $\pm$ 13 & 96.4 & 0.03 \\
+\bottomrule
+\end{tabular}
+\endgroup

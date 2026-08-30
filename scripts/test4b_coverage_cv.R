@@ -1,5 +1,11 @@
 #!/usr/bin/env Rscript
 #
+# SUPERSEDED (2026-08): this script belongs to the earlier empirical-pattern /
+# uniform-k holdout design and is no longer run by run_everything.R. Its role is
+# taken over by holdout_unified.R (per-gene values by GSE100051 presence; holdout_tables.R Table S2), which use one set of masks for both the imputation-
+# accuracy and the DE-call readouts. Kept for the record.
+#
+#
 # Test 4b: coverage-stratified imputation cross-validation.
 #
 # The existing block-mask CV (Supp Table S1) hides ONE dataset's block from

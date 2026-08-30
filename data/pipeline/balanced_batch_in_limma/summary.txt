@@ -1,7 +1,7 @@
 Phase 2B: Direct Merge Improvements Summary
 ==========================================
 
-Date: 2026-08-13 09:25:05.129316
+Date: 2026-08-25 20:50:25.086462
 Config: config/config_balanced_batch_in_limma.yaml
 
 Comparison: Second trimester vs First trimester
@@ -14,12 +14,12 @@ Method Comparison:
                      method imputation  normalization n_genes n_significant
 1               none_combat       none         combat   11154           412
 2       none_batch_in_limma       none batch_in_limma   11154           390
-3         softimpute_combat softimpute         combat   17531           458
+3         softimpute_combat softimpute         combat   17531           459
 4 softimpute_batch_in_limma softimpute batch_in_limma   17531           424
   n_up n_down
 1  348     64
 2  325     65
-3  382     76
+3  383     76
 4  351     73
 
 Imputed-gene coverage per comparison group:

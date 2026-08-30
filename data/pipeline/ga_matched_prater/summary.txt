@@ -1,7 +1,7 @@
 Phase 2B: Direct Merge Improvements Summary
 ==========================================
 
-Date: 2026-08-20 18:47:19.185498
+Date: 2026-08-28 12:38:06.710865
 Config: config/config_ga_matched_prater.yaml
 
 Comparison: Second trimester vs First trimester
@@ -14,8 +14,8 @@ Method Comparison:
                  method imputation normalization n_genes n_significant n_up
 1           none_combat       none        combat    9677           373  243
 2       none_combat_ref       none    combat_ref    9677           374  244
-3     softimpute_combat softimpute        combat   11761           604  456
-4 softimpute_combat_ref softimpute    combat_ref   11761           603  455
+3     softimpute_combat softimpute        combat   11761           603  455
+4 softimpute_combat_ref softimpute    combat_ref   11761           602  454
   n_down
 1    130
 2    130

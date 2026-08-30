@@ -1,7 +1,7 @@
 Phase 2B: Direct Merge Improvements Summary
 ==========================================
 
-Date: 2026-08-20 18:55:21.374012
+Date: 2026-08-25 21:18:10.101091
 Config: config/config_covariate_ns3.yaml
 
 Comparison: Second trimester vs First trimester
@@ -14,13 +14,13 @@ Method Comparison:
                  method imputation normalization n_genes n_significant n_up
 1           none_combat       none        combat    8260           248  195
 2       none_combat_ref       none    combat_ref    8260           245  190
-3     softimpute_combat softimpute        combat   17531           506  401
-4 softimpute_combat_ref softimpute    combat_ref   17531           518  413
+3     softimpute_combat softimpute        combat   17531           521  402
+4 softimpute_combat_ref softimpute    combat_ref   17531           513  403
   n_down
 1     53
 2     55
-3    105
-4    105
+3    119
+4    110
 
 Imputed-gene coverage per comparison group:
 Genes in all datasets (no imputation): 8260

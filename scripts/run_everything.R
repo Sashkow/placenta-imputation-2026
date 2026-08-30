@@ -18,6 +18,7 @@
 #     Rscript scripts/run_everything.R --full
 #     Rscript scripts/run_everything.R --full --force
 #     Rscript scripts/run_everything.R --full --only=pipeline,validation
+#     Rscript scripts/run_everything.R --full --only=holdout,analysis   # groups: pipeline, validation, holdout, analysis, figures
 #
 # A note on reproducing --full exactly: the committed data/pipeline/ outputs
 # predate the addition of a fixed RNG seed to the softImpute call, so a fresh
@@ -89,11 +90,24 @@ validation_stages <- list(
   stage("validation:test3", "validation", "data/pipeline/validation/test3_split_half.tsv",
         function() run_r("scripts/pipeline/test3_split_half.R", "--config=config/config_validation.yaml")),
   stage("validation:test4_patterns", "validation", "data/pipeline/test4/coverage_patterns_gained.csv",
-        function() run_r("scripts/test4_coverage_patterns.R")),
-  stage("validation:test4_block_holdout", "validation", "data/pipeline/test4/test4_summary.csv",
-        function() run_r("scripts/test4_block_holdout_de.R")),
-  stage("validation:test4b_coverage_cv", "validation", "data/pipeline/test4/test4b_summary.csv",
-        function() run_r("scripts/test4b_coverage_cv.R"))
+        function() run_r("scripts/test4_coverage_patterns.R"))
+)
+## test4_block_holdout_de.R, test4b_coverage_cv.R and test4b_refbatch_split.R are
+## superseded by the unified holdout below (2026-08) and no longer run.
+
+## Unified holdout validation (Supp S1 + S5, main-text holdout table): one set of
+## masks feeds both the imputation-accuracy and the DE-call readouts.
+holdout_stages <- list(
+  stage("holdout:reference", "holdout", "data/pipeline/holdout/main/reference_runs_summary.csv",
+        function() run_r("scripts/holdout_reference_runs.R")),
+  stage("holdout:unified", "holdout", "data/pipeline/holdout/main/checkpoints/progressive_tax_block_rep3_batch_mean.done",
+        function() run_r("scripts/holdout_unified.R")),
+  stage("holdout:w1", "holdout", "data/pipeline/holdout/w1/checkpoints/progressive_tax_block_rep3_softimpute.done",
+        function() { run_r("scripts/holdout_reference_runs.R", c("--config=config/config_holdout_w1.yaml", "--methods=softimpute"))
+                     run_r("scripts/holdout_unified.R", c("--config=config/config_holdout_w1.yaml", "--methods=softimpute")) }),
+  stage("holdout:plain_combat", "holdout", "data/pipeline/holdout/plain/checkpoints/progressive_tax_block_rep3_softimpute.done",
+        function() { run_r("scripts/holdout_reference_runs.R", c("--config=config/config_holdout_plain_combat.yaml", "--methods=softimpute"))
+                     run_r("scripts/holdout_unified.R", c("--config=config/config_holdout_plain_combat.yaml", "--methods=softimpute")) })
 )
 
 ## subsampling stability for the three non-primary ComBat covariate variants
@@ -118,7 +132,15 @@ analysis_stages <- list(
   stage("analysis:qpcr_recovery", "analysis", "data/pipeline/main/qpcr_recovery.csv",
         function() run_r("scripts/qpcr_recovery.R", "--out=data/pipeline/main/qpcr_recovery.csv")),
   stage("analysis:combat_sensitivity", "analysis", "data/pipeline/main/method_comparison.csv",
-        function() run_r("scripts/pipeline/combat_sensitivity.R", "--config=config/config_sensitivity.yaml"))
+        function() run_r("scripts/pipeline/combat_sensitivity.R", "--config=config/config_sensitivity.yaml")),
+  ## holdout summary tables (Supp Tables S1-S6, main-text holdout table) from the shipped holdout outputs
+  stage("analysis:holdout_tables", "analysis", "data/pipeline/holdout/main/confusion_main.tex",
+        function() { run_r("scripts/holdout_tables.R")
+                     run_r("scripts/holdout_by_dataset.R", c("--dirs=data/pipeline/holdout/main,data/pipeline/holdout/plain", shQuote("--labels=ComBat-ref,plain ComBat")))
+                     run_r("scripts/holdout_confusion.R")
+                     run_r("scripts/holdout_confusion.R", c("--config=config/config_holdout_w1.yaml", "--w1_ref=data/pipeline/holdout/main/reference/softimpute_difexp.csv"))
+                     run_r("scripts/holdout_confusion.R", "--config=config/config_holdout_plain_combat.yaml")
+                     run_r("scripts/de_sweep_numbers.R") })
 )
 
 figure_stages <- list()
@@ -135,13 +157,13 @@ figure_stages[[length(figure_stages) + 1]] <- stage(
   function() run_r("scripts/table_platform_coverage.R"))
 
 stages <- if (FULL) {
-  c(pipeline_stages, validation_stages, analysis_stages, figure_stages)
+  c(pipeline_stages, validation_stages, holdout_stages, analysis_stages, figure_stages)
 } else {
   ## figures-only: the ported summary analyses are cheap and read shipped data,
   ## so they run too; nothing that regenerates data/pipeline/ does.
   c(analysis_stages[sapply(analysis_stages, function(s)
       s$name %in% c("analysis:covariate_sweep", "analysis:ga_matched_prater",
-                    "analysis:qpcr_recovery"))],
+                    "analysis:qpcr_recovery", "analysis:holdout_tables"))],
     figure_stages)
 }
 

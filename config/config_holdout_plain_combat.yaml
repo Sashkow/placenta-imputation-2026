@@ -1,0 +1,123 @@
+# Variant of config_holdout_unified.yaml: PLAIN ComBat (no reference batch) in both arms.
+# Separates 'GSE100051 is the ComBat reference' from 'GSE100051 is the dominant batch'.
+
+# Unified holdout validation: ONE masking design, TWO readouts.
+#
+# For each masking scheme x repeat a single mask of 10% of observed cells is
+# drawn (same functions and seeds as the companion's cv_comparators.R). Every
+# imputer fills the same mask. The hidden cells are scored against truth
+# (imputation accuracy, Supp Table S1) and the imputed matrix continues through
+# ComBat-ref -> limma (weight 0 on masked cells) so the DE calls of the masked
+# genes can be scored against that imputer's own full-data run (Supp Table S2).
+#
+# All paths are relative to the companion repository root; run from there.
+#
+# Run (from anywhere):
+#   Rscript scripts/holdout_reference_runs.R
+#   Rscript scripts/holdout_unified.R
+#   Rscript scripts/holdout_unified.R --schemes=random_cells --methods=softimpute,knn \
+#           --n_repeats=1 --frac=0.02 --out=data/pipeline/holdout_smoke   # smoke test
+
+paths:
+  companion: "."
+  mapped_data: "data/expression"
+  phenodata: "data/phenodata.tsv"
+  reference_de: "data/pipeline/main/difexp_softimpute_combat_ref.tsv"
+  census: "data/pipeline/test4/coverage_patterns_all.csv"
+  cv_comparators: "data/pipeline/cv_comparators/table_s1_cv_comparators.csv"
+  output: "data/pipeline/holdout/plain"
+  column_map:
+    arraydatafile_exprscolumnnames: "sample_id"
+    secondaryaccession: "dataset_id"
+    Gestational.Age.Category: "trimester"
+    Diagnosis: "condition"
+
+files:
+  suffix: ""
+  file_map:
+    GSE28551: "GSE28551.tsv"
+  datasets:
+    - "GSE100051"
+    - "GSE122214"
+    - "GSE28551"
+    - "GSE37901"
+    - "GSE93520"
+    - "GSE9984"
+
+sample_filter:
+  condition: ["healthy"]
+  trimester: ["First trimester", "Second trimester"]
+
+phenotype:
+  group_column: "trimester"
+  baseline: "First trimester"
+  contrast: "Second trimester"
+  covariates: ["fetux_sex_estimate"]
+  combat_bio_covariate: "ga_weeks"
+
+# Per-imputer settings, passed explicitly to run_imputer(). (The companion's
+# validate_imputation() passes only rank_max/k to every method, which leaves
+# imputePCA at its adapter default ncp = 5; here ncp = 30 as the supplement
+# caption states, so the two low-rank imputers are compared at equal capacity.)
+imputation:
+  softimpute:
+    rank_max: 30
+    lambda: 0
+    thresh: 1e-4
+    maxit: 50
+    type: "als"
+    seed: 42
+  missmda:
+    ncp: 30
+    scale: true
+    method: "Regularized"
+  knn:
+    k: 10
+  gene_mean: {}
+  batch_mean: {}
+
+normalization:
+  # plain ComBat (no reference batch) -- sensitivity variant; masks are shared with output/
+  combat_variant: "plain"
+  combat_ref:
+    enabled: false
+    ref_batch: "GSE100051"
+
+coverage:
+  min_datasets: 1
+  # production drops genes with no real measurement in one comparison group
+  # BEFORE imputation; the same drop is applied here, before masks are drawn
+  drop_imputed_genes_missing_in_group: true
+
+de:
+  imputed_cell_weight: 0.0
+
+thresholds:
+  fdr: 0.05
+  logfc: 1.0
+
+holdout:
+  mask_types:
+    - "random_cells"            # 10% of observed cells, uniformly at random
+    - "gene_dataset_block"      # whole gene x dataset blocks of genes seen in all 6 datasets
+    - "progressive_tax_block"   # "worst case": genes above the coverage floor masked down to n_min datasets
+  methods:
+    - "softimpute"
+    - "missmda"                 # imputePCA
+    - "knn"
+    - "gene_mean"
+    - "batch_mean"
+  leave_out_fraction: 0.1
+  n_repeats: 3
+  # mask seed per repeat is rep * 123, as in validate_imputation()
+  seed_multiplier: 123
+  min_obs_per_gene: 4
+  # worst-case block: mask genes above this floor down to it (published
+  # definition: n_min = 2). Omit to use the poorest gene's coverage (now 1).
+  worst_case_n_min: 2
+  ref_batch: "GSE100051"
+  # oracle arm (limma on the reference run's corrected matrix with the masked
+  # arm's weights) is fitted for the block schemes only
+  oracle_schemes: ["random_cells", "gene_dataset_block", "progressive_tax_block"]
+  # per-gene value metrics need at least this many masked cells in the gene
+  min_cells_per_gene_metric: 3

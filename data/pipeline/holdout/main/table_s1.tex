@@ -1,0 +1,23 @@
+\begin{tabular}{@{}llrccc@{}}
+\toprule
+\textbf{Masking} & \textbf{Method} & \textbf{Cells masked} & \textbf{Pearson $r$} & \textbf{RMSE} & \textbf{MAE} \\
+\midrule
+random cells & softImpute & 144{,}794 & $0.993 \pm 0.000$ & $0.332 \pm 0.002$ & $0.222 \pm 0.001$ \\
+ & imputePCA & 144{,}794 & $0.992 \pm 0.000$ & $0.352 \pm 0.002$ & $0.234 \pm 0.001$ \\
+ & KNN & 144{,}794 & $0.943 \pm 0.002$ & $0.994 \pm 0.018$ & $0.594 \pm 0.011$ \\
+ & gene mean & 144{,}794 & $0.713 \pm 0.000$ & $2.001 \pm 0.001$ & $1.445 \pm 0.001$ \\
+ & batch mean & 144{,}794 & $0.988 \pm 0.000$ & $0.443 \pm 0.001$ & $0.299 \pm 0.000$ \\
+\addlinespace
+gene--dataset block & softImpute & 144{,}811 & $0.817 \pm 0.002$ & $1.517 \pm 0.011$ & $1.160 \pm 0.007$ \\
+ & imputePCA & 144{,}811 & $0.645 \pm 0.007$ & $2.019 \pm 0.031$ & $1.508 \pm 0.023$ \\
+ & KNN & 144{,}811 & $0.683 \pm 0.013$ & $1.984 \pm 0.089$ & $1.543 \pm 0.065$ \\
+ & gene mean & 144{,}811 & $0.358 \pm 0.002$ & $2.541 \pm 0.020$ & $1.957 \pm 0.019$ \\
+ & batch mean & 144{,}811 & $0.358 \pm 0.002$ & $2.541 \pm 0.020$ & $1.957 \pm 0.019$ \\
+\addlinespace
+worst-case block & softImpute & 144{,}858 & $0.824 \pm 0.004$ & $1.599 \pm 0.015$ & $1.203 \pm 0.013$ \\
+ & imputePCA & 144{,}858 & $0.436 \pm 0.012$ & $2.971 \pm 0.045$ & $2.360 \pm 0.030$ \\
+ & KNN & 144{,}858 & $0.696 \pm 0.009$ & $1.973 \pm 0.024$ & $1.604 \pm 0.008$ \\
+ & gene mean & 144{,}858 & $0.342 \pm 0.010$ & $3.182 \pm 0.039$ & $2.567 \pm 0.030$ \\
+ & batch mean & 144{,}858 & $0.342 \pm 0.010$ & $3.182 \pm 0.039$ & $2.567 \pm 0.030$ \\
+\bottomrule
+\end{tabular}

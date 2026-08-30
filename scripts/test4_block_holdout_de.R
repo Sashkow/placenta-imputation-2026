@@ -1,5 +1,11 @@
 #!/usr/bin/env Rscript
 #
+# SUPERSEDED (2026-08): this script belongs to the earlier empirical-pattern /
+# uniform-k holdout design and is no longer run by run_everything.R. Its role is
+# taken over by holdout_unified.R / holdout_confusion.R / holdout_by_dataset.R, which use one set of masks for both the imputation-
+# accuracy and the DE-call readouts. Kept for the record.
+#
+#
 # Test 4: block-holdout differential-expression validation.
 #
 # THE QUESTION. The pipeline reports 262 "gained" DEGs -- genes it can only

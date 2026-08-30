@@ -1,0 +1,27 @@
+# Supplementary Table S1 as published: leave-out cross-validation of imputation
+# accuracy (1_2 comparison, 6 datasets, 17,531 genes). Transcribed verbatim from
+# supplement.tex; mean +/- SD over 3 repeats (softImpute/imputePCA/KNN) or 5
+# repeats (gene mean, batch mean).
+# Provenance note: the mask-matched comparator rerun in
+# data/pipeline/cv_comparators/table_s1_cv_comparators.csv reproduces the
+# random-cell and gene-dataset-block rows but differs in the worst-case block
+# (published worst-case imputePCA r = 0.339 vs 0.718 fresh), suggesting the
+# published worst-case rows used a different masking realization. See igea-r
+# openspec change panel-review-revision, design.md D8(b)/(c). This file exists
+# so that figures rendering the published table plot exactly its values.
+mask_type,method,pearson_r,r_sd,rmse,rmse_sd,mae,mae_sd
+random_cells,softimpute,0.994,0.000,0.330,0.001,0.220,0.000
+random_cells,imputepca,0.992,0.000,0.352,0.002,0.234,0.001
+random_cells,knn,0.941,0.003,1.009,0.024,0.604,0.016
+random_cells,gene_mean,0.714,0.001,1.996,0.003,1.440,0.003
+random_cells,batch_mean,0.988,0.000,0.444,0.001,0.299,0.001
+gene_dataset_block,softimpute,0.816,0.002,1.523,0.010,1.165,0.006
+gene_dataset_block,imputepca,0.648,0.007,2.011,0.034,1.497,0.026
+gene_dataset_block,knn,0.692,0.012,1.924,0.063,1.491,0.044
+gene_dataset_block,gene_mean,0.356,0.008,2.541,0.022,1.958,0.023
+gene_dataset_block,batch_mean,0.356,0.008,2.541,0.022,1.958,0.023
+worst_case_block,softimpute,0.824,0.004,1.601,0.015,1.205,0.013
+worst_case_block,imputepca,0.339,0.009,3.579,0.041,2.886,0.037
+worst_case_block,knn,0.695,0.005,2.035,0.024,1.650,0.021
+worst_case_block,gene_mean,0.324,0.010,3.602,0.017,2.914,0.013
+worst_case_block,batch_mean,0.324,0.010,3.602,0.017,2.914,0.013

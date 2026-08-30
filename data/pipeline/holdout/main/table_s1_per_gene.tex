@@ -1,0 +1,19 @@
+\begin{tabular}{@{}llrrcc@{}}
+\toprule
+\textbf{Masking} & \textbf{Method} & \multicolumn{2}{c}{\textbf{Genes}} & \multicolumn{2}{c}{\textbf{Median per-gene MAE}} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}
+ & & \textbf{GSE100051 vis.} & \textbf{GSE100051 hid.} & \textbf{GSE100051 vis.} & \textbf{GSE100051 hid.} \\
+\midrule
+gene--dataset block & softImpute & 3{,}911 & 1{,}246 & $0.77 \pm 0.01$ & $0.99 \pm 0.01$ \\
+ & imputePCA & 3{,}911 & 1{,}246 & $1.17 \pm 0.01$ & $1.12 \pm 0.03$ \\
+ & KNN & 3{,}911 & 1{,}246 & $0.85 \pm 0.05$ & $1.49 \pm 0.20$ \\
+ & gene mean & 3{,}911 & 1{,}246 & $2.61 \pm 0.02$ & $1.34 \pm 0.02$ \\
+ & batch mean & 3{,}911 & 1{,}246 & $2.61 \pm 0.02$ & $1.34 \pm 0.02$ \\
+\addlinespace
+worst-case block & softImpute & 690 & 2{,}125 & $1.00 \pm 0.06$ & $0.82 \pm 0.01$ \\
+ & imputePCA & 690 & 2{,}125 & $1.94 \pm 0.04$ & $1.81 \pm 0.02$ \\
+ & KNN & 690 & 2{,}125 & $1.32 \pm 0.03$ & $1.83 \pm 0.01$ \\
+ & gene mean & 690 & 2{,}125 & $2.25 \pm 0.03$ & $2.05 \pm 0.03$ \\
+ & batch mean & 690 & 2{,}125 & $2.25 \pm 0.03$ & $2.05 \pm 0.03$ \\
+\bottomrule
+\end{tabular}

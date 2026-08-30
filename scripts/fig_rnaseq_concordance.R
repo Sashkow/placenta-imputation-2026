@@ -64,7 +64,7 @@ fate_absent  <- sum(!ours_sig_set %in% shared)
 
 stopifnot(fate_repl + fate_disagree + fate_absent == length(ours_sig_set))
 
-expected <- c(shared = 2560, replicated = 370, disagreeing = 16, absent = 152)
+expected <- c(shared = 2560, replicated = 367, disagreeing = 14, absent = 149)
 observed <- c(shared = length(shared), replicated = fate_repl,
               disagreeing = fate_disagree, absent = fate_absent)
 if (!identical(as.integer(observed), as.integer(expected))) {
@@ -177,7 +177,7 @@ hatch  <- hatch_rect(abs_x0, abs_x1, BAR_LO, BAR_HI)
 ## called out above the bar with a leader line.
 fate$cum      <- cumsum(fate$n) - fate$n / 2
 fate$inside   <- fate$frac >= 0.10
-fate$label    <- c("370 replicated", "16", "152 absent")
+fate$label    <- c("367 replicated", "14", "149 absent")
 fate$text_col <- c("white", "grey20", "grey25")
 
 p_fate <- ggplot(fate, aes(x = n, y = 1, fill = fate)) +

@@ -1,0 +1,23 @@
+\begingroup\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+\textbf{Hidden dataset (1st/2nd)} & \textbf{True DEGs} & \textbf{Lost} & \textbf{Gained} & \textbf{Lost \%} & \textbf{$|$logFC$|$ ratio} & \textbf{Oracle sens.\ \%} \\
+\midrule
+\multicolumn{7}{@{}l}{\textit{ComBat-ref}} \\[2pt]
+GSE100051 (42/7) & 20 $\pm$ 2 & 16 $\pm$ 2 & 0 $\pm$ 0 & 81.3 & 0.52 & 94.9 \\
+GSE37901 (0/4) & 22 $\pm$ 5 & 5 $\pm$ 1 & 0 $\pm$ 0 & 23.3 & 0.88 & 76.7 \\
+GSE93520 (36/0) & 20 $\pm$ 7 & 1 $\pm$ 1 & 0 $\pm$ 0 & 6.5 & 0.96 & 97.6 \\
+GSE122214 (4/0) & 21 $\pm$ 6 & 0 $\pm$ 0 & 0 $\pm$ 0 & 0.0 & 1.00 & 100.0 \\
+GSE28551 (16/0) & 20 $\pm$ 8 & 0 $\pm$ 0 & 3 $\pm$ 0 & 0.0 & 1.06 & 100.0 \\
+GSE9984 (4/4) & 20 $\pm$ 1 & 0 $\pm$ 0 & 3 $\pm$ 1 & 0.0 & 1.07 & 100.0 \\
+\addlinespace
+\multicolumn{7}{@{}l}{\textit{plain ComBat}} \\[2pt]
+GSE100051 (42/7) & 20 $\pm$ 3 & 15 $\pm$ 3 & 0 $\pm$ 0 & 77.8 & 0.52 & 93.3 \\
+GSE37901 (0/4) & 21 $\pm$ 4 & 4 $\pm$ 1 & 0 $\pm$ 0 & 20.4 & 0.88 & 81.6 \\
+GSE93520 (36/0) & 21 $\pm$ 7 & 2 $\pm$ 2 & 0 $\pm$ 0 & 9.8 & 0.95 & 96.7 \\
+GSE122214 (4/0) & 21 $\pm$ 6 & 0 $\pm$ 0 & 0 $\pm$ 0 & 0.0 & 0.99 & 100.0 \\
+GSE28551 (16/0) & 19 $\pm$ 8 & 0 $\pm$ 0 & 4 $\pm$ 0 & 0.0 & 1.06 & 100.0 \\
+GSE9984 (4/4) & 20 $\pm$ 1 & 0 $\pm$ 1 & 4 $\pm$ 1 & 1.6 & 1.08 & 100.0 \\
+\bottomrule
+\end{tabular}
+\endgroup

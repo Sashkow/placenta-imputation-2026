@@ -1,0 +1,12 @@
+"name","value"
+"degs_w0",530
+"degs_w1",527
+"shared",505
+"only_w0",25
+"only_w1",22
+"only_w0_fdr_sig_in_w1",25
+"only_w1_fdr_sig_in_w0",18
+"fdr_only_w0",6794
+"fdr_only_w1",9109
+"logfc_r",0.994446284625314
+"median_adjp_ratio_w1_over_w0_lfc_gt1",0.541665371356723

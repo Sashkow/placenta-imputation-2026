@@ -1,4 +1,4 @@
 "method","mask_type","repeat_n","correlation","rmse","mae","n_masked","n_blocks","converged","error_message"
-"softimpute","gene_dataset_block",1,0.817950373354065,1.51202184864372,1.15666758924236,144819,7559,TRUE,NA
-"softimpute","gene_dataset_block",2,0.813545648192262,1.5352222699797,1.16897217557699,144816,7343,TRUE,NA
-"softimpute","gene_dataset_block",3,0.817679531662019,1.52028389569201,1.16920735431614,144798,7404,TRUE,NA
+"softimpute","gene_dataset_block",1,0.81788477507759,1.51228123125268,1.15724674840004,144819,7559,TRUE,NA
+"softimpute","gene_dataset_block",2,0.813498930496176,1.53544692456661,1.16909918544678,144816,7343,TRUE,NA
+"softimpute","gene_dataset_block",3,0.817700269753655,1.52022589343797,1.16884184367948,144798,7404,TRUE,NA

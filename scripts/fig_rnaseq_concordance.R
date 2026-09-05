@@ -127,7 +127,7 @@ p_scatter <- ggplot(df, aes(x = ours_logfc, y = prater_logfc, color = category))
   coord_cartesian(xlim = c(-4, 4), ylim = c(-5, 5))
 
 ## ---------------------------------------------------------------------------
-## Panel B -- fate of all 538 DEGs, including those the scatter cannot show.
+## Panel B -- fate of every DEG in the full run (530 at present), including those the scatter cannot show.
 ## ---------------------------------------------------------------------------
 FATE_REPL   <- "Replicated in Prater"
 FATE_DIS    <- "Plotted, below Prater's threshold"

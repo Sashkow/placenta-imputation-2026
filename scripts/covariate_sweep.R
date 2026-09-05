@@ -3,10 +3,10 @@
 # ComBat biological-covariate sweep -- reproduces Supplementary Tables S2 and S3.
 #
 # Four specifications of the biological term in the ComBat model matrix:
-#   categorical  ~ trimester        + fetux_sex_estimate
-#   linear       ~ ga_weeks         + fetux_sex_estimate   (primary analysis)
-#   poly2        ~ poly(ga_weeks,2) + fetux_sex_estimate
-#   ns3          ~ ns(ga_weeks,3)   + fetux_sex_estimate
+#   categorical  ~ trimester        + fetus_sex_estimate
+#   linear       ~ ga_weeks         + fetus_sex_estimate   (primary analysis)
+#   poly2        ~ poly(ga_weeks,2) + fetus_sex_estimate
+#   ns3          ~ ns(ga_weeks,3)   + fetus_sex_estimate
 #
 # This script SUMMARISES already-computed pipeline outputs; it does not run the
 # pipeline. To (re)generate the inputs:

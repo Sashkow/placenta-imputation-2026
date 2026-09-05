@@ -49,7 +49,7 @@ phenotype:
   group_column: "trimester"
   baseline: "First trimester"
   contrast: "Second trimester"
-  covariates: ["fetux_sex_estimate"]
+  covariates: ["fetus_sex_estimate"]
   combat_bio_covariate: "ga_weeks"
 
 # Per-imputer settings, passed explicitly to run_imputer(). (The companion's
@@ -60,7 +60,7 @@ imputation:
   softimpute:
     rank_max: 30
     lambda: 0
-    thresh: 1e-4
+    thresh: 1.0e-4
     maxit: 50
     type: "als"
     seed: 42

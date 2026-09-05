@@ -1,5 +1,5 @@
 # ComBat covariate sweep - variant 4/4: ns(GA, df=3).
-# ComBat model matrix is ~ ns(ga_weeks, df=3) + fetux_sex_estimate.
+# ComBat model matrix is ~ ns(ga_weeks, df=3) + fetus_sex_estimate.
 # Reproduces the 'ns(GA, df=3)' row of Supplementary Table S2 (518 DEGs).
 
 paths:
@@ -32,7 +32,7 @@ phenotype:
   group_column: "trimester"
   baseline: "First trimester"
   contrast: "Second trimester"
-  covariates: ["fetux_sex_estimate"]
+  covariates: ["fetus_sex_estimate"]
   combat_bio_covariate: "ga_weeks"
   combat_bio_spline_df: 3
 

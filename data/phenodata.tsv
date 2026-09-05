@@ -1,4 +1,4 @@
-dataset_id	sample_id	platform_id	platform_manufacturer	trimester	fetus_week	fetus_range_week	fetus_week_minimal_info	condition	fetux_sex_estimate	should_be_included	scan_date	scan_batch	Batch	Estimated.Smoking.Status
+dataset_id	sample_id	platform_id	platform_manufacturer	trimester	fetus_week	fetus_range_week	fetus_week_minimal_info	condition	fetus_sex_estimate	should_be_included	scan_date	scan_batch	Batch	Estimated.Smoking.Status
 GSE9984	GSM252349	GPL570	Affymetrix	First trimester	0	6,7,8	6,7,8	healthy	f	TRUE				
 GSE9984	GSM252350	GPL570	Affymetrix	First trimester	0	6,7,8	6,7,8	healthy	f	TRUE				
 GSE9984	GSM252351	GPL570	Affymetrix	First trimester	0	6,7,8	6,7,8	healthy	m	TRUE				

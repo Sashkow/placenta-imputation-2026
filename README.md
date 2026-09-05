@@ -2,7 +2,7 @@
 
 This repository contains the data, scripts, and pre-generated figures for:
 
-> **Filling the gaps: matrix completion imputation for broader gene coverage in cross-dataset direct-merge expression analysis**
+> **Filling the gaps: matrix completion imputation for broader gene coverage when merging microarray gene expression datasets**
 >
 > Oleksandr Lykhenko, Yehor Polyakov, Maria Obolenskaya
 
@@ -50,7 +50,7 @@ This repository contains the data, scripts, and pre-generated figures for:
 │       ├── test2_balanced_subsample.R    Validation test 2
 │       └── test3_split_half.R            Validation test 3
 ├── data/
-│   ├── phenodata.tsv     Sample metadata (117 samples, 6 datasets)
+│   ├── phenodata.tsv     Sample metadata (186 rows, 8 datasets; the 6 analysed datasets contribute the 117 samples)
 │   ├── expression/       Per-dataset expression matrices (ENTREZID-keyed)
 │   ├── pipeline/         Pre-computed pipeline outputs
 │   │   ├── main/         6-dataset integration (softImpute + ComBat-ref)
@@ -164,7 +164,7 @@ Rscript scripts/holdout_confusion.R
 Rscript scripts/holdout_confusion.R --config=config/config_holdout_w1.yaml --w1_ref=data/pipeline/holdout/main/reference/softimpute_difexp.csv
 Rscript scripts/holdout_confusion.R --config=config/config_holdout_plain_combat.yaml
 Rscript scripts/de_sweep_numbers.R
-Rscript scripts/verify_holdout_claims.R                        # 281 article numbers vs their source CSVs
+Rscript scripts/verify_holdout_claims.R                        # 272 article numbers vs their source CSVs
 ```
 
 Holdout outputs live in `data/pipeline/holdout/{main,w1,plain}/`: `masks/` (the
@@ -183,22 +183,26 @@ Note that the covariate-variant subsampling runs write to
 `data/pipeline/validation/`, so the canonical validation outputs the article's
 numbers derive from are never overwritten.
 
-## Article figures
+## Figures
 
-| # | Caption | Generating script | Input data |
+Main text (`main.tex`) includes three PNG figures; the remainder are
+supplementary (`supplement.tex`). The pipeline-overview diagram is TikZ
+drawn inside `main.tex`. `fig_venn_three_way.png` and the two
+`fig_enrichment_*.png` files are generated for completeness but are not
+included in either tex file.
+
+| Figure | Content | Generating script | Input data |
 |---|---------|-------------------|------------|
-| 1 | Missingness staircase | `scripts/fig_staircase.R` | `data/pipeline/main/exprs_imputed_softimpute.tsv`, `data/pipeline/main/difexp_softimpute_combat_ref.tsv` |
-| 2 | PCA before/after ComBat | `scripts/fig_pca_before_after_combat.R` | `data/pipeline/main/exprs_imputed_softimpute.tsv`, `data/pipeline/main/exprs_softimpute_combat_ref.tsv`, `data/phenodata.tsv` |
-| 3 | PCA intersection vs softImpute | `scripts/fig_pca_intersection_softimpute.R` | `data/pipeline/main/exprs_none_combat_ref.tsv`, `data/pipeline/main/exprs_softimpute_combat_ref.tsv` |
-| 4 | ComBat sensitivity (scatter + MAE) | `scripts/fig_combat_sensitivity.R` | `data/pipeline/main/exprs_none_combat_ref.tsv`, `data/pipeline/main/exprs_softimpute_combat_ref.tsv` |
-| 5 | Subsampling convergence | `scripts/fig_validation.R` | `data/pipeline/validation/test1_first_trim_subsample.tsv`, `data/pipeline/validation/test1b_vs_balanced.tsv` |
-| 6 | DEG retention across sizes | `scripts/fig_validation.R` | same as above |
-| 7 | Lin's CCC agreement | `scripts/fig_validation.R` | same as above |
-| 8 | Split-half validation | `scripts/fig_validation.R` | `data/pipeline/validation/test3_split_half.tsv` |
-| 9 | Three-way Venn | `scripts/fig_venn.R` | `data/pipeline/main/difexp_significant_*.tsv`, `data/references/lykhenko_2021_deg.csv` |
-| 10 | RNA-seq concordance (Prater) | `scripts/fig_rnaseq_concordance.R` | `data/pipeline/main/difexp_softimpute_combat_ref.tsv`, `data/references/prater_2021_supp_tables.xlsx` |
-| 11 | Pipeline overview diagram | manually created | — |
-| S1 | Imputation CV range plot (renders Supp Table S1) | `scripts/fig_imputation_range.R` | `data/pipeline/holdout/main/table_s1.csv`; no-skill anchors computed from the union matrix |
+| Main 1 | Missingness staircase | `scripts/fig_staircase.R` | `data/pipeline/main/exprs_imputed_softimpute.tsv`, `data/pipeline/main/difexp_softimpute_combat_ref.tsv` |
+| Main 2 | PCA before/after ComBat | `scripts/fig_pca_before_after_combat.R` | `data/pipeline/main/exprs_imputed_softimpute.tsv`, `data/pipeline/main/exprs_softimpute_combat_ref.tsv`, `data/phenodata.tsv` |
+| Main 3 | RNA-seq concordance (Prater) | `scripts/fig_rnaseq_concordance.R` | `data/pipeline/main/difexp_softimpute_combat_ref.tsv`, `data/references/prater_2021_supp_tables.xlsx` |
+| Supp S1 | Imputation CV range plot | `scripts/fig_imputation_range.R` | `data/pipeline/holdout/main/table_s1.csv` |
+| Supp S2 | PCA intersection vs softImpute | `scripts/fig_pca_intersection_softimpute.R` | `data/pipeline/main/exprs_none_combat_ref.tsv`, `data/pipeline/main/exprs_softimpute_combat_ref.tsv` |
+| Supp S3 | ComBat sensitivity (scatter + MAE) | `scripts/fig_combat_sensitivity.R` | `data/pipeline/main/exprs_none_combat_ref.tsv`, `data/pipeline/main/exprs_softimpute_combat_ref.tsv` |
+| Supp S4--S6 | Subsampling convergence / retention / CCC | `scripts/fig_validation.R` | `data/pipeline/validation/test1_first_trim_subsample.tsv`, `data/pipeline/validation/test1b_vs_balanced.tsv` |
+| Supp S7 | Split-half validation | `scripts/fig_validation.R` | `data/pipeline/validation/test3_split_half.tsv` |
+| (extra) | Three-way Venn | `scripts/fig_venn.R` | `data/pipeline/main/difexp_significant_*.tsv`, `data/references/lykhenko_2021_deg.csv` |
+| (extra) | GO / KEGG dotplots | `scripts/fig_enrichment.R` | `data/pipeline/main/difexp_*.tsv` |
 
 ## Article tables
 
@@ -214,32 +218,32 @@ numbers derive from are never overwritten.
 
 ## Key numbers
 
-| Claim | Value | Derived from |
+<!-- KEY_NUMBERS_START -->
+
+| Claim | Value | Verified by |
 |-------|-------|-------------|
-| Genes at intersection (k=6) | 8,260 | `data/pipeline/main/exprs_imputed_none.tsv` row count |
-| Genes after imputation | 17,531 | `data/pipeline/main/exprs_imputed_softimpute.tsv` row count |
-| Samples | 117 | `data/phenodata.tsv` row count |
-| softImpute CV accuracy (random) | r=0.994, RMSE=0.330 | `data/pipeline/main/imputation_validation.csv` |
-| softImpute CV accuracy (block) | r=0.816, RMSE=1.52 | same |
-| DEGs (softImpute + ComBat-ref) | 538 | `data/pipeline/main/difexp_significant_softimpute_combat_ref.tsv` |
-| DEGs (intersection + ComBat-ref) | 277 | `data/pipeline/main/difexp_significant_none_combat_ref.tsv` |
-| Gained DEGs | 262 | difference of above two sets |
-| ComBat sensitivity r | 0.9994 | `scripts/fig_combat_sensitivity.R` computation |
-| Prater concordance | r=0.646, CCC=0.529, 370 shared DEGs | `scripts/fig_rnaseq_concordance.R` |
-| Balanced reference DEGs | 484 | `data/pipeline/balanced/difexp_significant_softimpute_combat_ref.tsv` |
-| Balanced overlap | 86.8% (467/538) | `data/pipeline/validation/test1b_vs_balanced.tsv` |
-| Subsampling Jaccard @N=30 | 0.712 | `data/pipeline/validation/test1_first_trim_subsample.tsv` |
-| Subsampling DEG retention @N=10 → N=30 | 90.3% → 91.8% | same |
-| Subsampling CCC @N=10 | 0.88 | same |
-| Split-half Jaccard | 0.402 | `data/pipeline/validation/test3_split_half.tsv` |
-| Split-half DEG retention | 84.1% | same |
-| Split-half logFC CCC | 0.705 | same |
-| GO BP terms (full 538) | 678 | `scripts/fig_enrichment.R` output |
-| KEGG pathways (full 538) | 43 | same |
-| Gained genes in Lykhenko 2021 limma table | 242/262 | `scripts/verify_article_claims.R` vs `data/references/lykhenko_2021_full_protein_coding.csv` |
-| Gained-gene direction concordance (Lykhenko 2021) | 88.8% (215/242), r=0.600 | same |
-| Gained genes already FDR<0.05 in Lykhenko 2021 | 61.2% (148/242) | same |
-| qPCR-validated genes recovered | 11/17 | `scripts/pipeline/combat_sensitivity.R` |
+| Genes at intersection (k=6) | 8,260 | replication_report.md |
+| Genes after imputation | 17,531 | replication_report.md |
+| Safety-drop genes removed | 298 | replication_report.md |
+| DEGs (softImpute + ComBat-ref) | 530 (436 up / 94 down) | replication_report.md |
+| DEGs (intersection + ComBat-ref) | 277 | replication_report.md |
+| Gained DEGs | 253 (243 testable only via imputation) | replication_report.md |
+| softImpute CV r (random / block / worst-case) | 0.993 / 0.817 / 0.824 | replication_report.md |
+| softImpute block RMSE / MAE | 1.52 / 1.16 | replication_report.md |
+| Balanced reference DEGs / retention of full-run DEGs | 474 / 86.4% | replication_report.md |
+| Subsampling DEG retention N=10 / N=30 | 90.6% / 92.7% | replication_report.md |
+| Subsampling logFC CCC at N=10 | 0.89 | replication_report.md |
+| Split-half DEG retention / logFC CCC | 86.1% / 0.763 | replication_report.md |
+| GO BP terms / KEGG pathways (full 530) | 659 / 39 | replication_report.md |
+| Gained genes in Lykhenko 2021 limma table | 233/253 | replication_report.md |
+| Same direction as Lykhenko 2021 / already FDR-significant there | 89.3% / 62.7% | replication_report.md |
+| Holdout block masking: true DEGs lost / non-DEGs gained | 24.8% / 0.21% | replication_report.md |
+| Holdout, GSE100051 hidden: true DEGs lost | 87.1% | replication_report.md |
+| qPCR benchmark genes recovered | 11/17 | replication_report.md |
+| GA-matched Prater r / CCC | 0.808 / 0.755 | replication_report.md |
+| Prater (full window) r / CCC / shared significant DEGs | 0.670 / 0.548 / 367 | `scripts/fig_rnaseq_concordance.R` output (not covered by the report) |
+
+<!-- KEY_NUMBERS_END -->
 
 ## Verifying article claims
 

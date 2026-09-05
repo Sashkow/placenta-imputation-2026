@@ -40,7 +40,7 @@ phenotype:
   group_column: "trimester"
   baseline: "First trimester"
   contrast: "Second trimester"
-  covariates: ["fetux_sex_estimate"]
+  covariates: ["fetus_sex_estimate"]
   combat_bio_covariate: "ga_weeks"
 
 imputation:

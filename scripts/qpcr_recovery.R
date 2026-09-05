@@ -7,14 +7,15 @@
 # (adj.P.Val < 0.05 & |logFC| > 1) by a given DE table, and reports
 # directional concordance.
 #
-# NOTE ON THE BENCHMARK: these genes are NOT a published
-# first-vs-second-trimester qPCR panel. Fifteen come from Uuskula et al.
-# (2012), whose qPCR contrast is mid-gestation vs term; IDO1 comes from
-# Blaschitz et al. (2011), an immunohistochemistry study; GH2 from Mannik
-# et al. (2012), a term-placenta expression study. The benchmark therefore
-# asks whether genes with independently documented gestational regulation
-# of placental expression are picked up here -- not whether a matched
-# published contrast is replicated. See the article supplement.
+# NOTE ON THE BENCHMARK: fifteen genes come from Uuskula et al. (2012),
+# where TaqMan qPCR confirmed first-vs-second-trimester differential
+# expression (ANOVA and t-test, FDR P < 0.005; ten additionally peak at
+# mid-gestation before declining at term). They are NOT independent of
+# this cohort: Uuskula et al. is the source study of GSE37901, whose four
+# second-trimester discovery samples are analysed here. IDO1 (Blaschitz
+# et al. 2011, immunohistochemistry, first-trimester vs term) and GH2
+# (Mannik et al. 2012, term-placenta study) are external to the cohort
+# but derive from other contrasts. See the article supplement.
 #
 # Usage:
 #   Rscript scripts/qpcr_recovery.R

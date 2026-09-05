@@ -39,7 +39,7 @@ phenotype:
   group_column: "trimester"
   baseline: "First trimester"
   contrast: "Second trimester"
-  covariates: ["fetux_sex_estimate"]
+  covariates: ["fetus_sex_estimate"]
   # No continuous-GA ComBat term here: within the matched windows GA takes
   # only the values 7, 7.5, 8 and 14, so a linear GA term is nearly collinear
   # with the trimester contrast. ComBat models the categorical group instead.

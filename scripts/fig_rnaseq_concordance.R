@@ -173,7 +173,7 @@ hatch  <- hatch_rect(abs_x0, abs_x1, BAR_LO, BAR_HI)
 
 ## Segments are labelled in place rather than through a legend: the bar is a
 ## single annotation strip, and a legend would cost more height than the bar.
-## The 16-gene band is ~3% of the width, too narrow to hold text, so it is
+## The 14-gene band is ~3% of the width, too narrow to hold text, so it is
 ## called out above the bar with a leader line.
 fate$cum      <- cumsum(fate$n) - fate$n / 2
 fate$inside   <- fate$frac >= 0.10

@@ -48,7 +48,10 @@ res <- lapply(seq_len(nrow(claims)), function(i) {
   actual <- tryCatch(with(d, eval(parse(text = cl$source_column))), error = function(e) NA)
   actual <- suppressWarnings(as.numeric(actual))   # source columns may be character (mixed-type value columns)
   out$actual <- format(actual, digits = 6)
-  tol <- as.numeric(cl$tolerance %||% 0)
+  ## tolerance is read as character, so an empty cell yields NA, not NULL:
+  ## default it to an exact match instead of aborting the whole run on if (NA).
+  tol <- suppressWarnings(as.numeric(cl$tolerance))
+  if (is.na(tol)) tol <- 0
   claimed <- as.numeric(gsub("[{},]", "", cl$value))
   out$status <- if (is.na(actual) || is.na(claimed)) "not numeric" else
     if (abs(actual - claimed) <= tol) "ok" else "MISMATCH"

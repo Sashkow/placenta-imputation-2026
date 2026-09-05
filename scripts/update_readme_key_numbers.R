@@ -1,31 +1,65 @@
 #!/usr/bin/env Rscript
 #
-# Regenerate the README "Key numbers" table from replication_report.md.
+# Regenerate the README "Key numbers" table from verified sources.
 #
-# Every value is taken from the report's "Reproduced" column, looked up by
-# exact claim label, so the table can never drift from the verified numbers
-# again. The one exception is the full-window Prater comparison, which
-# verify_article_claims.R does not cover (only the GA-matched variant is in
-# the report); its row is a documented constant sourced from
-# scripts/fig_rnaseq_concordance.R output and flagged as such below.
+# Values come from two places, never from a literal in this file:
+#   * replication_report.md    -- the "Reproduced" column, looked up by exact
+#                                 claim label (written by verify_article_claims.R)
+#   * de_sweep_numbers.csv     -- the full-window Prater comparison, which the
+#                                 report does not cover (it carries only the
+#                                 GA-matched variant); these rows are checked by
+#                                 verify_holdout_claims.R
+# Denominators that depend on an input file are read from that file.
 #
 # Usage: Rscript scripts/update_readme_key_numbers.R
 
 report_path <- "replication_report.md"
 readme_path <- "README.md"
+sweep_path  <- "data/pipeline/holdout/main/de_sweep_numbers.csv"
+bench_path  <- "data/references/qpcr_benchmark_genes.csv"
 
+## --- report table -----------------------------------------------------------
+## Claim labels may themselves contain pipes (the report writes |logFC|), so the
+## row is split on " | " after the outer delimiters are stripped, and the field
+## count is asserted rather than assumed.
 lines <- readLines(report_path)
-rows <- grep("^\\| .+ \\| .+ \\| .+ \\| .+ \\| .+ \\| MATCH \\|$", lines, value = TRUE)
-parts <- strsplit(rows, "\\s*\\|\\s*")
-claims <- vapply(parts, function(x) x[3], character(1))
-values <- vapply(parts, function(x) x[5], character(1))
+rows <- grep("^\\|.*\\|$", lines, value = TRUE)
+rows <- rows[!grepl("^\\|[-| ]+\\|$", rows)]          # drop the header rule
+fields <- lapply(rows, function(r) {
+  f <- strsplit(sub("\\s*\\|\\s*$", "", sub("^\\s*\\|\\s*", "", r)), " \\| ")[[1]]
+  trimws(f)
+})
+keep <- lengths(fields) == 6
+if (any(!keep))
+  warning("skipping ", sum(!keep), " malformed report row(s); expected 6 fields")
+fields <- fields[keep]
+fields <- Filter(function(f) f[1] != "Section", fields)   # drop the header row
+
+claims  <- vapply(fields, function(f) f[2], character(1))
+values  <- vapply(fields, function(f) f[4], character(1))
+statuses <- vapply(fields, function(f) f[6], character(1))
 lookup <- setNames(values, claims)
+status_of <- setNames(statuses, claims)
 
 v <- function(claim) {
   if (!claim %in% names(lookup))
-    stop("claim not found in replication_report.md: ", claim)
+    stop("claim label not present in ", report_path, ": ", claim)
+  st <- unname(status_of[claim])
+  if (!identical(st, "MATCH"))
+    stop("claim '", claim, "' is ", st, " in ", report_path,
+         " -- the verification failed, so the README must not quote it. ",
+         "Investigate the number before regenerating the table.")
   unname(lookup[claim])
 }
+
+## --- data-sourced values ----------------------------------------------------
+sweep <- read.csv(sweep_path, stringsAsFactors = FALSE)
+s <- function(name) {
+  hit <- sweep$value[sweep$name == name]
+  if (length(hit) != 1) stop("expected exactly one '", name, "' row in ", sweep_path)
+  as.numeric(hit)
+}
+n_benchmark <- nrow(read.csv(bench_path, stringsAsFactors = FALSE))
 
 fmt <- function(x) prettyNum(x, big.mark = ",")
 
@@ -61,11 +95,13 @@ tbl <- c(
           v("Block masking: true DEGs lost (%)"), v("Block masking: non-DEGs gained (%)")),
   sprintf("| Holdout, GSE100051 hidden: true DEGs lost | %s%% | replication_report.md |",
           v("Block masking, GSE100051 hidden: lost (%)")),
-  sprintf("| qPCR benchmark genes recovered | %s/17 | replication_report.md |",
-          v("qPCR benchmark genes recovered as DEGs")),
+  sprintf("| qPCR benchmark genes recovered | %s/%d | replication_report.md; denominator from %s |",
+          v("qPCR benchmark genes recovered as DEGs"), n_benchmark, basename(bench_path)),
   sprintf("| GA-matched Prater r / CCC | %s / %s | replication_report.md |",
           v("GA-matched Prater Pearson r"), v("GA-matched Prater CCC")),
-  "| Prater (full window) r / CCC / shared significant DEGs | 0.670 / 0.548 / 367 | `scripts/fig_rnaseq_concordance.R` output (not covered by the report) |"
+  sprintf("| Prater (full window) r / CCC / shared significant DEGs | %.3f / %.3f / %s | %s (checked by verify_holdout_claims.R) |",
+          s("prater_twostep_r"), s("prater_twostep_ccc"),
+          fmt(s("prater_twostep_replicated")), basename(sweep_path))
 )
 
 readme <- readLines(readme_path)

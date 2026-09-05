@@ -239,9 +239,9 @@ included in either tex file.
 | Same direction as Lykhenko 2021 / already FDR-significant there | 89.3% / 62.7% | replication_report.md |
 | Holdout block masking: true DEGs lost / non-DEGs gained | 24.8% / 0.21% | replication_report.md |
 | Holdout, GSE100051 hidden: true DEGs lost | 87.1% | replication_report.md |
-| qPCR benchmark genes recovered | 11/17 | replication_report.md |
+| qPCR benchmark genes recovered | 11/17 | replication_report.md; denominator from qpcr_benchmark_genes.csv |
 | GA-matched Prater r / CCC | 0.808 / 0.755 | replication_report.md |
-| Prater (full window) r / CCC / shared significant DEGs | 0.670 / 0.548 / 367 | `scripts/fig_rnaseq_concordance.R` output (not covered by the report) |
+| Prater (full window) r / CCC / shared significant DEGs | 0.670 / 0.548 / 367 | de_sweep_numbers.csv (checked by verify_holdout_claims.R) |
 
 <!-- KEY_NUMBERS_END -->
 

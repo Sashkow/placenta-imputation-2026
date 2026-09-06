@@ -8,7 +8,7 @@
 ## The two dashed verticals are no-skill anchors computed from the merged matrix
 ## (observed cells only, after the production gene drop):
 ##   grand mean          RMSE of predicting one overall mean for every cell
-##   per-dataset average RMSE of predicting each dataset's own mean
+##   per-dataset mean    RMSE of predicting each dataset's own mean
 ##
 ## Usage (from the repository root): Rscript scripts/fig_imputation_range.R
 
@@ -35,9 +35,9 @@ res <- unlist(lapply(D$datasets, function(d) {
   v <- X[, D$ds_of_sample == d]; v <- v[!is.na(v)]; v - mean(v)
 }))
 anchor_dataset <- sqrt(mean(res^2))
-cat(sprintf("Anchors: grand mean RMSE = %.3f, per-dataset average RMSE = %.3f\n",
+cat(sprintf("Anchors: grand mean RMSE = %.3f, per-dataset mean RMSE = %.3f\n",
             anchor_grand, anchor_dataset))
-write.csv(data.frame(anchor = c("grand_mean", "per_dataset_average"),
+write.csv(data.frame(anchor = c("grand_mean", "per_dataset_mean"),
                      rmse = c(anchor_grand, anchor_dataset), n_genes = nrow(X)),
           file.path(OUT_DIR, "fig_s1_anchors.csv"), row.names = FALSE)
 
@@ -74,7 +74,7 @@ for (i in seq_along(methods)) {
 }
 
 abline(v = c(anchor_dataset, anchor_grand), lty = 2, col = col_anch)
-mtext(sprintf("per-dataset\naverage (%.2f)", anchor_dataset), side = 3,
+mtext(sprintf("per-dataset\nmean (%.2f)", anchor_dataset), side = 3,
       at = anchor_dataset, line = 0.15, cex = 0.72, col = col_anch)
 mtext(sprintf("grand\nmean (%.2f)", anchor_grand), side = 3,
       at = anchor_grand, line = 0.15, cex = 0.72, col = col_anch)

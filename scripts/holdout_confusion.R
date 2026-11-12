@@ -8,7 +8,7 @@
 ##
 ## Outputs (in the run's output directory):
 ##   confusion_full_vs_masked.csv   all schemes x strata (+ oracle sensitivity, |logFC| ratio, CCC M vs F)
-##   confusion.tex                  supplement table: three schemes x {all, GSE100051 visible, hidden}
+##   confusion.tex                  supplement table: three schemes x {all, GSE100051 kept, masked}
 ##   confusion_main.tex             main-text table: block scheme strata + by-dataset rows
 ##                                  (requires by_dataset.csv from holdout_by_dataset.R)
 ##   w1_summary.csv (--w1_ref=...)  Full(w=1) vs Full(w=0) DEG lists and FDR-only counts
@@ -19,7 +19,7 @@
 source(file.path({ fa <- grep("--file=", commandArgs(FALSE), value = TRUE)
   if (length(fa)) dirname(normalizePath(sub("--file=", "", fa[1]))) else "." }, "holdout_common.R"))
 METHOD <- get_arg("method", "softimpute")
-STRATUM_LABELS <- c(overall = "all masked genes", ref_visible = "GSE100051 visible", ref_hidden = "GSE100051 hidden")
+STRATUM_LABELS <- c(overall = "all masked genes", ref_visible = "GSE100051 kept", ref_hidden = "GSE100051 masked")
 
 D <- prepare_data(config)
 rows <- list()

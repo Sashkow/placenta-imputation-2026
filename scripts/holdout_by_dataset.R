@@ -66,7 +66,7 @@ pm <- function(m, s, d = 0) ifelse(is.finite(m), sprintf(paste0("%.", d, "f $\\p
 pc <- function(x, d = 1) ifelse(is.finite(x), sprintf(paste0("%.", d, "f"), x), "--")
 ## LaTeX: one block per variant; columns true DEGs | lost | gained | lost % | ratio | oracle sens %
 tex <- c("\\begingroup\\setlength{\\tabcolsep}{3pt}", "\\begin{tabular}{@{}lrrrrrr@{}}", "\\toprule",
-         "\\textbf{Hidden dataset (1st/2nd)} & \\textbf{True DEGs} & \\textbf{Lost} & \\textbf{Gained} & \\textbf{Lost \\%} & \\textbf{$|$logFC$|$ ratio} & \\textbf{Oracle sens.\\ \\%} \\\\",
+         "\\textbf{Masked dataset (1st/2nd)} & \\textbf{True DEGs} & \\textbf{Lost} & \\textbf{Gained} & \\textbf{Lost \\%} & \\textbf{$|$logFC$|$ ratio} & \\textbf{Oracle sens.\\ \\%} \\\\",
          "\\midrule")
 for (i in seq_along(labels)) {
   d <- res[res$variant == labels[i], ]

@@ -3,22 +3,22 @@
 \toprule
 \textbf{Stratum} & \textbf{Genes} & \textbf{True} & \multicolumn{4}{c}{\textbf{log fold-change agreement between runs}} & \multicolumn{2}{c}{\textbf{Sens.\ \%}} & \textbf{Spec.\ \%} \\
 \cmidrule(lr){4-7}\cmidrule(lr){8-9}
- & & \textbf{DEGs} & \textbf{$r$ M,F} & \textbf{MAE M,F} & \textbf{MAE O,F} & \textbf{MAE M,O} & \textbf{M} & \textbf{O} & \textbf{M} \\
+ & & \textbf{DEGs} & \textbf{$r$ M,R} & \textbf{MAE M,R} & \textbf{MAE O,R} & \textbf{MAE M,O} & \textbf{M} & \textbf{O} & \textbf{M} \\
 \midrule
 \multicolumn{10}{@{}l}{\textit{random cells} (0 dropped before testing)} \\[2pt]
 all masked genes & 52{,}593 & 1623 & 0.993 & 0.029 & 0.015 & 0.023 & 92.4 & 96.7 & 99.9 \\
-GSE100051 visible & 35{,}283 & 1623 & 0.994 & 0.035 & 0.020 & 0.025 & 92.4 & 96.7 & 99.8 \\
-GSE100051 hidden & 17{,}310 & 0 & 0.946 & 0.018 & 0.006 & 0.017 & -- & -- & 100.0 \\
+GSE100051 kept & 35{,}283 & 1623 & 0.994 & 0.035 & 0.020 & 0.025 & 92.4 & 96.7 & 99.8 \\
+GSE100051 masked & 17{,}310 & 0 & 0.946 & 0.018 & 0.006 & 0.017 & -- & -- & 100.0 \\
 \addlinespace
 \multicolumn{10}{@{}l}{\textit{gene--dataset block} (84 dropped before testing)} \\[2pt]
 all masked genes & 15{,}471 & 571 & 0.928 & 0.072 & 0.036 & 0.058 & 73.4 & 93.3 & 99.9 \\
-GSE100051 visible & 11{,}734 & 446 & 0.994 & 0.028 & 0.024 & 0.007 & 93.0 & 94.2 & 99.8 \\
-GSE100051 hidden & 3{,}737 & 125 & 0.760 & 0.216 & 0.073 & 0.220 & 3.2 & 90.2 & 100.0 \\
+GSE100051 kept & 11{,}734 & 446 & 0.994 & 0.028 & 0.024 & 0.007 & 93.0 & 94.2 & 99.8 \\
+GSE100051 masked & 3{,}737 & 125 & 0.760 & 0.216 & 0.073 & 0.220 & 3.2 & 90.2 & 100.0 \\
 \addlinespace
 \multicolumn{10}{@{}l}{\textit{worst-case block} (1{,}221 dropped before testing)} \\[2pt]
 all masked genes & 8{,}445 & 270 & 0.728 & 0.129 & 0.064 & 0.110 & 33.3 & 84.9 & 99.8 \\
-GSE100051 visible & 2{,}071 & 99 & 0.983 & 0.059 & 0.058 & 0.007 & 90.9 & 91.9 & 99.4 \\
-GSE100051 hidden & 6{,}374 & 171 & 0.471 & 0.157 & 0.067 & 0.151 & 0.0 & 79.7 & 100.0 \\
+GSE100051 kept & 2{,}071 & 99 & 0.983 & 0.059 & 0.058 & 0.007 & 90.9 & 91.9 & 99.4 \\
+GSE100051 masked & 6{,}374 & 171 & 0.471 & 0.157 & 0.067 & 0.151 & 0.0 & 79.7 & 100.0 \\
 \bottomrule
 \end{tabular}
 \endgroup

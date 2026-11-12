@@ -104,7 +104,7 @@ if (!is.null(pg)) {
   tex <- c("\\begin{tabular}{@{}llrrcc@{}}", "\\toprule",
            "\\textbf{Masking} & \\textbf{Method} & \\multicolumn{2}{c}{\\textbf{Genes}} & \\multicolumn{2}{c}{\\textbf{Median per-gene MAE}} \\\\",
            "\\cmidrule(lr){3-4}\\cmidrule(lr){5-6}",
-           " & & \\textbf{GSE100051 vis.} & \\textbf{GSE100051 hid.} & \\textbf{GSE100051 vis.} & \\textbf{GSE100051 hid.} \\\\",
+           " & & \\textbf{GSE100051 kept} & \\textbf{GSE100051 masked} & \\textbf{GSE100051 kept} & \\textbf{GSE100051 masked} \\\\",
            "\\midrule")
   for (sc in unique(d$scheme)) {
     dd <- d[d$scheme == sc, ]
@@ -222,11 +222,11 @@ arms_out <- data.frame(scheme = arms$scheme, stratum = arms$stratum, n_scored = 
                        sens_M = arms$sensitivity_all, sens_O = arms$sensitivity_oracle, spec_M = arms$specificity,
                        stringsAsFactors = FALSE)
 write.csv(arms_out, file.path(OUT_DIR, "table_s3_arms.csv"), row.names = FALSE)
-STRATUM_LABELS <- c(all = "all masked genes", ref_visible = "GSE100051 visible", ref_hidden = "GSE100051 hidden")
+STRATUM_LABELS <- c(all = "all masked genes", ref_visible = "GSE100051 kept", ref_hidden = "GSE100051 masked")
 tex <- c("\\begingroup\\setlength{\\tabcolsep}{3.5pt}", "\\begin{tabular}{@{}lrrrrrrrrr@{}}", "\\toprule",
          "\\textbf{Stratum} & \\textbf{Genes} & \\textbf{True} & \\multicolumn{4}{c}{\\textbf{log fold-change agreement between runs}} & \\multicolumn{2}{c}{\\textbf{Sens.\\ \\%}} & \\textbf{Spec.\\ \\%} \\\\",
          "\\cmidrule(lr){4-7}\\cmidrule(lr){8-9}",
-         " & & \\textbf{DEGs} & \\textbf{$r$ M,F} & \\textbf{MAE M,F} & \\textbf{MAE O,F} & \\textbf{MAE M,O} & \\textbf{M} & \\textbf{O} & \\textbf{M} \\\\",
+         " & & \\textbf{DEGs} & \\textbf{$r$ M,R} & \\textbf{MAE M,R} & \\textbf{MAE O,R} & \\textbf{MAE M,O} & \\textbf{M} & \\textbf{O} & \\textbf{M} \\\\",
          "\\midrule")
 for (sc in unique(arms_out$scheme)) {
   d <- arms_out[arms_out$scheme == sc, ]
@@ -246,7 +246,7 @@ writeLines(tex, file.path(OUT_DIR, "table_s3_arms.tex"))
 ## LaTeX Table S2: one header line per scheme (gene-level results, dropped),
 ## then one row per method with the two reference-batch strata
 tex <- c("\\begin{tabular}{@{}lrrrrrr@{}}", "\\toprule",
-         "\\textbf{Method} & \\multicolumn{3}{c}{\\textbf{GSE100051 visible}} & \\multicolumn{3}{c}{\\textbf{GSE100051 hidden}} \\\\",
+         "\\textbf{Method} & \\multicolumn{3}{c}{\\textbf{GSE100051 kept}} & \\multicolumn{3}{c}{\\textbf{GSE100051 masked}} \\\\",
          "\\cmidrule(lr){2-4}\\cmidrule(lr){5-7}",
          " & \\textbf{true DEGs} & \\textbf{sens.\\ \\%} & \\textbf{spec.\\ \\%} & \\textbf{true DEGs} & \\textbf{sens.\\ \\%} & \\textbf{spec.\\ \\%} \\\\",
          "\\midrule")

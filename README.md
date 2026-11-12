@@ -153,7 +153,7 @@ Rscript scripts/test4_coverage_patterns.R
 # scored against the truth AND the imputed matrix is carried through ComBat and limma
 # so the DE calls of the masked genes are scored against each imputer's own full run.
 Rscript scripts/holdout_reference_runs.R                       # full-data run per imputer
-Rscript scripts/holdout_unified.R                              # 3 schemes x 3 repeats x 5 imputers (~3 h; imputePCA dominates)
+Rscript scripts/holdout_unified.R                              # 3 schemes x 3 repeats x 9 imputers (~4 h; imputePCA dominates)
 Rscript scripts/holdout_reference_runs.R --config=config/config_holdout_w1.yaml --methods=softimpute
 Rscript scripts/holdout_unified.R        --config=config/config_holdout_w1.yaml --methods=softimpute      # imputed cells at weight 1
 Rscript scripts/holdout_reference_runs.R --config=config/config_holdout_plain_combat.yaml --methods=softimpute
@@ -164,7 +164,7 @@ Rscript scripts/holdout_confusion.R
 Rscript scripts/holdout_confusion.R --config=config/config_holdout_w1.yaml --w1_ref=data/pipeline/holdout/main/reference/softimpute_difexp.csv
 Rscript scripts/holdout_confusion.R --config=config/config_holdout_plain_combat.yaml
 Rscript scripts/de_sweep_numbers.R
-Rscript scripts/verify_holdout_claims.R                        # 272 article numbers vs their source CSVs
+Rscript scripts/verify_holdout_claims.R                        # 296 article numbers vs their source CSVs
 ```
 
 Holdout outputs live in `data/pipeline/holdout/{main,w1,plain}/`: `masks/` (the
@@ -225,23 +225,23 @@ included in either tex file.
 | Genes at intersection (k=6) | 8,260 | replication_report.md |
 | Genes after imputation | 17,531 | replication_report.md |
 | Safety-drop genes removed | 298 | replication_report.md |
-| DEGs (softImpute + ComBat-ref) | 530 (436 up / 94 down) | replication_report.md |
+| DEGs (softImpute + ComBat-ref) | 541 (448 up / 93 down) | replication_report.md |
 | DEGs (intersection + ComBat-ref) | 277 | replication_report.md |
-| Gained DEGs | 253 (243 testable only via imputation) | replication_report.md |
-| softImpute CV r (random / block / worst-case) | 0.993 / 0.817 / 0.824 | replication_report.md |
-| softImpute block RMSE / MAE | 1.52 / 1.16 | replication_report.md |
-| Balanced reference DEGs / retention of full-run DEGs | 474 / 86.4% | replication_report.md |
-| Subsampling DEG retention N=10 / N=30 | 90.6% / 92.7% | replication_report.md |
+| Gained DEGs | 265 (237 testable only via imputation) | replication_report.md |
+| softImpute CV r (random / block / worst-case) | 0.978 / 0.82 / 0.824 | replication_report.md |
+| softImpute block RMSE / MAE | 1.5 / 1.15 | replication_report.md |
+| Balanced reference DEGs / retention of full-run DEGs | 484 / 86.5% | replication_report.md |
+| Subsampling DEG retention N=10 / N=30 | 90.9% / 93% | replication_report.md |
 | Subsampling logFC CCC at N=10 | 0.89 | replication_report.md |
-| Split-half DEG retention / logFC CCC | 86.1% / 0.763 | replication_report.md |
-| GO BP terms / KEGG pathways (full 530) | 659 / 39 | replication_report.md |
-| Gained genes in Lykhenko 2021 limma table | 233/253 | replication_report.md |
-| Same direction as Lykhenko 2021 / already FDR-significant there | 89.3% / 62.7% | replication_report.md |
-| Holdout block masking: true DEGs lost / non-DEGs gained | 24.8% / 0.21% | replication_report.md |
-| Holdout, GSE100051 hidden: true DEGs lost | 87.1% | replication_report.md |
+| Split-half DEG retention / logFC CCC | 86.4% / 0.771 | replication_report.md |
+| GO BP terms / KEGG pathways (full 541) | 678 / 44 | replication_report.md |
+| Gained genes in Lykhenko 2021 limma table | 245/265 | replication_report.md |
+| Same direction as Lykhenko 2021 / already FDR-significant there | 89% / 60.8% | replication_report.md |
+| Holdout block masking: true DEGs lost / non-DEGs gained | 26.6% / 0.13% | replication_report.md |
+| Holdout, GSE100051 hidden: true DEGs lost | 96.8% | replication_report.md |
 | qPCR benchmark genes recovered | 11/17 | replication_report.md; denominator from qpcr_benchmark_genes.csv |
 | GA-matched Prater r / CCC | 0.808 / 0.755 | replication_report.md |
-| Prater (full window) r / CCC / shared significant DEGs | 0.670 / 0.548 / 367 | de_sweep_numbers.csv (checked by verify_holdout_claims.R) |
+| Prater (full window) r / CCC / shared significant DEGs | 0.656 / 0.538 / 371 | de_sweep_numbers.csv (checked by verify_holdout_claims.R) |
 
 <!-- KEY_NUMBERS_END -->
 

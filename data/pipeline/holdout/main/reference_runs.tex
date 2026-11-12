@@ -2,10 +2,14 @@
 \toprule
 \textbf{Imputer} & \textbf{DEGs} & \textbf{shared with softImpute} & \textbf{Jaccard} & \textbf{logFC CCC} \\
 \midrule
-softImpute & 530 & 530 & 1.000 & 1.000 \\
-imputePCA & 590 & 524 & 0.879 & 0.968 \\
-KNN & 540 & 518 & 0.938 & 0.991 \\
-gene mean & 4599 & 333 & 0.069 & 0.095 \\
-batch mean & 4599 & 333 & 0.069 & 0.095 \\
+softImpute & 541 & 541 & 1.000 & 1.000 \\
+imputePCA & 585 & 520 & 0.858 & 0.959 \\
+KNN & 540 & 540 & 0.998 & 0.997 \\
+KNN (centred) & 570 & 538 & 0.939 & 0.981 \\
+sample KNN & 613 & 534 & 0.861 & 0.872 \\
+sample KNN (centred) & 538 & 536 & 0.987 & 0.982 \\
+biScale fill & 538 & 538 & 0.994 & 0.998 \\
+gene mean & 4599 & 325 & 0.067 & 0.094 \\
+batch mean & 4599 & 325 & 0.067 & 0.094 \\
 \bottomrule
 \end{tabular}

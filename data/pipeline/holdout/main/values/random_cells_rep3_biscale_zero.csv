@@ -1,0 +1,2 @@
+"scheme","rep","method","n_masked","n_blocks","pearson_r","rmse","mae","converged","imputation_seconds","combat_status"
+"random_cells",3,"biscale_zero",144794,NA,0.92629025779159,1.07618167836201,0.788054436792142,TRUE,12.9459433555603,"ok"

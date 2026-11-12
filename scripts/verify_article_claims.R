@@ -107,7 +107,7 @@ check_deg_counts <- function(section, label, file, expected_total, expected_up,
 degs_soft_ref <- check_deg_counts(
   "Table 4", "SoftImpute+ComBat-ref",
   file.path(main_dir, "difexp_significant_softimpute_combat_ref.tsv"),
-  "530", "436", "94")
+  "541", "448", "93")
 
 check_deg_counts(
   "Table 4", "Intersection-only (none+ref)",
@@ -117,7 +117,7 @@ check_deg_counts(
 check_deg_counts(
   "Table 4", "SoftImpute+ComBat (no ref)",
   file.path(main_dir, "difexp_significant_softimpute_combat.tsv"),
-  "525", "433", "92", optional = TRUE)
+  "508", "425", "83", optional = TRUE)
 
 # --- 3. Imputation accuracy (Supp Table S1, unified holdout) ---
 
@@ -125,13 +125,14 @@ hs1 <- "data/pipeline/holdout/main/table_s1.csv"
 if (file.exists(hs1)) {
   t1 <- read.csv(hs1, stringsAsFactors = FALSE)
   si <- function(sc, col) t1[[col]][t1$scheme == sc & t1$method == "softimpute"]
-  add_result("Supp S1", "softImpute random-cell r", "0.993", round(si("random_cells", "r_mean"), 3), tol = 0.0005)
-  add_result("Supp S1", "softImpute gene-dataset block r", "0.817", round(si("gene_dataset_block", "r_mean"), 3), tol = 0.0005)
-  add_result("Supp S1", "softImpute block RMSE", "1.52", round(si("gene_dataset_block", "rmse_mean"), 2), tol = 0.005)
-  add_result("Supp S1", "softImpute block MAE", "1.16", round(si("gene_dataset_block", "mae_mean"), 2), tol = 0.005)
+  add_result("Supp S1", "softImpute random-cell r", "0.978", round(si("random_cells", "r_mean"), 3), tol = 0.0005)
+  add_result("Supp S1", "softImpute gene-dataset block r", "0.820", round(si("gene_dataset_block", "r_mean"), 3), tol = 0.0005)
+  add_result("Supp S1", "softImpute block RMSE", "1.50", round(si("gene_dataset_block", "rmse_mean"), 2), tol = 0.005)
+  add_result("Supp S1", "softImpute block MAE", "1.15", round(si("gene_dataset_block", "mae_mean"), 2), tol = 0.005)
   add_result("Supp S1", "softImpute worst-case block r", "0.824", round(si("progressive_tax_block", "r_mean"), 3), tol = 0.0005)
-  add_result("Supp S1", "KNN block r", "0.683", round(t1$r_mean[t1$scheme == "gene_dataset_block" & t1$method == "knn"], 3), tol = 0.0005)
-  add_result("Supp S1", "imputePCA worst-case r", "0.436", round(t1$r_mean[t1$scheme == "progressive_tax_block" & t1$method == "missmda"], 3), tol = 0.0005)
+  add_result("Supp S1", "KNN (centred) block r", "0.815", round(t1$r_mean[t1$scheme == "gene_dataset_block" & t1$method == "knn_centred"], 3), tol = 0.0005)
+  add_result("Supp S1", "biScale fill block RMSE", "1.56", round(t1$rmse_mean[t1$scheme == "gene_dataset_block" & t1$method == "biscale_zero"], 2), tol = 0.005)
+  add_result("Supp S1", "imputePCA worst-case r", "0.842", round(t1$r_mean[t1$scheme == "progressive_tax_block" & t1$method == "missmda"], 3), tol = 0.0005)
 } else {
   add_not_verified("Supp S1", "Imputation accuracy (unified holdout)", "data/pipeline/holdout/main/table_s1.csv missing")
 }
@@ -141,7 +142,7 @@ if (file.exists(hs1)) {
 test1 <- read.delim(file.path(validation_dir,
                     "test1_first_trim_subsample.tsv"))
 med_j_10 <- median(test1$jaccard_vs_full[test1$N_1st == 10])
-add_result("Section 3.4", "Jaccard at N=10", "0.52",
+add_result("Section 3.4", "Jaccard at N=10", "0.54",
            round(med_j_10, 2), tol = 0.01)
 
 # --- 5. Split-half (Section 3.4) ---
@@ -152,18 +153,18 @@ med_j_ab <- median(test3$jaccard_a_vs_b)
 # Tolerance tightened from 0.05 to 0.01: the loose value masked the fact that
 # the article prose quoted an older validation run (0.45) while the shipped
 # data gives 0.402.
-add_result("Section 3.4", "Split-half median Jaccard between halves", "0.445",
+add_result("Section 3.4", "Split-half median Jaccard between halves", "0.453",
            round(med_j_ab, 3), tol = 0.01)
-add_result("Supp S3", "Split-half DEG retention", "86.1",
+add_result("Supp S3", "Split-half DEG retention", "86.4",
            round(100 * median(c(test3$overlap_a_vs_full, test3$overlap_b_vs_full)), 1),
            tol = 0.1)
-add_result("Supp S3", "Split-half logFC CCC between halves", "0.763",
+add_result("Supp S3", "Split-half logFC CCC between halves", "0.771",
            round(median(test3$logfc_ccc_a_vs_b), 3), tol = 0.01)
 
 # --- 4b. Convergence numbers synced to the canonical run ---
-add_result("Supp S3", "Subsampling DEG retention at N=10", "90.6",
+add_result("Supp S3", "Subsampling DEG retention at N=10", "90.9",
            round(100 * median(test1$overlap_vs_full[test1$N_1st == 10]), 1), tol = 0.1)
-add_result("Supp S3", "Subsampling DEG retention at N=30", "92.7",
+add_result("Supp S3", "Subsampling DEG retention at N=30", "93.0",
            round(100 * median(test1$overlap_vs_full[test1$N_1st == 30]), 1), tol = 0.1)
 add_result("Supp S3", "Subsampling logFC CCC at N=10", "0.89",
            round(median(test1$logfc_ccc_vs_full[test1$N_1st == 10]), 2), tol = 0.01)
@@ -184,7 +185,7 @@ if (file.exists(bal_ref_file)) {
   degs_balanced <- full_bal[abs(full_bal$logFC) >= 1 & full_bal$adj.P.Val < 0.05, ]
 }
 
-add_result("Section 3.4", "Balanced reference DEG count", "474",
+add_result("Section 3.4", "Balanced reference DEG count", "484",
            nrow(degs_balanced))
 
 full_genes <- degs_soft_ref$gene
@@ -193,9 +194,9 @@ shared_genes <- intersect(full_genes, bal_genes)
 jac_bal <- length(shared_genes) / length(union(full_genes, bal_genes))
 ret_bal <- length(shared_genes) / length(full_genes)
 
-add_result("Section 3.4", "Balanced vs full Jaccard", "0.839",
+add_result("Section 3.4", "Balanced vs full Jaccard", "0.840",
            round(jac_bal, 3), tol = 0.001)
-add_result("Section 3.4", "Balanced retention of full DEGs", "86.4%",
+add_result("Section 3.4", "Balanced retention of full DEGs", "86.5%",
            paste0(round(ret_bal * 100, 1), "%"))
 
 # --- 7. Batch-correction distortion check (Results 2.3) ---
@@ -215,12 +216,12 @@ if (file.exists(inter_file) && file.exists(soft_file)) {
 
   add_result("Results 2.3", "Shared genes compared", "8260",
              length(shared_genes))
-  add_result("Results 2.3", "Post-ComBat Pearson r (all cells)", "0.9999",
+  add_result("Results 2.3", "Post-ComBat Pearson r (all cells)", "0.9994",
              round(cor(as.vector(i_sub), as.vector(s_sub)), 4), tol = 0.0005)
   gene_mae <- rowMeans(abs(i_sub - s_sub))
-  add_result("Results 2.3", "Mean abs diff", "0.01",
+  add_result("Results 2.3", "Mean abs diff", "0.031",
              round(mean(abs(i_sub - s_sub)), 3), tol = 0.005)
-  add_result("Results 2.3", "Median per-gene MAE", "0.009",
+  add_result("Results 2.3", "Median per-gene MAE", "0.027",
              round(median(gene_mae), 3), tol = 0.005)
 } else {
   add_not_verified("Results 2.3", "Batch-correction distortion check",
@@ -236,13 +237,13 @@ if (dir.exists(enrichment_dir)) {
   }
 
   enrichment_checks <- data.frame(
-    label = c("530-DEG GO BP terms (q<0.05)", "530-DEG KEGG pathways (q<0.05)",
+    label = c("541-DEG GO BP terms (q<0.05)", "541-DEG KEGG pathways (q<0.05)",
               "277-DEG GO BP terms", "277-DEG KEGG pathways",
-              "253-DEG GO BP terms", "253-DEG KEGG pathways"),
-    file = c("enrichment_full_530_GO_BP.csv", "enrichment_full_530_KEGG.csv",
+              "265-DEG GO BP terms", "265-DEG KEGG pathways"),
+    file = c("enrichment_full_541_GO_BP.csv", "enrichment_full_541_KEGG.csv",
              "enrichment_intersection_277_GO_BP.csv", "enrichment_intersection_277_KEGG.csv",
-             "enrichment_gained_253_GO_BP.csv", "enrichment_gained_253_KEGG.csv"),
-    expected = c("659", "39", "292", "25", "250", "17"),
+             "enrichment_gained_265_GO_BP.csv", "enrichment_gained_265_KEGG.csv"),
+    expected = c("678", "44", "292", "26", "243", "25"),
     stringsAsFactors = FALSE
   )
 
@@ -277,31 +278,31 @@ if (file.exists(lykhenko_full_file) && !is.null(degs_soft_ref) &&
   lykhenko_full <- read.csv(lykhenko_full_file)
   degs_int <- read.delim(none_sig_file)
   gained <- degs_soft_ref[!(degs_soft_ref$gene %in% degs_int$gene), ]
-  add_result("Discussion 3.2", "Gained DEGs (530 set minus 277 set)",
-             "253", nrow(gained))
+  add_result("Discussion 3.2", "Gained DEGs (541 set minus 277 set)",
+             "265", nrow(gained))
   matched <- merge(gained, lykhenko_full, by.x = "gene", by.y = "ENTREZID")
   add_result("Discussion 3.2", "Gained genes present in Lykhenko 2021 limma table",
-             "233", nrow(matched))
+             "245", nrow(matched))
   same_dir <- sign(matched$logFC.x) == sign(matched$logFC.y)
   add_result("Discussion 3.2", "Same direction of change (%)",
-             "89.3", round(100 * mean(same_dir), 1), tol = 0.05)
+             "89.0", round(100 * mean(same_dir), 1), tol = 0.05)
   add_result("Discussion 3.2", "logFC Pearson r vs Lykhenko 2021",
-             "0.654", round(cor(matched$logFC.x, matched$logFC.y), 3), tol = 0.0051)
+             "0.61", round(cor(matched$logFC.x, matched$logFC.y), 3), tol = 0.0051)
   add_result("Discussion 3.2", "Already FDR-significant in Lykhenko 2021 (%)",
-             "62.7", round(100 * mean(matched$adj.P.Val.y < 0.05), 1), tol = 0.05)
+             "60.8", round(100 * mean(matched$adj.P.Val.y < 0.05), 1), tol = 0.05)
   ## Supp S4: composition of the 27 direction-discordant genes
   opp <- matched[!same_dir, ]
   add_result("Supp S4", "Direction-discordant gained genes",
-             "25", nrow(opp))
+             "27", nrow(opp))
   add_result("Supp S4", "Discordant genes FDR-significant in 2021",
              "0", sum(opp$adj.P.Val.y < 0.05))
   add_result("Supp S4", "Median 2021 |logFC| of discordant genes",
              "0.13", round(median(abs(opp$logFC.y)), 2), tol = 0.005)
   add_result("Supp S4", "Median 2021 |logFC| of concordant genes",
-             "0.60", round(median(abs(matched$logFC.y[same_dir])), 2), tol = 0.005)
+             "0.56", round(median(abs(matched$logFC.y[same_dir])), 2), tol = 0.005)
   sig21 <- matched[matched$adj.P.Val.y < 0.05, ]
   add_result("Supp S4", "2021-significant matched genes agreeing in direction",
-             "146/146", paste0(sum(sign(sig21$logFC.x) == sign(sig21$logFC.y)),
+             "149/149", paste0(sum(sign(sig21$logFC.x) == sign(sig21$logFC.y)),
                                "/", nrow(sig21)))
 } else {
   add_not_verified("Discussion 3.2", "External concordance with Lykhenko 2021",
@@ -322,47 +323,47 @@ q_of <- function(d, desc) {
 }
 fmt_q <- function(x) if (is.na(x)) "NA" else signif(x, 2)
 
-go_full  <- enr("enrichment_full_530_GO_BP.csv")
-kegg_full <- enr("enrichment_full_530_KEGG.csv")
+go_full  <- enr("enrichment_full_541_GO_BP.csv")
+kegg_full <- enr("enrichment_full_541_KEGG.csv")
 go_int   <- enr("enrichment_intersection_277_GO_BP.csv")
 kegg_int <- enr("enrichment_intersection_277_KEGG.csv")
-go_gain  <- enr("enrichment_gained_253_GO_BP.csv")
-kegg_gain <- enr("enrichment_gained_253_KEGG.csv")
+go_gain  <- enr("enrichment_gained_265_GO_BP.csv")
+kegg_gain <- enr("enrichment_gained_265_KEGG.csv")
 
 if (!is.null(go_full) && !is.null(kegg_full)) {
-  add_result("Section 3.3", "GO BP terms (full 530)", "659", nrow(go_full))
-  add_result("Section 3.3", "KEGG pathways (full 530)", "39", nrow(kegg_full))
+  add_result("Section 3.3", "GO BP terms (full 541)", "678", nrow(go_full))
+  add_result("Section 3.3", "KEGG pathways (full 541)", "44", nrow(kegg_full))
   add_result("Section 3.3", "GO BP terms (intersection 277)", "292", nrow(go_int))
-  add_result("Section 3.3", "KEGG pathways (intersection 277)", "25", nrow(kegg_int))
-  add_result("Section 3.3", "GO BP terms (gained 253)", "250", nrow(go_gain))
-  add_result("Section 3.3", "KEGG pathways (gained 253)", "17", nrow(kegg_gain))
+  add_result("Section 3.3", "KEGG pathways (intersection 277)", "26", nrow(kegg_int))
+  add_result("Section 3.3", "GO BP terms (gained 265)", "243", nrow(go_gain))
+  add_result("Section 3.3", "KEGG pathways (gained 265)", "25", nrow(kegg_gain))
 
   add_result("Section 3.3", "q: positive regulation of cytokine production (full)",
-             "7e-14", fmt_q(q_of(go_full, "positive regulation of cytokine production")),
+             "9.5e-15", fmt_q(q_of(go_full, "positive regulation of cytokine production")),
              tol = 1e-15)
   add_result("Section 3.3", "q: leukocyte migration (full)",
-             "6.7e-12", fmt_q(q_of(go_full, "leukocyte migration")), tol = 1e-12)
+             "3.3e-12", fmt_q(q_of(go_full, "leukocyte migration")), tol = 1e-12)
   add_result("Section 3.3", "q: chemotaxis (full)",
-             "2.8e-11", fmt_q(q_of(go_full, "chemotaxis")), tol = 1e-12)
+             "2e-11", fmt_q(q_of(go_full, "chemotaxis")), tol = 1e-12)
   add_result("Section 3.3", "q: humoral immune response (full)",
-             "5.3e-11", fmt_q(q_of(go_full, "humoral immune response")), tol = 1e-11)
+             "1e-10", fmt_q(q_of(go_full, "humoral immune response")), tol = 1e-11)
   add_result("Section 3.3", "q: hsa05150 S. aureus infection (full)",
-             "2.2e-10", fmt_q(q_of(kegg_full, "Staphylococcus aureus infection")), tol = 1e-11)
+             "3.2e-10", fmt_q(q_of(kegg_full, "Staphylococcus aureus infection")), tol = 1e-11)
   add_result("Section 3.3", "q: hsa04610 complement and coagulation (full)",
-             "1e-09", fmt_q(q_of(kegg_full, "Complement and coagulation cascades")), tol = 1e-10)
+             "1.5e-09", fmt_q(q_of(kegg_full, "Complement and coagulation cascades")), tol = 1e-10)
   add_result("Section 3.3", "q: hsa04514 cell adhesion molecules (full)",
-             "7.7e-06", fmt_q(q_of(kegg_full, "Cell adhesion molecule (CAM) interaction")), tol = 1e-7)
+             "6.3e-07", fmt_q(q_of(kegg_full, "Cell adhesion molecule (CAM) interaction")), tol = 1e-7)
   add_result("Section 3.3", "q: chemotaxis (gained)",
-             "2.4e-07", fmt_q(q_of(go_gain, "chemotaxis")), tol = 1e-7)
+             "1.4e-07", fmt_q(q_of(go_gain, "chemotaxis")), tol = 1e-7)
   add_result("Section 3.3", "q: leukocyte migration (gained)",
-             "2.4e-07", fmt_q(q_of(go_gain, "leukocyte migration")), tol = 1e-7)
+             "1.4e-07", fmt_q(q_of(go_gain, "leukocyte migration")), tol = 1e-7)
   add_result("Section 3.3", "q: hsa04145 phagocytosis (gained)",
-             "0.0023", fmt_q(q_of(kegg_gain, "Phagocytosis")), tol = 1e-4)
+             "0.0034", fmt_q(q_of(kegg_gain, "Phagocytosis")), tol = 1e-4)
 
   shared_go <- length(intersect(go_gain$Description, go_int$Description))
   shared_kegg <- length(intersect(kegg_gain$Description, kegg_int$Description))
-  add_result("Section 3.4", "Gained GO BP terms shared with intersection", "83", shared_go)
-  add_result("Section 3.4", "Gained KEGG pathways shared with intersection", "7", shared_kegg)
+  add_result("Section 3.4", "Gained GO BP terms shared with intersection", "85", shared_go)
+  add_result("Section 3.4", "Gained KEGG pathways shared with intersection", "9", shared_kegg)
 } else {
   add_not_verified("Section 3.3", "Enrichment q-values",
                    "data/pipeline/main/enrichment/ CSVs missing")
@@ -375,9 +376,9 @@ if (!is.null(degs_soft_ref) && file.exists(none_sig_file) &&
                                   row.names = 1, check.names = FALSE))
   degs_int2 <- read.delim(none_sig_file)
   gained2 <- setdiff(degs_soft_ref$gene, degs_int2$gene)
-  add_result("Section 3.3", "Gained DEGs that are intersection genes", "10",
+  add_result("Section 3.3", "Gained DEGs that are intersection genes", "28",
              sum(gained2 %in% int_only))
-  add_result("Section 3.3", "Gained DEGs testable only via imputation", "243",
+  add_result("Section 3.3", "Gained DEGs testable only via imputation", "237",
              sum(!(gained2 %in% int_only)))
 }
 
@@ -401,7 +402,7 @@ ga_file <- file.path(pipeline_dir, "ga_matched_prater", "prater_concordance.csv"
 if (file.exists(ga_file)) {
   ga <- read.csv(ga_file)
   add_result("Supp S5", "GA-matched testable genes", "11761", ga$genes_tested[1])
-  add_result("Supp S5", "GA-matched DEGs", "602", ga$degs[1])
+  add_result("Supp S5", "GA-matched DEGs", "603", ga$degs[1])
   add_result("Supp S5", "GA-matched shared genes with Prater", "1992", ga$shared_genes[1])
   add_result("Supp S5", "GA-matched Prater Pearson r", "0.808",
              round(ga$prater_r[1], 3), tol = 0.002)
@@ -416,7 +417,7 @@ if (file.exists(ga_file)) {
 sweep_file <- file.path(pipeline_dir, "covariate_sweep", "table_s2_covariate_comparison.csv")
 if (file.exists(sweep_file)) {
   sw <- read.csv(sweep_file, stringsAsFactors = FALSE)
-  want <- c(categorical = 436, linear = 530, poly2 = 486, ns3 = 513)
+  want <- c(categorical = 444, linear = 541, poly2 = 474, ns3 = 511)
   for (v in names(want)) {
     r <- sw[sw$variant == v, ]
     if (nrow(r)) add_result("Supp S6", paste0("Covariate sweep DEGs (", v, ")"),
@@ -438,9 +439,9 @@ jac_file <- file.path(pipeline_dir, "covariate_sweep", "table_s3_covariate_stabi
 if (file.exists(jac_file)) {
   jc <- read.csv(jac_file, stringsAsFactors = FALSE)
   published <- list(
-    "10"  = c(categorical = 0.453, linear = 0.481, poly2 = 0.429, ns3 = 0.443),
-    "30"  = c(categorical = 0.625, linear = 0.647, poly2 = 0.565, ns3 = 0.573),
-    "100" = c(categorical = 0.967, linear = 0.972, poly2 = 0.961, ns3 = 0.957))
+    "10"  = c(categorical = 0.452, linear = 0.483, poly2 = 0.436, ns3 = 0.450),
+    "30"  = c(categorical = 0.638, linear = 0.662, poly2 = 0.578, ns3 = 0.593),
+    "100" = c(categorical = 0.969, linear = 0.976, poly2 = 0.959, ns3 = 0.950))
   for (n in names(published)) {
     row <- jc[jc$N_1st == as.integer(n), ]
     if (!nrow(row)) next
@@ -464,9 +465,9 @@ cov_file <- file.path(pipeline_dir, "test4", "coverage_patterns_gained.csv")
 if (file.exists(cov_file)) {
   cp <- read.csv(cov_file, stringsAsFactors = FALSE)
   add_result("Section 3.3", "Gained DEGs carrying the ComBat reference batch",
-             "245", sum(cp$n_genes[cp$has_ref_batch]))
+             "265", sum(cp$n_genes[cp$has_ref_batch]))
   add_result("Section 3.3", "Gained DEGs lacking the ComBat reference batch",
-             "8", sum(cp$n_genes[!cp$has_ref_batch]))
+             "0", sum(cp$n_genes[!cp$has_ref_batch]))
 } else {
   add_not_verified("Section 3.3", "Coverage patterns of gained DEGs",
                    "run scripts/test4_coverage_patterns.R first")
@@ -481,39 +482,39 @@ if (file.exists(cf) && file.exists(bdf)) {
   cv <- function(sc, st, col) cfd[[col]][cfd$scheme == sc & cfd$stratum == st]
   bv <- function(v, h, col) bd[[col]][bd$variant == v & bd$hidden == h]
   add_result("Holdout", "Block masking: masked genes per run", "5157", round(cv("gene_dataset_block", "overall", "genes")), tol = 0.5)
-  add_result("Holdout", "Block masking: true DEGs lost (%)", "24.8", round(cv("gene_dataset_block", "overall", "lost_pct"), 1), tol = 0.05)
-  add_result("Holdout", "Block masking: non-DEGs gained (%)", "0.21", round(cv("gene_dataset_block", "overall", "gained_pct"), 2), tol = 0.005)
-  add_result("Holdout", "Block masking: genes gaining DEG status per run", "10", round(cv("gene_dataset_block", "overall", "not_to_deg")), tol = 0.5)
-  add_result("Holdout", "Block masking, GSE100051 visible: lost (%)", "6.4", round(cv("gene_dataset_block", "ref_visible", "lost_pct"), 1), tol = 0.05)
-  add_result("Holdout", "Block masking, GSE100051 hidden: lost (%)", "87.1", round(cv("gene_dataset_block", "ref_hidden", "lost_pct"), 1), tol = 0.05)
-  add_result("Holdout", "Block masking, GSE100051 hidden: true DEGs lost per run", "36", round(cv("gene_dataset_block", "ref_hidden", "deg_to_not")), tol = 0.5)
-  add_result("Holdout", "Block masking, GSE100051 hidden: |logFC| ratio", "0.48", round(cv("gene_dataset_block", "ref_hidden", "ratio"), 2), tol = 0.005)
-  add_result("Holdout", "Random-cell masking: lost (%)", "4.2", round(cv("random_cells", "overall", "lost_pct"), 1), tol = 0.05)
-  add_result("Holdout", "Random-cell masking: gained (%)", "0.16", round(cv("random_cells", "overall", "gained_pct"), 2), tol = 0.005)
-  add_result("Holdout", "Worst-case masking: lost (%)", "63.9", round(cv("progressive_tax_block", "overall", "lost_pct"), 1), tol = 0.05)
-  add_result("Holdout", "Worst-case masking, GSE100051 hidden: lost (%)", "96.4", round(cv("progressive_tax_block", "ref_hidden", "lost_pct"), 1), tol = 0.05)
-  add_result("Holdout", "Hidden GSE100051 (ComBat-ref): lost (%)", "81", round(bv("ComBat-ref", "GSE100051", "lost_pct")), tol = 0.5)
-  add_result("Holdout", "Hidden GSE100051 (ComBat-ref): |logFC| ratio", "0.52", round(bv("ComBat-ref", "GSE100051", "ratio"), 2), tol = 0.005)
+  add_result("Holdout", "Block masking: true DEGs lost (%)", "26.6", round(cv("gene_dataset_block", "overall", "lost_pct"), 1), tol = 0.05)
+  add_result("Holdout", "Block masking: non-DEGs gained (%)", "0.13", round(cv("gene_dataset_block", "overall", "gained_pct"), 2), tol = 0.005)
+  add_result("Holdout", "Block masking: genes gaining DEG status per run", "7", round(cv("gene_dataset_block", "overall", "not_to_deg")), tol = 0.5)
+  add_result("Holdout", "Block masking, GSE100051 visible: lost (%)", "7.0", round(cv("gene_dataset_block", "ref_visible", "lost_pct"), 1), tol = 0.05)
+  add_result("Holdout", "Block masking, GSE100051 hidden: lost (%)", "96.8", round(cv("gene_dataset_block", "ref_hidden", "lost_pct"), 1), tol = 0.05)
+  add_result("Holdout", "Block masking, GSE100051 hidden: true DEGs lost per run", "40", round(cv("gene_dataset_block", "ref_hidden", "deg_to_not")), tol = 0.5)
+  add_result("Holdout", "Block masking, GSE100051 hidden: |logFC| ratio", "0.28", round(cv("gene_dataset_block", "ref_hidden", "ratio"), 2), tol = 0.005)
+  add_result("Holdout", "Random-cell masking: lost (%)", "7.6", round(cv("random_cells", "overall", "lost_pct"), 1), tol = 0.05)
+  add_result("Holdout", "Random-cell masking: gained (%)", "0.13", round(cv("random_cells", "overall", "gained_pct"), 2), tol = 0.005)
+  add_result("Holdout", "Worst-case masking: lost (%)", "66.7", round(cv("progressive_tax_block", "overall", "lost_pct"), 1), tol = 0.05)
+  add_result("Holdout", "Worst-case masking, GSE100051 hidden: lost (%)", "100.0", round(cv("progressive_tax_block", "ref_hidden", "lost_pct"), 1), tol = 0.05)
+  add_result("Holdout", "Hidden GSE100051 (ComBat-ref): lost (%)", "95", round(bv("ComBat-ref", "GSE100051", "lost_pct")), tol = 0.5)
+  add_result("Holdout", "Hidden GSE100051 (ComBat-ref): |logFC| ratio", "0.33", round(bv("ComBat-ref", "GSE100051", "ratio"), 2), tol = 0.005)
   add_result("Holdout", "Hidden GSE100051 (ComBat-ref): oracle sensitivity (%)", "95", round(bv("ComBat-ref", "GSE100051", "sens_O")), tol = 0.5)
-  add_result("Holdout", "Hidden GSE37901 (ComBat-ref): lost (%)", "23", round(bv("ComBat-ref", "GSE37901", "lost_pct")), tol = 0.5)
-  add_result("Holdout", "Hidden GSE37901 (ComBat-ref): |logFC| ratio", "0.88", round(bv("ComBat-ref", "GSE37901", "ratio"), 2), tol = 0.005)
-  add_result("Holdout", "Hidden GSE100051 (plain ComBat): lost (%)", "78", round(bv("plain ComBat", "GSE100051", "lost_pct")), tol = 0.5)
-  add_result("Holdout", "Hidden GSE100051 (plain ComBat): |logFC| ratio", "0.52", round(bv("plain ComBat", "GSE100051", "ratio"), 2), tol = 0.005)
+  add_result("Holdout", "Hidden GSE37901 (ComBat-ref): lost (%)", "18", round(bv("ComBat-ref", "GSE37901", "lost_pct")), tol = 0.5)
+  add_result("Holdout", "Hidden GSE37901 (ComBat-ref): |logFC| ratio", "0.89", round(bv("ComBat-ref", "GSE37901", "ratio"), 2), tol = 0.005)
+  add_result("Holdout", "Hidden GSE100051 (plain ComBat): lost (%)", "93", round(bv("plain ComBat", "GSE100051", "lost_pct")), tol = 0.5)
+  add_result("Holdout", "Hidden GSE100051 (plain ComBat): |logFC| ratio", "0.38", round(bv("plain ComBat", "GSE100051", "ratio"), 2), tol = 0.005)
 } else {
   add_not_verified("Holdout", "Unified holdout tables", "data/pipeline/holdout/main/{confusion_full_vs_masked,by_dataset}.csv missing")
 }
 w1f <- file.path(hd, "w1", "w1_summary.csv")
 if (file.exists(w1f)) {
   w1 <- read.csv(w1f, stringsAsFactors = FALSE); wv <- function(n) w1$value[w1$name == n]
-  add_result("Holdout", "Imputed cells at weight 1: full-run DEGs", "527", wv("degs_w1"))
-  add_result("Holdout", "Imputed cells at weight 1: DEGs shared with weight 0", "505", wv("shared"))
-  add_result("Holdout", "Imputed cells at weight 1: FDR-only genes", "9109", wv("fdr_only_w1"))
-  add_result("Holdout", "Imputed cells at weight 0: FDR-only genes", "6794", wv("fdr_only_w0"))
+  add_result("Holdout", "Imputed cells at weight 1: full-run DEGs", "540", wv("degs_w1"))
+  add_result("Holdout", "Imputed cells at weight 1: DEGs shared with weight 0", "525", wv("shared"))
+  add_result("Holdout", "Imputed cells at weight 1: FDR-only genes", "10664", wv("fdr_only_w1"))
+  add_result("Holdout", "Imputed cells at weight 0: FDR-only genes", "7779", wv("fdr_only_w0"))
 } else {
   add_not_verified("Holdout", "Imputed-cell weight sensitivity", "data/pipeline/holdout/w1/w1_summary.csv missing")
 }
 pm <- file.path(hd, "plain", "reference", "softimpute_meta.csv")
-if (file.exists(pm)) add_result("Holdout", "Plain ComBat full-run DEGs", "525", read.csv(pm)$n_deg[1]) else
+if (file.exists(pm)) add_result("Holdout", "Plain ComBat full-run DEGs", "508", read.csv(pm)$n_deg[1]) else
   add_not_verified("Holdout", "Plain ComBat full run", "data/pipeline/holdout/plain/reference/softimpute_meta.csv missing")
 ca <- file.path(hd, "main", "claims_article.csv")
 if (file.exists(ca)) {

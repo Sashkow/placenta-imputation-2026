@@ -73,9 +73,18 @@ cs <- read.csv(P("data/pipeline/covariate_sweep/table_s2_covariate_comparison.cs
 js <- read.csv(P("data/pipeline/covariate_sweep/table_s3_covariate_stability.csv")); for (i in seq_len(nrow(js))) for (nm in setdiff(names(js), "N_1st")) add(paste0("covjac_N", js$N_1st[i], "_", nm), js[[nm]][i])
 ## enrichment
 rd <- function(f) read.csv(P("data/pipeline/main/enrichment", f), stringsAsFactors = FALSE)
-for (set in c("full_530", "intersection_277", "gained_253")) { gg <- rd(paste0("enrichment_", set, "_GO_BP.csv")); kk <- rd(paste0("enrichment_", set, "_KEGG.csv")); add(paste0("enr_", set, "_go"), nrow(gg)); add(paste0("enr_", set, "_kegg"), nrow(kk))
-  for (id in c("GO:0001819", "GO:0050900", "GO:0006935", "GO:0006959", "GO:0002443")) if (id %in% gg$ID) add(paste0("enr_", set, "_", id), gg$qvalue[gg$ID == id])
-  for (id in c("hsa05150", "hsa04610", "hsa04514", "hsa04145")) if (id %in% kk$ID) add(paste0("enr_", set, "_", id), kk$qvalue[kk$ID == id]) }
-gg <- rd("enrichment_gained_253_GO_BP.csv"); ig <- rd("enrichment_intersection_277_GO_BP.csv"); gk <- rd("enrichment_gained_253_KEGG.csv"); ik <- rd("enrichment_intersection_277_KEGG.csv")
+## enrichment files are named by set size (fig_enrichment.R); keys stay size-free
+enr_sets <- c(full = paste0("full_", length(S)), intersection = paste0("intersection_", length(N)),
+              gained = paste0("gained_", length(gained)))
+for (key in names(enr_sets)) { set <- enr_sets[[key]]; gg <- rd(paste0("enrichment_", set, "_GO_BP.csv")); kk <- rd(paste0("enrichment_", set, "_KEGG.csv")); add(paste0("enr_", key, "_go"), nrow(gg)); add(paste0("enr_", key, "_kegg"), nrow(kk))
+  for (id in c("GO:0001819", "GO:0050900", "GO:0006935", "GO:0006959", "GO:0002443")) if (id %in% gg$ID) add(paste0("enr_", key, "_", id), gg$qvalue[gg$ID == id])
+  for (id in c("hsa05150", "hsa04610", "hsa04514", "hsa04145")) if (id %in% kk$ID) add(paste0("enr_", key, "_", id), kk$qvalue[kk$ID == id]) }
+gg <- rd(paste0("enrichment_", enr_sets[["gained"]], "_GO_BP.csv")); ig <- rd(paste0("enrichment_", enr_sets[["intersection"]], "_GO_BP.csv")); gk <- rd(paste0("enrichment_", enr_sets[["gained"]], "_KEGG.csv")); ik <- rd(paste0("enrichment_", enr_sets[["intersection"]], "_KEGG.csv"))
 add("enr_gained_go_shared_with_intersection", length(intersect(gg$ID, ig$ID))); add("enr_gained_kegg_shared_with_intersection", length(intersect(gk$ID, ik$ID)))
+## centring share (design D9): block-RMSE reduction from gene mean to the best
+## method achieved by the biScale fill alone, in percent
+s1 <- read.csv(file.path(OUT_DIR, "table_s1.csv")); s1 <- s1[s1$scheme == "gene_dataset_block", ]
+gm <- s1$rmse_mean[s1$method == "gene_mean"]; bz <- s1$rmse_mean[s1$method == "biscale_zero"]
+best <- min(s1$rmse_mean[!s1$method %in% c("knn", "sample_knn")])
+add("centring_share_block_pct", 100 * (gm - bz) / (gm - best))
 out <- do.call(rbind, rows); write.csv(out, file.path(OUT_DIR, "de_sweep_numbers.csv"), row.names = FALSE); cat(nrow(out), "numbers written\n")

@@ -1,0 +1,5 @@
+selected_ncp: 20
+selected_input: biscale
+rule: one-SE on gene_dataset_block RMSE over 3 selection masks; min at biscale input, ncp 30 (1.4395 +/- 0.0165)
+gcv_ncp: 20 (estim_ncpPCA rule: first local minimum over ncp 1..20)
+fits at the iteration cap: 56 of 56

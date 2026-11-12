@@ -569,6 +569,7 @@ if (config$validation$leave_out_fraction %||% 0 > 0) {
       methods = methods_to_validate,
       rank_max = config$imputation$softimpute$rank_max %||% 50,
       k = config$imputation$knn$k %||% 10,
+      path_stop_step = config$imputation$softimpute$path_stop_step %||% 7L,
       mask_type = config$validation$mask_type %||% "random_cells",
       min_obs_per_gene = config$validation$min_obs_per_gene %||% 4L
     )
@@ -695,6 +696,14 @@ for (imp_method in imputation_methods) {
       next
     }
     merged_exprs <- imputed$matrix
+    # Record the fitted softImpute lambda and rank (cited in the Methods)
+    if (!is.null(imputed$lambda)) {
+      write.csv(data.frame(method = imp_method, lambda = imputed$lambda, rank = imputed$rank,
+                           rank_max = config$imputation[[imp_method]]$rank_max %||% NA,
+                           path_stop_step = config$imputation[[imp_method]]$path_stop_step %||% NA),
+                file.path(output_dir, paste0("imputation_fit_", imp_method, ".csv")),
+                row.names = FALSE)
+    }
     # Imputed cell = cell that was NA in the pre-imputation incomplete matrix.
     imputed_mask <- is.na(incomplete$matrix)
     dimnames(imputed_mask) <- dimnames(incomplete$matrix)

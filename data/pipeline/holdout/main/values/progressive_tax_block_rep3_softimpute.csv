@@ -1,2 +1,2 @@
 "scheme","rep","method","n_masked","n_blocks","pearson_r","rmse","mae","converged","imputation_seconds","combat_status"
-"progressive_tax_block",3,"softimpute",144877,8285,0.828676442114175,1.58180298295027,1.19406583931081,TRUE,33.0483405590057,"ok"
+"progressive_tax_block",3,"softimpute",144877,8285,0.828804864152903,1.57827412096542,1.19369469809259,TRUE,52.1898806095123,"ok"

@@ -64,7 +64,7 @@ fate_absent  <- sum(!ours_sig_set %in% shared)
 
 stopifnot(fate_repl + fate_disagree + fate_absent == length(ours_sig_set))
 
-expected <- c(shared = 2560, replicated = 367, disagreeing = 14, absent = 149)
+expected <- c(shared = 2560, replicated = 371, disagreeing = 17, absent = 153)
 observed <- c(shared = length(shared), replicated = fate_repl,
               disagreeing = fate_disagree, absent = fate_absent)
 if (!identical(as.integer(observed), as.integer(expected))) {
@@ -127,7 +127,7 @@ p_scatter <- ggplot(df, aes(x = ours_logfc, y = prater_logfc, color = category))
   coord_cartesian(xlim = c(-4, 4), ylim = c(-5, 5))
 
 ## ---------------------------------------------------------------------------
-## Panel B -- fate of every DEG in the full run (530 at present), including those the scatter cannot show.
+## Panel B -- fate of every DEG in the full run (541 at present), including those the scatter cannot show.
 ## ---------------------------------------------------------------------------
 FATE_REPL   <- "Replicated in Prater"
 FATE_DIS    <- "Plotted, below Prater's threshold"
@@ -173,11 +173,11 @@ hatch  <- hatch_rect(abs_x0, abs_x1, BAR_LO, BAR_HI)
 
 ## Segments are labelled in place rather than through a legend: the bar is a
 ## single annotation strip, and a legend would cost more height than the bar.
-## The 14-gene band is ~3% of the width, too narrow to hold text, so it is
+## The 17-gene band is ~3% of the width, too narrow to hold text, so it is
 ## called out above the bar with a leader line.
 fate$cum      <- cumsum(fate$n) - fate$n / 2
 fate$inside   <- fate$frac >= 0.10
-fate$label    <- c("367 replicated", "14", "149 absent")
+fate$label    <- c(paste(fate$n[1], "replicated"), as.character(fate$n[2]), paste(fate$n[3], "absent"))
 fate$text_col <- c("white", "grey20", "grey25")
 
 p_fate <- ggplot(fate, aes(x = n, y = 1, fill = fate)) +

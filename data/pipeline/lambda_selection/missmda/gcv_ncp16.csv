@@ -1,0 +1,2 @@
+"kind","seed","input","ncp","r","rmse","mae","gcv","capped","minutes"
+"gcv",NA,"raw",16,NA,NA,NA,0.111503667583518,TRUE,22.1918944676717

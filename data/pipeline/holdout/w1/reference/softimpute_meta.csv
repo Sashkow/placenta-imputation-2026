@@ -1,2 +1,2 @@
 "method","status","message","n_genes","n_deg","n_nonfinite","imputation_seconds"
-"softimpute","ok","",17531,527,0,32.6
+"softimpute","ok","",17531,540,0,60.5

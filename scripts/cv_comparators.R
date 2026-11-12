@@ -84,6 +84,7 @@ for (mt in mask_types) {
     methods            = methods,
     rank_max           = cv$rank_max %||% 30,
     k                  = cv$k %||% 10,
+    path_stop_step     = cv$path_stop_step %||% 7L,
     mask_type          = mt
   )
   all_res[[mt]] <- res

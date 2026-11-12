@@ -1,0 +1,2 @@
+"kind","seed","input","ncp","r","rmse","mae","gcv","capped","minutes"
+"holdout",1003,"raw",13,0.701354534651464,1.89441787001933,1.42548736505747,NA,TRUE,21.6078712383906

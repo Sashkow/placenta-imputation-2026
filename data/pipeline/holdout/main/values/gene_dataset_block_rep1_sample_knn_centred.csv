@@ -1,0 +1,2 @@
+"scheme","rep","method","n_masked","n_blocks","pearson_r","rmse","mae","converged","imputation_seconds","combat_status"
+"gene_dataset_block",1,"sample_knn_centred",144819,7559,0.836548299622222,1.41960063047762,1.07676458984898,TRUE,21.6762516498566,"ok"

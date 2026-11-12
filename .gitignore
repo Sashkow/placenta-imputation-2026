@@ -15,3 +15,7 @@ data/pipeline/covariate_categorical/exprs_*.tsv
 data/pipeline/covariate_poly2/exprs_*.tsv
 data/pipeline/covariate_ns3/exprs_*.tsv
 data/pipeline/ga_matched_prater/exprs_*.tsv
+data/pipeline/sensitivity/exprs_*.tsv
+# archive copies of replaced holdout outputs (git history keeps the old versions)
+data/pipeline/holdout/*/archive/
+.~lock.*#

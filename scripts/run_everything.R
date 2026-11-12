@@ -17,8 +17,9 @@
 #
 #     Rscript scripts/run_everything.R --full
 #     Rscript scripts/run_everything.R --full --force
+#     Rscript scripts/run_everything.R --full --force --no-archive   # no archive/ copies of replaced outputs
 #     Rscript scripts/run_everything.R --full --only=pipeline,validation
-#     Rscript scripts/run_everything.R --full --only=holdout,analysis   # groups: pipeline, validation, holdout, analysis, figures
+#     Rscript scripts/run_everything.R --full --only=holdout,analysis   # groups: selection, pipeline, validation, holdout, analysis, figures
 #
 # A note on reproducing --full exactly: the committed data/pipeline/ outputs
 # predate the addition of a fixed RNG seed to the softImpute call, so a fresh
@@ -35,6 +36,11 @@ FULL  <- has_flag("full")
 FORCE <- has_flag("force")
 ONLY  <- if (!is.null(get_arg("only"))) strsplit(get_arg("only"), ",")[[1]] else NULL
 DRY   <- has_flag("dry-run")
+## --no-archive: run_phase2b.R does not copy the previous outputs to
+## <dir>/archive/<timestamp>/ (the committed outputs are already in git)
+NO_ARCHIVE <- has_flag("no-archive")
+## --skip=stage1,stage2: leave out individual stages by name
+SKIP <- if (!is.null(get_arg("skip"))) strsplit(get_arg("skip"), ",")[[1]] else NULL
 
 if (!file.exists("scripts/_common.R"))
   stop("run from the repository root: Rscript scripts/run_everything.R")
@@ -49,6 +55,11 @@ say <- function(...) {
 rule <- function(t) say("\n", strrep("=", 70), "\n", t, "\n", strrep("=", 70))
 
 run_r <- function(path, extra = character(0)) {
+  if (NO_ARCHIVE && basename(path) == "run_phase2b.R") extra <- c(extra, "--no_archive")
+  ## the holdout scripts keep finished per-method results and checkpoints
+  ## unless told otherwise, so --force must reach them too
+  if (FORCE && basename(path) %in% c("holdout_reference_runs.R", "holdout_unified.R"))
+    extra <- c(extra, "--force")
   cmd <- c(path, extra)
   say("  $ Rscript ", paste(cmd, collapse = " "))
   if (DRY) return(0L)
@@ -60,6 +71,17 @@ run_r <- function(path, extra = character(0)) {
 ## A stage: name, group, the outputs that prove it ran, and how to run it.
 stage <- function(name, group, outputs, run) list(name = name, group = group,
                                                   outputs = outputs, run = run)
+
+## Hold-out choice of the softImpute lambda step (path_stop_step in every
+## pipeline config); runs first because everything downstream uses it.
+selection_stages <- list(
+  stage("selection:lambda", "selection", "data/pipeline/lambda_selection/selected_step.txt",
+        function() run_r("scripts/lambda_selection_path.R")),
+  ## imputePCA comparator: ncp and input chosen on the same selection masks
+  ## (ncp / input in config_holdout_*.yaml); hours, dominated by the EM fits
+  stage("selection:missmda_ncp", "selection", "data/pipeline/lambda_selection/missmda_selected.txt",
+        function() run_r("scripts/missmda_ncp_selection.R"))
+)
 
 pipeline_stages <- list(
   stage("pipeline:main", "pipeline", "data/pipeline/main/difexp_softimpute_combat_ref.tsv",
@@ -77,7 +99,10 @@ pipeline_stages <- list(
   stage("pipeline:covariate_ns3", "pipeline", "data/pipeline/covariate_ns3/difexp_softimpute_combat_ref.tsv",
         function() run_r("scripts/pipeline/run_phase2b.R", "--config=config/config_covariate_ns3.yaml")),
   stage("pipeline:ga_matched_prater", "pipeline", "data/pipeline/ga_matched_prater/difexp_softimpute_combat_ref.tsv",
-        function() run_r("scripts/pipeline/run_phase2b.R", "--config=config/config_ga_matched_prater.yaml"))
+        function() run_r("scripts/pipeline/run_phase2b.R", "--config=config/config_ga_matched_prater.yaml")),
+  ## imputed/unimputed matrices that analysis:combat_sensitivity reads
+  stage("pipeline:sensitivity", "pipeline", "data/pipeline/sensitivity/exprs_imputed_none.tsv",
+        function() run_r("scripts/pipeline/run_phase2b.R", "--config=config/config_sensitivity.yaml"))
 )
 
 validation_stages <- list(
@@ -123,6 +148,8 @@ for (v in c("linear", "categorical", "poly2", "ns3")) {
 }
 
 analysis_stages <- list(
+  stage("analysis:lambda_selection_table", "analysis", "data/pipeline/lambda_selection/path.tex",
+        function() run_r("scripts/lambda_selection_table.R")),
   stage("analysis:cv_comparators", "analysis", "data/pipeline/cv_comparators/table_s1_cv_comparators.csv",
         function() run_r("scripts/cv_comparators.R")),
   stage("analysis:covariate_sweep", "analysis", "data/pipeline/covariate_sweep/table_s2_covariate_comparison.csv",
@@ -157,17 +184,19 @@ figure_stages[[length(figure_stages) + 1]] <- stage(
   function() run_r("scripts/table_platform_coverage.R"))
 
 stages <- if (FULL) {
-  c(pipeline_stages, validation_stages, holdout_stages, analysis_stages, figure_stages)
+  c(selection_stages, pipeline_stages, validation_stages, holdout_stages, analysis_stages, figure_stages)
 } else {
   ## figures-only: the ported summary analyses are cheap and read shipped data,
   ## so they run too; nothing that regenerates data/pipeline/ does.
   c(analysis_stages[sapply(analysis_stages, function(s)
       s$name %in% c("analysis:covariate_sweep", "analysis:ga_matched_prater",
-                    "analysis:qpcr_recovery", "analysis:holdout_tables"))],
+                    "analysis:qpcr_recovery", "analysis:holdout_tables",
+                    "analysis:lambda_selection_table"))],
     figure_stages)
 }
 
 if (!is.null(ONLY)) stages <- Filter(function(s) s$group %in% ONLY, stages)
+if (!is.null(SKIP)) stages <- Filter(function(s) !s$name %in% SKIP, stages)
 
 rule(sprintf("run_everything.R  |  mode: %s  |  %d stages",
              if (FULL) "FULL" else "figures-only", length(stages)))

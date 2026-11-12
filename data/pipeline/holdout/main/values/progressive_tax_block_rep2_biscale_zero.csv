@@ -1,0 +1,2 @@
+"scheme","rep","method","n_masked","n_blocks","pearson_r","rmse","mae","converged","imputation_seconds","combat_status"
+"progressive_tax_block",2,"biscale_zero",144799,8265,0.817263417781603,1.62824950832832,1.21713357371477,TRUE,14.4931716918945,"ok"

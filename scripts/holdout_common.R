@@ -31,8 +31,11 @@ script_dir <- {
 }
 ALT_DIR <- normalizePath(file.path(script_dir, ".."))
 
+## a sourcing script may set HOLDOUT_DEFAULT_CONFIG (path relative to the
+## repository root) to change the config used when --config is not given
 config <- yaml::read_yaml(get_arg("config",
-  file.path(ALT_DIR, "config", "config_holdout_unified.yaml")))
+  file.path(ALT_DIR, if (exists("HOLDOUT_DEFAULT_CONFIG")) HOLDOUT_DEFAULT_CONFIG
+                     else "config/config_holdout_unified.yaml")))
 
 COMPANION <- normalizePath(get_arg("companion", config$paths$companion))
 OUT_DIR <- {
@@ -248,7 +251,9 @@ load_reference <- function(method) {
 
 ## Pretty names used in tables and figures
 METHOD_LABELS <- c(softimpute = "softImpute", missmda = "imputePCA", knn = "KNN",
-                   gene_mean = "gene mean", batch_mean = "batch mean")
+                   knn_centred = "KNN (centred)", sample_knn = "sample KNN",
+                   sample_knn_centred = "sample KNN (centred)",
+                   biscale_zero = "biScale fill", gene_mean = "gene mean", batch_mean = "batch mean")
 SCHEME_LABELS <- c(random_cells = "random cells",
                    gene_dataset_block = "gene--dataset block",
                    progressive_tax_block = "worst-case block")

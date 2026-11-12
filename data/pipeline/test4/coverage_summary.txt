@@ -14,13 +14,13 @@ Distinct presence patterns among non-intersection genes: 11
 Non-intersection genes WITHOUT the reference batch: 5770 (62.2%)
 
 === Gained DEGs ===
-Gained DEGs: 253 (243 outside the intersection, 10 intersection genes crossing threshold)
-Gained DEGs carrying the reference batch: 245/253
+Gained DEGs: 265 (237 outside the intersection, 28 intersection genes crossing threshold)
+Gained DEGs carrying the reference batch: 265/265
 
 Reference-batch enrichment among non-intersection gained DEGs:
-  observed with ref batch: 235/243
-  expected if independent: 91.8
-  Fisher exact p = <2e-16   odds ratio = 51.85
+  observed with ref batch: 237/237
+  expected if independent: 89.5
+  Fisher exact p = <2e-16   odds ratio = Inf
 
 Interpretation: a gene whose blocks must be anchored entirely on imputed
 values in the reference batch is far less likely to be called differentially

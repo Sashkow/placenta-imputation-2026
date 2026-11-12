@@ -58,18 +58,27 @@ phenotype:
 # caption states, so the two low-rank imputers are compared at equal capacity.)
 imputation:
   softimpute:
-    rank_max: 30
+    rank_max: 60
+    path_stop_step: 2   # one-SE hold-out choice: data/pipeline/lambda_selection/selected_step.txt
     lambda: 0
     thresh: 1.0e-4
     maxit: 50
     type: "als"
     seed: 42
   missmda:
-    ncp: 30
+    ncp: 20   # hold-out choice: data/pipeline/lambda_selection/missmda_selected.txt
     scale: true
     method: "Regularized"
+    input: "biscale"   # hold-out choice: data/pipeline/lambda_selection/missmda_selected.txt
   knn:
     k: 10
+  knn_centred:          # gene-space KNN on the biScale-centred matrix, un-centred after
+    k: 10
+  sample_knn:           # sample-space KNN (neighbours are samples)
+    k: 10
+  sample_knn_centred:   # sample-space KNN on the biScale-centred matrix, un-centred after
+    k: 10
+  biscale_zero: {}
   gene_mean: {}
   batch_mean: {}
 
@@ -100,6 +109,10 @@ holdout:
     - "softimpute"
     - "missmda"                 # imputePCA
     - "knn"
+    - "knn_centred"
+    - "sample_knn"
+    - "sample_knn_centred"
+    - "biscale_zero"            # biScale centres only (softImpute with zero qualities)
     - "gene_mean"
     - "batch_mean"
   leave_out_fraction: 0.1

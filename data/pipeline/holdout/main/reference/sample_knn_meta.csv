@@ -1,0 +1,2 @@
+"method","status","message","n_genes","n_deg","n_nonfinite","imputation_seconds"
+"sample_knn","ok","",17531,613,0,11

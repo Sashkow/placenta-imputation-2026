@@ -1,0 +1,4 @@
+selected_step: 2
+rule: one-SE on gene_dataset_block RMSE over 3 masks (seeds 1001, 1002, 1003)
+min_error_step: 3 (mean RMSE 1.5173, SE 0.0183); one-SE limit 1.5356
+selected: lambda = 201.2647 = lambda0 * 0.2683 on the full matrix, rank 5 (rank_max 60)

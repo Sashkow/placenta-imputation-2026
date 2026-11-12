@@ -1,5 +1,6 @@
 # Imputation cross-validation comparator sweep.
-# Reproduces Supplementary Table S1: five imputation methods x three
+# Legacy companion check of Supplementary Table S1 (the article's table comes
+# from the unified holdout): six imputation methods x three
 # masking strategies, 3 repeats each.
 #
 # Run with: Rscript scripts/cv_comparators.R
@@ -39,7 +40,8 @@ coverage:
 cv:
   leave_out_fraction: 0.1
   n_repeats: 3
-  rank_max: 30
+  rank_max: 60
+  path_stop_step: 2   # one-SE hold-out choice: data/pipeline/lambda_selection/selected_step.txt
   k: 10
   # "worst case" in the article = gene--dataset block masking, which removes a
   # gene's entire block in a dataset (the realistic pattern). The "_hard"
@@ -52,5 +54,6 @@ cv:
     - "softimpute"
     - "missmda"
     - "knn"
+    - "biscale_zero"
     - "gene_mean"
     - "batch_mean"

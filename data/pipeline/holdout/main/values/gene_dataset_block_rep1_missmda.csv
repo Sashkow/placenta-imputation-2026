@@ -1,2 +1,2 @@
 "scheme","rep","method","n_masked","n_blocks","pearson_r","rmse","mae","converged","imputation_seconds","combat_status"
-"gene_dataset_block",1,"missmda",144819,7559,0.652430708588653,1.98364566523991,1.48126712892613,TRUE,9458.95898962021,"ok"
+"gene_dataset_block",1,"missmda",144819,7559,0.835224214210837,1.4302189986919,1.09099048588402,TRUE,944.601755619049,"ok"

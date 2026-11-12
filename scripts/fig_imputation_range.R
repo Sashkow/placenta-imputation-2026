@@ -25,6 +25,9 @@ dir.create(fig_dir, showWarnings = FALSE, recursive = TRUE)
 tbl <- read.csv(file.path(OUT_DIR, "table_s1.csv"), stringsAsFactors = FALSE)
 tbl <- tbl[is.finite(tbl$rmse_mean), ]
 tbl$rmse <- tbl$rmse_mean
+## Article comparator set (design D11): the uncentred KNN variants stay in
+## table_s1.csv but are not plotted.
+tbl <- tbl[!tbl$method %in% c("knn", "sample_knn"), ]
 
 ## ---- anchors from the merged matrix --------------------------------------
 D <- prepare_data(config)
@@ -60,7 +63,7 @@ col_seg  <- "grey55"; col_mark <- "black"; col_anch <- "grey40"
 
 out_file <- file.path(fig_dir, "fig_imputation_cv_range.png")
 png(out_file, width = TW, height = TW * 0.52, units = "in", res = DPI, pointsize = PT)
-par(mar = c(3.6, 6.2, 2.6, 0.6), mgp = c(2.2, 0.6, 0), xaxs = "i")
+par(mar = c(3.6, 8.4, 2.6, 0.6), mgp = c(2.2, 0.6, 0), xaxs = "i")
 
 n <- length(methods)
 ys <- rev(seq_len(n))
@@ -85,7 +88,7 @@ for (i in seq_along(methods)) {
   points(d$rmse, rep(ys[i], nrow(d)), pch = mask_pch[d$scheme], cex = 1.25, col = col_mark)
 }
 
-legend(x = 0.24, y = n + 2.02, bty = "n", pch = mask_pch, pt.cex = 1.15, cex = 0.85,
+legend(x = 1.72, y = n + 0.95, bty = "o", bg = "white", box.col = "white", pch = mask_pch, pt.cex = 1.15, cex = 0.85,
        legend = mask_lab[names(mask_pch)])
 dev.off()
 cat("Written:", out_file, "\n")

@@ -43,7 +43,8 @@ phenotype:
 
 imputation:
   softimpute:
-    rank_max: 30
+    rank_max: 60
+    path_stop_step: 2   # one-SE hold-out choice: data/pipeline/lambda_selection/selected_step.txt
     lambda: 0
     thresh: 1.0e-4
     maxit: 50

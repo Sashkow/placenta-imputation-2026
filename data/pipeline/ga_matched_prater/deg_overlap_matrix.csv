@@ -1,5 +1,5 @@
 "","none_combat","none_combat_ref","softimpute_combat","softimpute_combat_ref"
-"none_combat",373,371,371,371
+"none_combat",373,371,370,371
 "none_combat_ref",371,374,369,374
-"softimpute_combat",371,369,603,596
-"softimpute_combat_ref",371,374,596,602
+"softimpute_combat",370,369,602,597
+"softimpute_combat_ref",371,374,597,603

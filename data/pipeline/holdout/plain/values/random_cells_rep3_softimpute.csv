@@ -1,2 +1,2 @@
 "scheme","rep","method","n_masked","n_blocks","pearson_r","rmse","mae","converged","imputation_seconds","combat_status"
-"random_cells",3,"softimpute",144794,NA,0.993178339007957,0.332985150759862,0.222380547157086,TRUE,31.2272961139679,"ok"
+"random_cells",3,"softimpute",144794,NA,0.978097580165689,0.598761868505591,0.425405652775492,TRUE,50.1879861354828,"ok"

@@ -251,8 +251,8 @@ load_reference <- function(method) {
 
 ## Pretty names used in tables and figures
 METHOD_LABELS <- c(softimpute = "softImpute", missmda = "imputePCA", knn = "KNN",
-                   knn_centred = "KNN (centred)", sample_knn = "sample KNN",
-                   sample_knn_centred = "sample KNN (centred)",
+                   knn_centred = "KNN (centered)", sample_knn = "sample KNN",
+                   sample_knn_centred = "sample KNN (centered)",
                    biscale_zero = "biScale fill", gene_mean = "gene mean", batch_mean = "batch mean")
 SCHEME_LABELS <- c(random_cells = "random cells",
                    gene_dataset_block = "gene--dataset block",

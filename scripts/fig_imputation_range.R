@@ -63,7 +63,7 @@ col_seg  <- "grey55"; col_mark <- "black"; col_anch <- "grey40"
 
 out_file <- file.path(fig_dir, "fig_imputation_cv_range.png")
 png(out_file, width = TW, height = TW * 0.52, units = "in", res = DPI, pointsize = PT)
-par(mar = c(3.6, 8.4, 2.6, 0.6), mgp = c(2.2, 0.6, 0), xaxs = "i")
+par(mar = c(3.6, 9.2, 2.6, 0.6), mgp = c(2.2, 0.6, 0), xaxs = "i")
 
 n <- length(methods)
 ys <- rev(seq_len(n))

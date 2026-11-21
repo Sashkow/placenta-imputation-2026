@@ -1,0 +1,69 @@
+# Holdout validation: one masking design, two readouts.
+#
+# For each masking scheme x repeat a single mask of 10% of the measured cells
+# is drawn. Every imputer fills the same mask. The hidden cells are scored
+# against the truth (imputation accuracy), and the imputed matrix continues
+# through ComBat-ref -> limma (weight 0 on masked cells) so the DE calls of the
+# masked genes can be scored against that imputer's own full-data run.
+#
+# Run:
+#   Rscript scripts/validation/holdout_reference_runs.R
+#   Rscript scripts/validation/holdout_masked_runs.R
+#   Rscript scripts/validation/holdout_masked_runs.R --schemes=random_cells --methods=softimpute,knn \
+#           --n_repeats=1 --frac=0.02 --out=data/pipeline/holdout_smoke   # smoke test
+
+base: main.yaml
+
+paths:
+  reference_de: "data/pipeline/main/difexp_softimpute_combat_ref.tsv"
+  census: "data/pipeline/test4/coverage_patterns_all.csv"
+  output: "data/pipeline/holdout/main"
+
+# The comparators; softImpute keeps its main-run settings.
+imputation:
+  missmda:
+    ncp: 20   # hold-out choice: data/pipeline/lambda_selection/missmda_selected.txt
+    scale: true
+    method: "Regularized"
+    input: "biscale"   # hold-out choice: data/pipeline/lambda_selection/missmda_selected.txt
+  knn:
+    k: 10
+  knn_centred:          # gene-space KNN on the biScale-centred matrix, un-centred after
+    k: 10
+  sample_knn:           # sample-space KNN (neighbours are samples)
+    k: 10
+  sample_knn_centred:   # sample-space KNN on the biScale-centred matrix, un-centred after
+    k: 10
+  biscale_zero: {}
+  gene_mean: {}
+  batch_mean: {}
+
+holdout:
+  mask_types:
+    - "random_cells"            # 10% of observed cells, uniformly at random
+    - "gene_dataset_block"      # whole gene x dataset blocks of genes seen in all 6 datasets
+    - "progressive_tax_block"   # "worst case": genes above the coverage floor masked down to n_min datasets
+  methods:
+    - "softimpute"
+    - "missmda"                 # imputePCA
+    - "knn"
+    - "knn_centred"
+    - "sample_knn"
+    - "sample_knn_centred"
+    - "biscale_zero"            # biScale centres only (softImpute with zero qualities)
+    - "gene_mean"
+    - "batch_mean"
+  leave_out_fraction: 0.1
+  n_repeats: 3
+  # mask seed per repeat is rep * 123, as in validate_imputation()
+  seed_multiplier: 123
+  min_obs_per_gene: 4
+  # worst-case block: mask genes above this floor down to it (published
+  # definition: n_min = 2). Omit to use the poorest gene's coverage (now 1).
+  worst_case_n_min: 2
+  ref_batch: "GSE100051"
+  # oracle arm (limma on the reference run's corrected matrix with the masked
+  # arm's weights) is fitted for the block schemes only
+  oracle_schemes: ["random_cells", "gene_dataset_block", "progressive_tax_block"]
+  # per-gene value metrics need at least this many masked cells in the gene
+  min_cells_per_gene_metric: 3

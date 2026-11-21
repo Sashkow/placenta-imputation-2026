@@ -1,0 +1,11 @@
+# Subsampling-stability config for the poly(GA, 2) ComBat variant.
+# Feeds the 'Poly(GA, 2)' column of Supplementary Table S3.
+
+base: validation.yaml
+
+paths:
+  reference_de: "data/pipeline/covariate_poly2/difexp_softimpute_combat_ref.tsv"
+  reference_imputed: "data/pipeline/covariate_poly2/exprs_imputed_softimpute.tsv"
+  output: "data/pipeline/validation_covariate_poly2"
+phenotype:
+  combat_bio_degree: 2

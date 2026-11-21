@@ -1,0 +1,11 @@
+# Subsampling-stability config for the CATEGORICAL-trimester ComBat variant.
+# Feeds the 'Categorical' column of Supplementary Table S3.
+
+base: validation.yaml
+
+paths:
+  reference_de: "data/pipeline/covariate_categorical/difexp_softimpute_combat_ref.tsv"
+  reference_imputed: "data/pipeline/covariate_categorical/exprs_imputed_softimpute.tsv"
+  output: "data/pipeline/validation_covariate_categorical"
+phenotype:
+  combat_bio_covariate: ~

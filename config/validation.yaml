@@ -1,0 +1,31 @@
+# Stability tests (scripts/validation/): subsampling, split-half, label
+# permutation, leave-one-dataset-out. The main run is the reference.
+
+base: main.yaml
+
+paths:
+  reference_de: "data/pipeline/main/difexp_softimpute_combat_ref.tsv"
+  reference_imputed: "data/pipeline/main/exprs_imputed_softimpute.tsv"   # reused, not re-imputed
+  balanced_reference_de: "data/pipeline/balanced/difexp_softimpute_combat_ref.tsv"
+  output: "data/pipeline/validation"
+
+normalization:
+  method: "combat_ref"
+  ref_batch: "GSE100051"
+  fallback: "combat"          # used when a subset lost the reference dataset
+
+parallel:
+  n_cores: 10
+
+subsample_first_trimester:    # all second-trimester samples, N first-trimester ones
+  sizes_1st_trim: [10, 16, 20, 25, 30, 40, 50, 60, 80, 100]
+  n_iter: 30
+  compute_within_size_jaccard: true
+
+subsample_balanced_cohort:    # N samples per trimester from the balanced cohort
+  sizes_per_trim: [4, 8, 12, 16]
+  n_iter: 30
+
+split_half:
+  n_iter: 50
+  stratified: true

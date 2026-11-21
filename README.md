@@ -10,63 +10,71 @@ This repository contains the data, scripts, and pre-generated figures for:
 
 ```
 .
-├── article/              Pre-generated article figures
-│   └── figures/          Article figures (PNG, 300 DPI)
-├── scripts/
-│   ├── run_everything.R  One entry point: figures-only by default, --full to
-│   │                     regenerate data/pipeline/ (see "Reproducing" below)
-│   ├── fig_*.R           Figure scripts (one per article figure)
-│   ├── table_platform_coverage.R  Table 6: per-dataset ENTREZID coverage
-│   ├── generate_all.R    Regenerate all figures in one command
-│   ├── verify_article_claims.R    Check every numeric claim against the data
-│   ├── covariate_sweep.R          Supp Tables S3/S4: ComBat covariate variants
-│   ├── cv_comparators.R           Earlier imputation-method comparison (superseded by holdout_*)
-│   ├── ga_matched_prater.R        Supp S6: GA-matched RNA-seq concordance
-│   ├── qpcr_recovery.R            17-gene benchmark recovery (11/17)
-│   ├── test4_coverage_patterns.R  Which datasets measure which genes (coverage census)
-│   │   (batch-in-limma variants: config_batch_in_limma.yaml, config_balanced_batch_in_limma.yaml,
-│   │    config_validation_batch_in_limma.yaml -- exploratory one-step model, NOT reported in the article)
-│   ├── holdout_common.R           Unified holdout: shared setup (masks, ComBat, limma)
-│   ├── holdout_reference_runs.R   Full-data run per imputer (the known answer)
-│   ├── holdout_unified.R          One mask, two readouts: imputed values + DE calls (M/F/O arms)
-│   ├── holdout_tables.R           Supp Tables S1, S2, S5, S6 from the holdout outputs
-│   ├── holdout_confusion.R        Main-text holdout table, Supp Table S3, weight-1 summary
-│   ├── holdout_by_dataset.R       Supp Table S4: split by hidden dataset, ComBat-ref vs plain
-│   ├── de_sweep_numbers.R         Every DE-derived article number as name/value rows
-│   ├── verify_holdout_claims.R    Audit of the article's holdout/DE numbers (claims_article.csv)
-│   ├── test4_block_holdout_de.R   SUPERSEDED by holdout_*.R (kept for the record)
-│   ├── test4b_coverage_cv.R       SUPERSEDED by holdout_*.R (kept for the record)
-│   ├── test4b_refbatch_split.R    SUPERSEDED by holdout_*.R (kept for the record)
-│   ├── fig_imputation_range.R     Supp Fig S1: CV range plot (reads holdout table_s1.csv)
-│   ├── _common.R         Shared constants (paths, dimensions, phenodata)
-│   └── pipeline/         Data integration pipeline (reproduces data/pipeline/)
-│       ├── run_phase2b.R             Main pipeline: merge → impute → ComBat → limma DE
-│       ├── imputation.R              softImpute and other imputation methods
-│       ├── normalization.R           ComBat and other batch correction methods
-│       ├── combat_sensitivity.R      ComBat parameter comparison analysis
-│       ├── subsampling_helpers.R     Shared validation functions
-│       ├── test1_first_trim_subsample.R  Validation test 1
-│       ├── test1b_vs_balanced.R          Validation test 1b
-│       ├── test2_balanced_subsample.R    Validation test 2
-│       └── test3_split_half.R            Validation test 3
+├── article/figures/          Pre-generated article figures (PNG, 300 DPI)
+├── config/                   YAML configs (see "Configs" below)
 ├── data/
-│   ├── phenodata.tsv     Sample metadata (186 rows, 8 datasets; the 6 analysed datasets contribute the 117 samples)
-│   ├── expression/       Per-dataset expression matrices (ENTREZID-keyed)
-│   ├── pipeline/         Pre-computed pipeline outputs
-│   │   ├── main/         6-dataset integration (softImpute + ComBat-ref)
-│   │   ├── balanced/     Balanced 2-dataset reference
-│   │   └── validation/   Subsampling validation results
-│   └── references/       External reference data
-│       ├── lykhenko_2021_deg.csv           Lykhenko 2021 DEG list (310 significant genes)
-│       ├── lykhenko_2021_full_protein_coding.csv  Lykhenko 2021 full limma table (16,889 genes)
-│       └── prater_2021_supp_tables.xlsx    Prater 2021 RNA-seq DEGs
-└── config/               Configuration files
-    ├── config_pipeline.yaml     Main 6-dataset integration pipeline
-    ├── config_sensitivity.yaml  ComBat sensitivity (no covariates)
-    ├── config_balanced.yaml     2-dataset balanced reference
-    ├── config_validation.yaml   Subsampling validation tests
-    └── staircase_colors.yaml    Color scheme for staircase plot
+│   ├── phenodata.tsv         Sample metadata (186 rows, 8 datasets; the 6 analysed datasets contribute the 117 samples)
+│   ├── expression/           Per-dataset expression matrices (ENTREZID-keyed)
+│   ├── pipeline/             Pre-computed outputs (the authoritative record of the article's numbers)
+│   │   ├── main/             6-dataset integration (softImpute + ComBat-ref)
+│   │   ├── balanced/         Balanced 2-dataset reference
+│   │   ├── validation/       Subsampling, split-half, permutation and leave-one-dataset-out results
+│   │   ├── holdout/          Masked-cell holdout validation (main, weight1, plain)
+│   │   └── ...               covariate variants, GA-matched cohort, lambda selection, census
+│   └── references/           Lykhenko 2021 DEG lists, Prater 2021 supplementary tables
+└── scripts/
+    ├── run_everything.R      One entry point (see "Reproducing everything")
+    ├── pipeline.R            THE METHOD, top to bottom (143 lines):
+    │                         load -> gene coverage -> impute -> ComBat -> limma DE -> save
+    ├── lib/                  One implementation of each step, shared by all callers
+    │   ├── config.R                 load_config() with `base:` inheritance, CLI helpers
+    │   ├── load_data.R              expression/phenodata loading, sample filters
+    │   ├── gene_coverage.R          per-dataset gene coverage, per-group safety filter
+    │   ├── imputation.R             softImpute plus the comparator imputers used in the holdout
+    │   ├── batch_correction.R       ComBat model matrix, ComBat and ComBat-ref
+    │   ├── differential_expression.R  limma design and fit (the only lmFit call)
+    │   ├── masking.R                holdout masking schemes and leave-out imputation validation
+    │   ├── metrics.R                Jaccard, Lin's CCC, subsample-vs-reference metrics
+    │   ├── staircase_plot.R         missingness staircase plot
+    │   ├── pipeline_report.R        PCA/staircase plots, method comparison, summary.txt, output archiving
+    │   └── subsampling.R            data preparation and lean pipeline for the subsampling tests
+    ├── validation/           Tests of the method
+    │   ├── subsample_first_trimester.R      first-trimester size sweep vs the full run
+    │   ├── subsample_vs_balanced_reference.R  same, against the balanced 2-dataset reference
+    │   ├── subsample_balanced_cohort.R      balanced-cohort subsampling
+    │   ├── split_half.R                     split-half replication
+    │   ├── label_permutation.R              label-permutation null
+    │   ├── leave_one_dataset_out.R          drop each dataset in turn
+    │   ├── holdout_reference_runs.R         full-data run per imputer (the known answer)
+    │   ├── holdout_masked_runs.R            masked runs: imputed values and DE calls
+    │   ├── holdout_tables.R                 Supp Tables S1, S2, S5, S6
+    │   ├── holdout_confusion.R              main-text holdout table, Supp Table S3
+    │   ├── holdout_by_dataset.R             Supp Table S4: by hidden dataset, ComBat-ref vs plain
+    │   └── _holdout_common.R, _lodo_permutation_common.R   shared setup
+    ├── analysis/             Supporting analyses
+    │   ├── covariate_sweep.R                Supp Tables S3/S4: ComBat covariate variants
+    │   ├── ga_matched_prater.R              GA-matched RNA-seq concordance
+    │   ├── qpcr_recovery.R                  17-gene qPCR benchmark (11/17)
+    │   ├── combat_sensitivity.R             ComBat gamma/delta, intersection vs imputed
+    │   ├── gene_coverage_census.R           which datasets measure which genes
+    │   ├── softimpute_lambda_selection.R, softimpute_lambda_table.R
+    │   ├── imputepca_ncp_selection.R
+    │   └── table_platform_coverage.R        Table 6
+    ├── figures/              fig_*.R (one per article figure) and _common.R
+    └── verify/               verify_article_claims.R, verify_holdout_claims.R,
+                              collect_article_numbers.R
 ```
+
+### Configs
+
+`main.yaml` is a complete config. Most others name a `base:` file and list only
+what differs from it; `load_config()` merges them recursively. `main.yaml` is the
+6-dataset pipeline, `balanced.yaml` the 2-dataset reference, `validation*.yaml` the
+subsampling tests (the `validation_covariate_*` variants change only the ComBat covariate
+model), `covariate_*.yaml` and `sensitivity_no_covariates.yaml` the ComBat covariate
+sweep, `ga_matched_prater.yaml` the GA-matched cohort, `holdout*.yaml` the holdout
+validation (`holdout_weight1`: imputed cells enter limma at weight 1; `holdout_plain_combat`:
+ComBat without a reference batch), `lambda_selection.yaml` the softImpute lambda search.
 
 ## Reproducing everything
 
@@ -101,11 +109,11 @@ All scripts run from the repository root.
 # Install packages (first time only, ~5-15 min)
 Rscript -e 'renv::restore()'
 
-# Regenerate all figures
-Rscript scripts/generate_all.R
+# Regenerate all figures, tables and the claim check from the shipped data/pipeline/
+Rscript scripts/run_everything.R
 
 # Or regenerate a single figure
-Rscript scripts/fig_staircase.R
+Rscript scripts/figures/fig_staircase.R
 ```
 
 Output PNGs are written to `article/figures/`.
@@ -116,63 +124,63 @@ The `data/pipeline/` directory contains pre-computed outputs. To regenerate them
 
 ```bash
 # Main integration (softImpute + ComBat-ref + limma DE)
-Rscript scripts/pipeline/run_phase2b.R --config=config/config_pipeline.yaml
+Rscript scripts/pipeline.R --config=config/main.yaml
 
 # ComBat sensitivity analysis (same pipeline, no covariates)
-Rscript scripts/pipeline/run_phase2b.R --config=config/config_sensitivity.yaml
+Rscript scripts/pipeline.R --config=config/sensitivity_no_covariates.yaml
+Rscript scripts/analysis/combat_sensitivity.R --config=config/sensitivity_no_covariates.yaml
 
 # Balanced 2-dataset reference (GSE100051 + GSE9984)
-Rscript scripts/pipeline/run_phase2b.R --config=config/config_balanced.yaml
+Rscript scripts/pipeline.R --config=config/balanced.yaml
 
 # Subsampling validation (requires main + balanced outputs first)
-Rscript scripts/pipeline/test1_first_trim_subsample.R --config=config/config_validation.yaml
-Rscript scripts/pipeline/test1b_vs_balanced.R --config=config/config_validation.yaml
-Rscript scripts/pipeline/test2_balanced_subsample.R --config=config/config_validation.yaml
-Rscript scripts/pipeline/test3_split_half.R --config=config/config_validation.yaml
+Rscript scripts/validation/subsample_first_trimester.R      --config=config/validation.yaml
+Rscript scripts/validation/subsample_vs_balanced_reference.R --config=config/validation.yaml
+Rscript scripts/validation/subsample_balanced_cohort.R      --config=config/validation.yaml
+Rscript scripts/validation/split_half.R                     --config=config/validation.yaml
 
 # Label-permutation null: trimester labels (with gestational age) shuffled across
-# all samples, 200 times; the second call is the no-ComBat diagnostic (50 shuffles)
-Rscript scripts/pipeline/test_permutation.R --n=200
-Rscript scripts/pipeline/test_permutation.R --n=50 --mode=batch_in_limma
+# all samples, 200 times
+Rscript scripts/validation/label_permutation.R --n=200
 
 # Leave-one-dataset-out: drop each dataset in turn and compare with the full DEG list
-Rscript scripts/pipeline/test_lodo.R
+Rscript scripts/validation/leave_one_dataset_out.R
 
 # ComBat covariate sweep -- Supplementary Tables S3 and S4
-Rscript scripts/pipeline/run_phase2b.R --config=config/config_covariate_categorical.yaml
-Rscript scripts/pipeline/run_phase2b.R --config=config/config_covariate_poly2.yaml
-Rscript scripts/pipeline/run_phase2b.R --config=config/config_covariate_ns3.yaml
+Rscript scripts/pipeline.R --config=config/covariate_categorical.yaml
+Rscript scripts/pipeline.R --config=config/covariate_poly2.yaml
+Rscript scripts/pipeline.R --config=config/covariate_ns3.yaml
 for v in linear categorical poly2 ns3; do
-  Rscript scripts/pipeline/test1_first_trim_subsample.R \
-    --config=config/config_validation_covariate_$v.yaml
+  Rscript scripts/validation/subsample_first_trimester.R \
+    --config=config/validation_covariate_$v.yaml
 done
-Rscript scripts/covariate_sweep.R
+Rscript scripts/analysis/covariate_sweep.R
 
 # GA-matched cohort for the Prater comparison -- Supplementary Section 6
-Rscript scripts/pipeline/run_phase2b.R --config=config/config_ga_matched_prater.yaml
-Rscript scripts/ga_matched_prater.R
+Rscript scripts/pipeline.R --config=config/ga_matched_prater.yaml
+Rscript scripts/analysis/ga_matched_prater.R
 
 # Coverage census (which datasets measure which genes)
-Rscript scripts/test4_coverage_patterns.R
+Rscript scripts/analysis/gene_coverage_census.R
 
-# Unified holdout validation -- Supp Tables S1-S6 and the main-text holdout table.
+# Holdout validation -- Supp Tables S1-S6 and the main-text holdout table.
 # One set of masks (random cells / gene-dataset block / worst-case block; 10% of
 # observed cells, 3 seeded repeats) is imputed by every method; the hidden cells are
 # scored against the truth AND the imputed matrix is carried through ComBat and limma
 # so the DE calls of the masked genes are scored against each imputer's own full run.
-Rscript scripts/holdout_reference_runs.R                       # full-data run per imputer
-Rscript scripts/holdout_unified.R                              # 3 schemes x 3 repeats x 9 imputers (~4 h; imputePCA dominates)
-Rscript scripts/holdout_reference_runs.R --config=config/config_holdout_w1.yaml --methods=softimpute
-Rscript scripts/holdout_unified.R        --config=config/config_holdout_w1.yaml --methods=softimpute      # imputed cells at weight 1
-Rscript scripts/holdout_reference_runs.R --config=config/config_holdout_plain_combat.yaml --methods=softimpute
-Rscript scripts/holdout_unified.R        --config=config/config_holdout_plain_combat.yaml --methods=softimpute  # plain ComBat
-Rscript scripts/holdout_tables.R
-Rscript scripts/holdout_by_dataset.R --dirs=data/pipeline/holdout/main,data/pipeline/holdout/plain --labels="ComBat-ref,plain ComBat"
-Rscript scripts/holdout_confusion.R
-Rscript scripts/holdout_confusion.R --config=config/config_holdout_w1.yaml --w1_ref=data/pipeline/holdout/main/reference/softimpute_difexp.csv
-Rscript scripts/holdout_confusion.R --config=config/config_holdout_plain_combat.yaml
-Rscript scripts/de_sweep_numbers.R
-Rscript scripts/verify_holdout_claims.R                        # 296 article numbers vs their source CSVs
+Rscript scripts/validation/holdout_reference_runs.R                       # full-data run per imputer
+Rscript scripts/validation/holdout_masked_runs.R                          # 3 schemes x 3 repeats x 9 imputers (~4 h; imputePCA dominates)
+Rscript scripts/validation/holdout_reference_runs.R --config=config/holdout_weight1.yaml --methods=softimpute
+Rscript scripts/validation/holdout_masked_runs.R    --config=config/holdout_weight1.yaml --methods=softimpute      # imputed cells at weight 1
+Rscript scripts/validation/holdout_reference_runs.R --config=config/holdout_plain_combat.yaml --methods=softimpute
+Rscript scripts/validation/holdout_masked_runs.R    --config=config/holdout_plain_combat.yaml --methods=softimpute  # plain ComBat
+Rscript scripts/validation/holdout_tables.R
+Rscript scripts/validation/holdout_by_dataset.R --dirs=data/pipeline/holdout/main,data/pipeline/holdout/plain --labels="ComBat-ref,plain ComBat"
+Rscript scripts/validation/holdout_confusion.R
+Rscript scripts/validation/holdout_confusion.R --config=config/holdout_weight1.yaml --w1_ref=data/pipeline/holdout/main/reference/softimpute_difexp.csv
+Rscript scripts/validation/holdout_confusion.R --config=config/holdout_plain_combat.yaml
+Rscript scripts/verify/collect_article_numbers.R
+Rscript scripts/verify/verify_holdout_claims.R                            # 296 article numbers vs their source CSVs
 ```
 
 Holdout outputs live in `data/pipeline/holdout/{main,w1,plain}/`: `masks/` (the
@@ -180,9 +188,7 @@ saved masks), `reference/` (full-data DE tables and corrected matrices per imput
 `values/` and `de/` (per scheme x repeat x imputer), and the summary tables
 (`table_s1.csv`, `table_s3_arms.csv`, `table_s2.csv`, `confusion_full_vs_masked.csv`,
 `by_dataset.csv`, `de_sweep_numbers.csv`, `claims_article.csv`). `run_everything.R
---full` runs these as the `holdout` stage group and `analysis:holdout_tables`;
-the earlier `test4_block_holdout_de.R` / `test4b_*` stages were retired in 2026-08
-when the unified design replaced them.
+--full` runs these as the `holdout` stage group and `analysis:holdout_tables`.
 
 Validation tests use parallel execution (`n_cores: 10` in config) and take ~30-60 minutes total.
 
@@ -195,34 +201,32 @@ numbers derive from are never overwritten.
 
 Main text (`main.tex`) includes three PNG figures; the remainder are
 supplementary (`supplement.tex`). The pipeline-overview diagram is TikZ
-drawn inside `main.tex`. `fig_venn_three_way.png` and the two
-`fig_enrichment_*.png` files are generated for completeness but are not
+drawn inside `main.tex`. The two `fig_enrichment_*.png` files are generated for completeness but are not
 included in either tex file.
 
 | Figure | Content | Generating script | Input data |
 |---|---------|-------------------|------------|
-| Main 1 | Missingness staircase | `scripts/fig_staircase.R` | `data/pipeline/main/exprs_imputed_softimpute.tsv`, `data/pipeline/main/difexp_softimpute_combat_ref.tsv` |
-| Main 2 | PCA before/after ComBat | `scripts/fig_pca_before_after_combat.R` | `data/pipeline/main/exprs_imputed_softimpute.tsv`, `data/pipeline/main/exprs_softimpute_combat_ref.tsv`, `data/phenodata.tsv` |
-| Main 3 | RNA-seq concordance (Prater) | `scripts/fig_rnaseq_concordance.R` | `data/pipeline/main/difexp_softimpute_combat_ref.tsv`, `data/references/prater_2021_supp_tables.xlsx` |
-| Supp S1 | Imputation CV range plot | `scripts/fig_imputation_range.R` | `data/pipeline/holdout/main/table_s1.csv` |
-| Supp S2 | PCA intersection vs softImpute | `scripts/fig_pca_intersection_softimpute.R` | `data/pipeline/main/exprs_none_combat_ref.tsv`, `data/pipeline/main/exprs_softimpute_combat_ref.tsv` |
-| Supp S3 | ComBat sensitivity (scatter + MAE) | `scripts/fig_combat_sensitivity.R` | `data/pipeline/main/exprs_none_combat_ref.tsv`, `data/pipeline/main/exprs_softimpute_combat_ref.tsv` |
-| Supp S4--S6 | Subsampling convergence / retention / CCC | `scripts/fig_validation.R` | `data/pipeline/validation/test1_first_trim_subsample.tsv`, `data/pipeline/validation/test1b_vs_balanced.tsv` |
-| Supp S7 | Split-half validation | `scripts/fig_validation.R` | `data/pipeline/validation/test3_split_half.tsv` |
-| Permutation null | Label-permutation null versus the real run | `scripts/fig_permutation.R` | `data/pipeline/validation/permutation_null.tsv` |
-| (extra) | Three-way Venn | `scripts/fig_venn.R` | `data/pipeline/main/difexp_significant_*.tsv`, `data/references/lykhenko_2021_deg.csv` |
-| (extra) | GO / KEGG dotplots | `scripts/fig_enrichment.R` | `data/pipeline/main/difexp_*.tsv` |
+| Main 1 | Missingness staircase | `scripts/figures/fig_staircase.R` | `data/pipeline/main/exprs_imputed_softimpute.tsv`, `data/pipeline/main/difexp_softimpute_combat_ref.tsv` |
+| Main 2 | PCA before/after ComBat | `scripts/figures/fig_pca_before_after_combat.R` | `data/pipeline/main/exprs_imputed_softimpute.tsv`, `data/pipeline/main/exprs_softimpute_combat_ref.tsv`, `data/phenodata.tsv` |
+| Main 3 | RNA-seq concordance (Prater) | `scripts/figures/fig_rnaseq_concordance.R` | `data/pipeline/main/difexp_softimpute_combat_ref.tsv`, `data/references/prater_2021_supp_tables.xlsx` |
+| Supp S1 | Imputation CV range plot | `scripts/figures/fig_imputation_range.R` | `data/pipeline/holdout/main/table_s1.csv` |
+| Supp S2 | PCA intersection vs softImpute | `scripts/figures/fig_pca_intersection_softimpute.R` | `data/pipeline/main/exprs_none_combat_ref.tsv`, `data/pipeline/main/exprs_softimpute_combat_ref.tsv` |
+| Supp S3 | ComBat sensitivity (scatter + MAE) | `scripts/figures/fig_combat_sensitivity.R` | `data/pipeline/main/exprs_none_combat_ref.tsv`, `data/pipeline/main/exprs_softimpute_combat_ref.tsv` |
+| Supp S4--S6 | Subsampling convergence / retention / CCC | `scripts/figures/fig_validation.R` | `data/pipeline/validation/test1_first_trim_subsample.tsv`, `data/pipeline/validation/test1b_vs_balanced.tsv` |
+| Supp S7 | Split-half validation | `scripts/figures/fig_validation.R` | `data/pipeline/validation/test3_split_half.tsv` |
+| Permutation null | Label-permutation null versus the real run | `scripts/figures/fig_permutation.R` | `data/pipeline/validation/permutation_null.tsv` |
+| (extra) | GO / KEGG dotplots | `scripts/figures/fig_enrichment.R` | `data/pipeline/main/difexp_*.tsv` |
 
 ## Article tables
 
 | # | Caption | Source data | How numbers were obtained |
 |---|---------|-------------|--------------------------|
-| 1 | Gene recovery & missingness (k thresholds) | `data/pipeline/main/summary.txt`, `imputed_gene_group_coverage.csv` | Pipeline run (`scripts/pipeline/run_phase2b.R` with `config/config_pipeline.yaml`) |
+| 1 | Gene recovery & missingness (k thresholds) | `data/pipeline/main/summary.txt`, `imputed_gene_group_coverage.csv` | Pipeline run (`scripts/pipeline.R` with `config/main.yaml`) |
 | 2 | Per-group safety audit | same as above | Same pipeline, per-group safety filter step |
-| 3 | Imputation accuracy (leave-out CV) | `data/pipeline/main/imputation_validation.csv` | `scripts/pipeline/imputation.R` cross-validation |
+| 3 | Imputation accuracy (leave-out CV) | `data/pipeline/main/imputation_validation.csv` | `scripts/lib/masking.R` (`validate_imputation()`), called from `scripts/pipeline.R` |
 | 4 | DE counts (4 method combos + Lykhenko 2021) | `data/pipeline/main/difexp_significant_*.tsv`, `data/references/lykhenko_2021_deg.csv` | Pipeline DE step; Lykhenko reference from prior publication |
-| 5 | ComBat covariate comparison | `data/pipeline/main/method_comparison.csv`, sensitivity pipeline outputs | `scripts/pipeline/combat_sensitivity.R` with `config/config_sensitivity.yaml` |
-| 6 | Per-dataset ENTREZID coverage | `data/expression/GSE*.tsv` | `scripts/table_platform_coverage.R` |
+| 5 | ComBat covariate comparison | `data/pipeline/main/method_comparison.csv`, sensitivity pipeline outputs | `scripts/analysis/combat_sensitivity.R` with `config/sensitivity_no_covariates.yaml` |
+| 6 | Per-dataset ENTREZID coverage | `data/expression/GSE*.tsv` | `scripts/analysis/table_platform_coverage.R` |
 | 7 | Software & data resources | — | Manual/curated |
 
 ## Key numbers
@@ -250,17 +254,53 @@ included in either tex file.
 | Holdout, GSE100051 hidden: true DEGs lost | 96.8% | replication_report.md |
 | qPCR benchmark genes recovered | 11/17 | replication_report.md; denominator from qpcr_benchmark_genes.csv |
 | GA-matched Prater r / CCC | 0.808 / 0.755 | replication_report.md |
-| Prater (full window) r / CCC / shared significant DEGs | 0.656 / 0.538 / 371 | de_sweep_numbers.csv (checked by verify_holdout_claims.R) |
+| Prater (full window) r / CCC / shared significant DEGs | 0.656 / 0.538 / 371 | de_sweep_numbers.csv (checked by verify/verify_holdout_claims.R) |
 
 <!-- KEY_NUMBERS_END -->
 
 ## Verifying article claims
 
 ```bash
-Rscript scripts/verify_article_claims.R
+Rscript scripts/verify/verify_article_claims.R
 ```
 
 Produces `replication_report.md` with a claim-by-claim comparison against companion data.
+
+## Old script names
+
+The article cites paths at tag `v1.0.0`, which still resolve to the old layout. Mapping
+from the old names to this layout:
+
+| Old (`v1.0.0`) | Now |
+|---|---|
+| `scripts/pipeline/run_phase2b.R` | `scripts/pipeline.R` |
+| `scripts/pipeline/normalization.R` | `scripts/lib/batch_correction.R` (ComBat and ComBat-ref only) |
+| `scripts/pipeline/imputation.R` | `scripts/lib/imputation.R` |
+| `scripts/pipeline/plot_na_staircase.R` | `scripts/lib/staircase_plot.R` |
+| `scripts/pipeline/subsampling_helpers.R` | `scripts/lib/subsampling.R` |
+| `scripts/pipeline/test1_first_trim_subsample.R` | `scripts/validation/subsample_first_trimester.R` |
+| `scripts/pipeline/test1b_vs_balanced.R` | `scripts/validation/subsample_vs_balanced_reference.R` |
+| `scripts/pipeline/test2_balanced_subsample.R` | `scripts/validation/subsample_balanced_cohort.R` |
+| `scripts/pipeline/test3_split_half.R` | `scripts/validation/split_half.R` |
+| `scripts/pipeline/test_permutation.R` | `scripts/validation/label_permutation.R` |
+| `scripts/pipeline/test_lodo.R` | `scripts/validation/leave_one_dataset_out.R` |
+| `scripts/pipeline/combat_sensitivity.R` | `scripts/analysis/combat_sensitivity.R` |
+| `scripts/holdout_common.R` | `scripts/validation/_holdout_common.R` |
+| `scripts/holdout_unified.R` | `scripts/validation/holdout_masked_runs.R` |
+| `scripts/holdout_{reference_runs,tables,confusion,by_dataset}.R` | same names in `scripts/validation/` |
+| `scripts/test4_coverage_patterns.R` | `scripts/analysis/gene_coverage_census.R` |
+| `scripts/missmda_ncp_selection.R` | `scripts/analysis/imputepca_ncp_selection.R` |
+| `scripts/lambda_selection_path.R` / `lambda_selection_table.R` | `scripts/analysis/softimpute_lambda_selection.R` / `softimpute_lambda_table.R` |
+| `scripts/de_sweep_numbers.R` | `scripts/verify/collect_article_numbers.R` |
+| `scripts/verify_*_claims.R` | `scripts/verify/verify_*_claims.R` |
+| `scripts/fig_*.R`, `scripts/_common.R` | `scripts/figures/` |
+| `scripts/{covariate_sweep,ga_matched_prater,qpcr_recovery,table_platform_coverage}.R` | `scripts/analysis/` |
+| `config/config_<name>.yaml` | `config/<name>.yaml` (`pipeline` -> `main`, `sensitivity` -> `sensitivity_no_covariates`, `holdout_unified` -> `holdout`, `holdout_w1` -> `holdout_weight1`) |
+
+Material the article does not use (the exploratory batch-in-limma model, the superseded
+`test4*` holdout stages, `cv_comparators.R`, unused normalization methods, the Venn
+figure, `generate_all.R`) is not in this repository; it is kept in the research
+repository.
 
 ## Data sources
 

@@ -1,0 +1,11 @@
+# Subsampling-stability config for the ns(GA, df=3) ComBat variant.
+# Feeds the 'ns(GA, df=3)' column of Supplementary Table S3.
+
+base: validation.yaml
+
+paths:
+  reference_de: "data/pipeline/covariate_ns3/difexp_softimpute_combat_ref.tsv"
+  reference_imputed: "data/pipeline/covariate_ns3/exprs_imputed_softimpute.tsv"
+  output: "data/pipeline/validation_covariate_ns3"
+phenotype:
+  combat_bio_spline_df: 3

@@ -36,13 +36,13 @@ FULL  <- has_flag("full")
 FORCE <- has_flag("force")
 ONLY  <- if (!is.null(get_arg("only"))) strsplit(get_arg("only"), ",")[[1]] else NULL
 DRY   <- has_flag("dry-run")
-## --no-archive: run_phase2b.R does not copy the previous outputs to
+## --no-archive: pipeline.R does not copy the previous outputs to
 ## <dir>/archive/<timestamp>/ (the committed outputs are already in git)
 NO_ARCHIVE <- has_flag("no-archive")
 ## --skip=stage1,stage2: leave out individual stages by name
 SKIP <- if (!is.null(get_arg("skip"))) strsplit(get_arg("skip"), ",")[[1]] else NULL
 
-if (!file.exists("scripts/_common.R"))
+if (!file.exists("scripts/figures/_common.R"))
   stop("run from the repository root: Rscript scripts/run_everything.R")
 
 started <- Sys.time()
@@ -55,10 +55,10 @@ say <- function(...) {
 rule <- function(t) say("\n", strrep("=", 70), "\n", t, "\n", strrep("=", 70))
 
 run_r <- function(path, extra = character(0)) {
-  if (NO_ARCHIVE && basename(path) == "run_phase2b.R") extra <- c(extra, "--no_archive")
+  if (NO_ARCHIVE && basename(path) == "pipeline.R") extra <- c(extra, "--no_archive")
   ## the holdout scripts keep finished per-method results and checkpoints
   ## unless told otherwise, so --force must reach them too
-  if (FORCE && basename(path) %in% c("holdout_reference_runs.R", "holdout_unified.R"))
+  if (FORCE && basename(path) %in% c("holdout_reference_runs.R", "holdout_masked_runs.R"))
     extra <- c(extra, "--force")
   cmd <- c(path, extra)
   say("  $ Rscript ", paste(cmd, collapse = " "))
@@ -76,70 +76,62 @@ stage <- function(name, group, outputs, run) list(name = name, group = group,
 ## pipeline config); runs first because everything downstream uses it.
 selection_stages <- list(
   stage("selection:lambda", "selection", "data/pipeline/lambda_selection/selected_step.txt",
-        function() run_r("scripts/lambda_selection_path.R")),
+        function() run_r("scripts/analysis/softimpute_lambda_selection.R")),
   ## imputePCA comparator: ncp and input chosen on the same selection masks
-  ## (ncp / input in config_holdout_*.yaml); hours, dominated by the EM fits
+  ## (ncp / input in config/holdout*.yaml); hours, dominated by the EM fits
   stage("selection:missmda_ncp", "selection", "data/pipeline/lambda_selection/missmda_selected.txt",
-        function() run_r("scripts/missmda_ncp_selection.R"))
+        function() run_r("scripts/analysis/imputepca_ncp_selection.R"))
 )
 
 pipeline_stages <- list(
   stage("pipeline:main", "pipeline", "data/pipeline/main/difexp_softimpute_combat_ref.tsv",
-        function() run_r("scripts/pipeline/run_phase2b.R", "--config=config/config_pipeline.yaml")),
+        function() run_r("scripts/pipeline.R", "--config=config/main.yaml")),
   stage("pipeline:balanced", "pipeline", "data/pipeline/balanced/difexp_softimpute_combat_ref.tsv",
-        function() run_r("scripts/pipeline/run_phase2b.R", "--config=config/config_balanced.yaml")),
-  stage("pipeline:batch_in_limma", "pipeline", "data/pipeline/batch_in_limma/difexp_softimpute_batch_in_limma.tsv",
-        function() run_r("scripts/pipeline/run_phase2b.R", "--config=config/config_batch_in_limma.yaml")),
-  stage("pipeline:balanced_batch_in_limma", "pipeline", "data/pipeline/balanced_batch_in_limma/difexp_softimpute_batch_in_limma.tsv",
-        function() run_r("scripts/pipeline/run_phase2b.R", "--config=config/config_balanced_batch_in_limma.yaml")),
+        function() run_r("scripts/pipeline.R", "--config=config/balanced.yaml")),
   stage("pipeline:covariate_categorical", "pipeline", "data/pipeline/covariate_categorical/difexp_softimpute_combat_ref.tsv",
-        function() run_r("scripts/pipeline/run_phase2b.R", "--config=config/config_covariate_categorical.yaml")),
+        function() run_r("scripts/pipeline.R", "--config=config/covariate_categorical.yaml")),
   stage("pipeline:covariate_poly2", "pipeline", "data/pipeline/covariate_poly2/difexp_softimpute_combat_ref.tsv",
-        function() run_r("scripts/pipeline/run_phase2b.R", "--config=config/config_covariate_poly2.yaml")),
+        function() run_r("scripts/pipeline.R", "--config=config/covariate_poly2.yaml")),
   stage("pipeline:covariate_ns3", "pipeline", "data/pipeline/covariate_ns3/difexp_softimpute_combat_ref.tsv",
-        function() run_r("scripts/pipeline/run_phase2b.R", "--config=config/config_covariate_ns3.yaml")),
+        function() run_r("scripts/pipeline.R", "--config=config/covariate_ns3.yaml")),
   stage("pipeline:ga_matched_prater", "pipeline", "data/pipeline/ga_matched_prater/difexp_softimpute_combat_ref.tsv",
-        function() run_r("scripts/pipeline/run_phase2b.R", "--config=config/config_ga_matched_prater.yaml")),
+        function() run_r("scripts/pipeline.R", "--config=config/ga_matched_prater.yaml")),
   ## imputed/unimputed matrices that analysis:combat_sensitivity reads
   stage("pipeline:sensitivity", "pipeline", "data/pipeline/sensitivity/exprs_imputed_none.tsv",
-        function() run_r("scripts/pipeline/run_phase2b.R", "--config=config/config_sensitivity.yaml"))
+        function() run_r("scripts/pipeline.R", "--config=config/sensitivity_no_covariates.yaml"))
 )
 
 validation_stages <- list(
   stage("validation:test1", "validation", "data/pipeline/validation/test1_first_trim_subsample.tsv",
-        function() run_r("scripts/pipeline/test1_first_trim_subsample.R", "--config=config/config_validation.yaml")),
+        function() run_r("scripts/validation/subsample_first_trimester.R", "--config=config/validation.yaml")),
   stage("validation:test1b", "validation", "data/pipeline/validation/test1b_vs_balanced.tsv",
-        function() run_r("scripts/pipeline/test1b_vs_balanced.R", "--config=config/config_validation.yaml")),
+        function() run_r("scripts/validation/subsample_vs_balanced_reference.R", "--config=config/validation.yaml")),
   stage("validation:test2", "validation", "data/pipeline/validation/test2_balanced_subsample.tsv",
-        function() run_r("scripts/pipeline/test2_balanced_subsample.R", "--config=config/config_validation.yaml")),
+        function() run_r("scripts/validation/subsample_balanced_cohort.R", "--config=config/validation.yaml")),
   stage("validation:test3", "validation", "data/pipeline/validation/test3_split_half.tsv",
-        function() run_r("scripts/pipeline/test3_split_half.R", "--config=config/config_validation.yaml")),
+        function() run_r("scripts/validation/split_half.R", "--config=config/validation.yaml")),
   stage("validation:test4_patterns", "validation", "data/pipeline/test4/coverage_patterns_gained.csv",
-        function() run_r("scripts/test4_coverage_patterns.R")),
-  ## label-permutation null (200 shuffles; plus the 50-shuffle no-ComBat diagnostic)
+        function() run_r("scripts/analysis/gene_coverage_census.R")),
+  ## label-permutation null (200 shuffles)
   stage("validation:permutation", "validation", "data/pipeline/validation/permutation_null.tsv",
-        function() { run_r("scripts/pipeline/test_permutation.R", "--n=200")
-                     run_r("scripts/pipeline/test_permutation.R", c("--n=50", "--mode=batch_in_limma")) }),
+        function() run_r("scripts/validation/label_permutation.R", "--n=200")),
   ## leave-one-dataset-out
   stage("validation:lodo", "validation", "data/pipeline/validation/lodo_summary.tsv",
-        function() run_r("scripts/pipeline/test_lodo.R"))
+        function() run_r("scripts/validation/leave_one_dataset_out.R"))
 )
-## test4_block_holdout_de.R, test4b_coverage_cv.R and test4b_refbatch_split.R are
-## superseded by the unified holdout below (2026-08) and no longer run.
-
-## Unified holdout validation (Supp S1 + S5, main-text holdout table): one set of
+## Holdout validation (Supp S1 + S5, main-text holdout table): one set of
 ## masks feeds both the imputation-accuracy and the DE-call readouts.
 holdout_stages <- list(
   stage("holdout:reference", "holdout", "data/pipeline/holdout/main/reference_runs_summary.csv",
-        function() run_r("scripts/holdout_reference_runs.R")),
+        function() run_r("scripts/validation/holdout_reference_runs.R")),
   stage("holdout:unified", "holdout", "data/pipeline/holdout/main/checkpoints/progressive_tax_block_rep3_batch_mean.done",
-        function() run_r("scripts/holdout_unified.R")),
+        function() run_r("scripts/validation/holdout_masked_runs.R")),
   stage("holdout:w1", "holdout", "data/pipeline/holdout/w1/checkpoints/progressive_tax_block_rep3_softimpute.done",
-        function() { run_r("scripts/holdout_reference_runs.R", c("--config=config/config_holdout_w1.yaml", "--methods=softimpute"))
-                     run_r("scripts/holdout_unified.R", c("--config=config/config_holdout_w1.yaml", "--methods=softimpute")) }),
+        function() { run_r("scripts/validation/holdout_reference_runs.R", c("--config=config/holdout_weight1.yaml", "--methods=softimpute"))
+                     run_r("scripts/validation/holdout_masked_runs.R", c("--config=config/holdout_weight1.yaml", "--methods=softimpute")) }),
   stage("holdout:plain_combat", "holdout", "data/pipeline/holdout/plain/checkpoints/progressive_tax_block_rep3_softimpute.done",
-        function() { run_r("scripts/holdout_reference_runs.R", c("--config=config/config_holdout_plain_combat.yaml", "--methods=softimpute"))
-                     run_r("scripts/holdout_unified.R", c("--config=config/config_holdout_plain_combat.yaml", "--methods=softimpute")) })
+        function() { run_r("scripts/validation/holdout_reference_runs.R", c("--config=config/holdout_plain_combat.yaml", "--methods=softimpute"))
+                     run_r("scripts/validation/holdout_masked_runs.R", c("--config=config/holdout_plain_combat.yaml", "--methods=softimpute")) })
 )
 
 ## subsampling stability for the three non-primary ComBat covariate variants
@@ -149,46 +141,44 @@ for (v in c("linear", "categorical", "poly2", "ns3")) {
     validation_stages[[length(validation_stages) + 1]] <<- stage(
       paste0("validation:covariate_", vv), "validation",
       paste0("data/pipeline/validation_covariate_", vv, "/test1_within_size_jaccard.tsv"),
-      function() run_r("scripts/pipeline/test1_first_trim_subsample.R",
-                       paste0("--config=config/config_validation_covariate_", vv, ".yaml")))
+      function() run_r("scripts/validation/subsample_first_trimester.R",
+                       paste0("--config=config/validation_covariate_", vv, ".yaml")))
   })
 }
 
 analysis_stages <- list(
   stage("analysis:lambda_selection_table", "analysis", "data/pipeline/lambda_selection/path.tex",
-        function() run_r("scripts/lambda_selection_table.R")),
-  stage("analysis:cv_comparators", "analysis", "data/pipeline/cv_comparators/table_s1_cv_comparators.csv",
-        function() run_r("scripts/cv_comparators.R")),
+        function() run_r("scripts/analysis/softimpute_lambda_table.R")),
   stage("analysis:covariate_sweep", "analysis", "data/pipeline/covariate_sweep/table_s2_covariate_comparison.csv",
-        function() run_r("scripts/covariate_sweep.R")),
+        function() run_r("scripts/analysis/covariate_sweep.R")),
   stage("analysis:ga_matched_prater", "analysis", "data/pipeline/ga_matched_prater/prater_concordance.csv",
-        function() run_r("scripts/ga_matched_prater.R")),
+        function() run_r("scripts/analysis/ga_matched_prater.R")),
   stage("analysis:qpcr_recovery", "analysis", "data/pipeline/main/qpcr_recovery.csv",
-        function() run_r("scripts/qpcr_recovery.R", "--out=data/pipeline/main/qpcr_recovery.csv")),
+        function() run_r("scripts/analysis/qpcr_recovery.R", "--out=data/pipeline/main/qpcr_recovery.csv")),
   stage("analysis:combat_sensitivity", "analysis", "data/pipeline/main/method_comparison.csv",
-        function() run_r("scripts/pipeline/combat_sensitivity.R", "--config=config/config_sensitivity.yaml")),
+        function() run_r("scripts/analysis/combat_sensitivity.R", "--config=config/sensitivity_no_covariates.yaml")),
   ## holdout summary tables (Supp Tables S1-S6, main-text holdout table) from the shipped holdout outputs
   stage("analysis:holdout_tables", "analysis", "data/pipeline/holdout/main/confusion_main.tex",
-        function() { run_r("scripts/holdout_tables.R")
-                     run_r("scripts/holdout_by_dataset.R", c("--dirs=data/pipeline/holdout/main,data/pipeline/holdout/plain", shQuote("--labels=ComBat-ref,plain ComBat")))
-                     run_r("scripts/holdout_confusion.R")
-                     run_r("scripts/holdout_confusion.R", c("--config=config/config_holdout_w1.yaml", "--w1_ref=data/pipeline/holdout/main/reference/softimpute_difexp.csv"))
-                     run_r("scripts/holdout_confusion.R", "--config=config/config_holdout_plain_combat.yaml")
-                     run_r("scripts/de_sweep_numbers.R") })
+        function() { run_r("scripts/validation/holdout_tables.R")
+                     run_r("scripts/validation/holdout_by_dataset.R", c("--dirs=data/pipeline/holdout/main,data/pipeline/holdout/plain", shQuote("--labels=ComBat-ref,plain ComBat")))
+                     run_r("scripts/validation/holdout_confusion.R")
+                     run_r("scripts/validation/holdout_confusion.R", c("--config=config/holdout_weight1.yaml", "--w1_ref=data/pipeline/holdout/main/reference/softimpute_difexp.csv"))
+                     run_r("scripts/validation/holdout_confusion.R", "--config=config/holdout_plain_combat.yaml")
+                     run_r("scripts/verify/collect_article_numbers.R") })
 )
 
 figure_stages <- list()
-for (f in sort(list.files("scripts", pattern = "^fig_.*\\.R$"))) {
+for (f in sort(list.files("scripts/figures", pattern = "^fig_.*\\.R$"))) {
   local({
     ff <- f
     figure_stages[[length(figure_stages) + 1]] <<- stage(
       paste0("figure:", sub("\\.R$", "", ff)), "figures", NULL,
-      function() run_r(file.path("scripts", ff)))
+      function() run_r(file.path("scripts/figures", ff)))
   })
 }
 figure_stages[[length(figure_stages) + 1]] <- stage(
   "figure:table_platform_coverage", "figures", NULL,
-  function() run_r("scripts/table_platform_coverage.R"))
+  function() run_r("scripts/analysis/table_platform_coverage.R"))
 
 stages <- if (FULL) {
   c(selection_stages, pipeline_stages, validation_stages, holdout_stages, analysis_stages, figure_stages)
@@ -226,7 +216,7 @@ for (s in stages) {
 }
 
 rule("Claim verification")
-ver <- tryCatch(run_r("scripts/verify_article_claims.R"),
+ver <- tryCatch(run_r("scripts/verify/verify_article_claims.R"),
                 error = function(e) { say("  !! ", conditionMessage(e)); 1L })
 
 rule("Summary")

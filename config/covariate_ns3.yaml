@@ -1,0 +1,10 @@
+# ComBat covariate sweep - variant 4/4: ns(GA, df=3).
+# ComBat model matrix is ~ ns(ga_weeks, df=3) + fetus_sex_estimate.
+# Reproduces the 'ns(GA, df=3)' row of Supplementary Table S2 (518 DEGs).
+
+base: main.yaml
+
+paths:
+  output: "data/pipeline/covariate_ns3"
+phenotype:
+  combat_bio_spline_df: 3

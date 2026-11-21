@@ -1,0 +1,74 @@
+# Main run: six datasets, first vs second trimester.
+# softImpute + reference-batch ComBat + limma -> data/pipeline/main/
+#
+# Every other config in this folder starts from this file (`base: main.yaml`)
+# and lists only what it changes.
+
+paths:
+  mapped_data: "data/expression"     # one <dataset>.tsv per dataset, ENTREZID rows
+  phenodata: "data/phenodata.tsv"
+  output: "data/pipeline/main"
+  column_map:                        # name used in the code: column in phenodata.tsv
+    arraydatafile_exprscolumnnames: "sample_id"
+    secondaryaccession: "dataset_id"
+    Gestational.Age.Category: "trimester"
+    Diagnosis: "condition"
+
+files:
+  datasets:
+    - "GSE100051"
+    - "GSE122214"
+    - "GSE28551"
+    - "GSE37901"
+    - "GSE93520"
+    - "GSE9984"
+
+sample_filter:                       # phenodata column: allowed values
+  condition: ["healthy"]
+  trimester: ["First trimester", "Second trimester"]
+
+gene_filter:
+  protein_coding_only: true
+
+phenotype:
+  group_column: "trimester"
+  baseline: "First trimester"
+  contrast: "Second trimester"
+  covariates: ["fetus_sex_estimate"]   # in the ComBat model and the limma design
+  combat_bio_covariate: "ga_weeks"     # biology ComBat must preserve: gestational age (linear)
+
+coverage:
+  min_datasets: 1                      # keep genes measured in at least this many datasets
+  drop_imputed_genes_missing_in_group: true   # safety filter
+
+imputation:
+  none:               # no imputation: only the genes all datasets share
+    enabled: true
+  softimpute:
+    enabled: true
+    rank_max: 60
+    path_stop_step: 2   # one-SE hold-out choice: data/pipeline/lambda_selection/selected_step.txt
+    lambda: 0           # 0 = warm-start path, stopped at path_stop_step
+    thresh: 1.0e-4      # keep the ".0": YAML reads "1e-4" as a string
+    maxit: 50
+    type: "als"
+    seed: 42            # ALS starts from a random matrix; fixed seed makes runs repeatable
+
+normalization:
+  combat:             # plain ComBat, reported for comparison
+    enabled: true
+  combat_ref:         # reference-batch ComBat, the article's primary correction
+    enabled: true
+    ref_batch: "GSE100051"
+
+de:
+  imputed_cell_weight: 0.0             # limma weight of imputed cells
+
+thresholds:
+  fdr: 0.05
+  logfc: 1.0
+
+validation:                            # quick leave-out check of the imputer
+  leave_out_fraction: 0.1
+  n_repeats: 3
+  mask_type: "gene_dataset_block"

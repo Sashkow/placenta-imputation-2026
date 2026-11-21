@@ -1,0 +1,12 @@
+# ComBat sensitivity analysis: same as main pipeline but without covariates
+# Produces matrices for comparing ComBat correction with/without imputed genes
+
+base: main.yaml
+
+paths:
+  output: "data/pipeline/sensitivity"
+phenotype:
+  covariates: ~               # no fetal sex
+  combat_bio_covariate: ~     # ComBat protects the trimester label instead of gestational age
+validation:
+  leave_out_fraction: 0

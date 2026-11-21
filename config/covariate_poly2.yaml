@@ -1,0 +1,10 @@
+# ComBat covariate sweep - variant 3/4: POLY(GA, 2).
+# ComBat model matrix is ~ poly(ga_weeks, 2) + fetus_sex_estimate.
+# Reproduces the 'Poly(GA, 2)' row of Supplementary Table S2 (472 DEGs).
+
+base: main.yaml
+
+paths:
+  output: "data/pipeline/covariate_poly2"
+phenotype:
+  combat_bio_degree: 2

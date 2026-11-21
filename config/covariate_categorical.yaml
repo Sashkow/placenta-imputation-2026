@@ -1,0 +1,10 @@
+# ComBat covariate sweep - variant 1/4: CATEGORICAL trimester.
+# ComBat model matrix is ~ bio_group + fetus_sex_estimate (no gestational-age term).
+# Reproduces the 'Categorical trimester' row of Supplementary Table S2 (447 DEGs).
+
+base: main.yaml
+
+paths:
+  output: "data/pipeline/covariate_categorical"
+phenotype:
+  combat_bio_covariate: ~     # ComBat protects the trimester label instead of gestational age

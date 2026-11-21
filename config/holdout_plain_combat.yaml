@@ -1,0 +1,13 @@
+# Holdout with PLAIN ComBat (no reference batch) in both arms. Separates
+# "GSE100051 is the ComBat reference" from "GSE100051 is the dominant batch".
+
+base: holdout.yaml
+
+paths:
+  output: "data/pipeline/holdout/plain"
+normalization:
+  combat_variant: "plain"
+  combat_ref:
+    enabled: false
+holdout:
+  methods: ["softimpute", "missmda", "knn", "gene_mean", "batch_mean"]

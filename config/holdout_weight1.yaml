@@ -1,0 +1,11 @@
+# Holdout with imputed cells at FULL weight in limma -- what happens if
+# imputed values are not down-weighted. softImpute only in the article.
+
+base: holdout.yaml
+
+paths:
+  output: "data/pipeline/holdout/w1"
+de:
+  imputed_cell_weight: 1.0
+holdout:
+  methods: ["softimpute", "missmda", "knn", "gene_mean", "batch_mean"]

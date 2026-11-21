@@ -1,0 +1,13 @@
+# Balanced 2-dataset reference (GSE100051 + GSE9984)
+# Used as reference for validation test1b
+
+base: main.yaml
+
+paths:
+  output: "data/pipeline/balanced"
+files:
+  datasets:
+    - "GSE100051"
+    - "GSE9984"
+validation:
+  leave_out_fraction: 0

@@ -1,0 +1,20 @@
+# GA-matched re-analysis for the Prater 2021 cross-technology comparison.
+# Reproduces Supplementary Section 5: 31 first-trimester samples at 7-8 weeks
+# (GSE100051, GSE122214, GSE93520, GSE9984) vs 5 second-trimester samples at
+# week 14 (GSE100051); 11,761 testable genes, 602 DEGs, Prater r = 0.807.
+
+base: main.yaml
+
+paths:
+  output: "data/pipeline/ga_matched_prater"
+files:
+  datasets:
+    - "GSE100051"
+    - "GSE122214"
+    - "GSE93520"
+    - "GSE9984"
+ga_filter:                    # group: [first week, last week]
+  "First trimester": [7, 8]
+  "Second trimester": [13, 14]
+phenotype:
+  combat_bio_covariate: ~     # narrow GA windows: ComBat protects the trimester label

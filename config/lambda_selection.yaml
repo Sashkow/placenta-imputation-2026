@@ -1,0 +1,41 @@
+# Hold-out selection of the softImpute lambda (Mazumder, Hastie & Tibshirani
+# 2010): the warm-start path (8 geometric steps from lambda0 to 0.01 * lambda0)
+# is fitted on masked copies of the merged matrix and scored on the hidden
+# cells at every step. The step chosen by the one-SE rule on the gene--dataset
+# block masks is the `path_stop_step` in main.yaml. The selection masks use
+# their own seeds, distinct from the holdout masks (seeds 123, 246, 369), so
+# the reported accuracy is not measured on the cells that chose lambda.
+#
+# Run:  Rscript scripts/analysis/softimpute_lambda_selection.R
+
+base: holdout.yaml
+
+paths:
+  output: "data/pipeline/lambda_selection"
+  holdout_masks: "data/pipeline/holdout/main/masks"
+
+imputation:
+  softimpute:
+    path_stop_step: ~   # what this run selects; the full 8-step path is fitted
+  missmda:
+    ncp: ~              # varied over lambda_selection.missmda_ncp
+    input: ~
+
+holdout: ~
+
+lambda_selection:
+  # one mask of each scheme per seed; selection uses gene_dataset_block,
+  # random_cells is scored for reporting only
+  mask_types: ["gene_dataset_block", "random_cells"]
+  select_on: "gene_dataset_block"
+  seeds: [1001, 1002, 1003]
+  leave_out_fraction: 0.1
+  min_obs_per_gene: 4
+  n_steps: 8
+  min_ratio: 0.01
+  cores: 3              # parallel masks (each fit holds ~1 GB)
+  # missMDA::imputePCA grid on the same masks
+  missmda_ncp: [2, 5, 10, 13, 20, 30]
+  # missMDA GCV criterion (estim_ncpPCA's formula) on the full matrix, ncp 1..this
+  missmda_gcv_max: 20
+  missmda_cores: 5

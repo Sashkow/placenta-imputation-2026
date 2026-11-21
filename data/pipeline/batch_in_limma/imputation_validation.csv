@@ -1,4 +1,0 @@
-"method","mask_type","repeat_n","correlation","rmse","mae","n_masked","n_blocks","converged","error_message"
-"softimpute","gene_dataset_block",1,0.821698116928004,1.48932417544453,1.13997641928567,144819,7559,TRUE,NA
-"softimpute","gene_dataset_block",2,0.817791220310553,1.51046931253107,1.15097763096075,144816,7343,TRUE,NA
-"softimpute","gene_dataset_block",3,0.821695299619151,1.49800309020555,1.15331687281772,144798,7404,TRUE,NA

@@ -115,7 +115,14 @@ validation_stages <- list(
   stage("validation:test3", "validation", "data/pipeline/validation/test3_split_half.tsv",
         function() run_r("scripts/pipeline/test3_split_half.R", "--config=config/config_validation.yaml")),
   stage("validation:test4_patterns", "validation", "data/pipeline/test4/coverage_patterns_gained.csv",
-        function() run_r("scripts/test4_coverage_patterns.R"))
+        function() run_r("scripts/test4_coverage_patterns.R")),
+  ## label-permutation null (200 shuffles; plus the 50-shuffle no-ComBat diagnostic)
+  stage("validation:permutation", "validation", "data/pipeline/validation/permutation_null.tsv",
+        function() { run_r("scripts/pipeline/test_permutation.R", "--n=200")
+                     run_r("scripts/pipeline/test_permutation.R", c("--n=50", "--mode=batch_in_limma")) }),
+  ## leave-one-dataset-out
+  stage("validation:lodo", "validation", "data/pipeline/validation/lodo_summary.tsv",
+        function() run_r("scripts/pipeline/test_lodo.R"))
 )
 ## test4_block_holdout_de.R, test4b_coverage_cv.R and test4b_refbatch_split.R are
 ## superseded by the unified holdout below (2026-08) and no longer run.

@@ -130,6 +130,14 @@ Rscript scripts/pipeline/test1b_vs_balanced.R --config=config/config_validation.
 Rscript scripts/pipeline/test2_balanced_subsample.R --config=config/config_validation.yaml
 Rscript scripts/pipeline/test3_split_half.R --config=config/config_validation.yaml
 
+# Label-permutation null: trimester labels (with gestational age) shuffled across
+# all samples, 200 times; the second call is the no-ComBat diagnostic (50 shuffles)
+Rscript scripts/pipeline/test_permutation.R --n=200
+Rscript scripts/pipeline/test_permutation.R --n=50 --mode=batch_in_limma
+
+# Leave-one-dataset-out: drop each dataset in turn and compare with the full DEG list
+Rscript scripts/pipeline/test_lodo.R
+
 # ComBat covariate sweep -- Supplementary Tables S3 and S4
 Rscript scripts/pipeline/run_phase2b.R --config=config/config_covariate_categorical.yaml
 Rscript scripts/pipeline/run_phase2b.R --config=config/config_covariate_poly2.yaml
@@ -201,6 +209,7 @@ included in either tex file.
 | Supp S3 | ComBat sensitivity (scatter + MAE) | `scripts/fig_combat_sensitivity.R` | `data/pipeline/main/exprs_none_combat_ref.tsv`, `data/pipeline/main/exprs_softimpute_combat_ref.tsv` |
 | Supp S4--S6 | Subsampling convergence / retention / CCC | `scripts/fig_validation.R` | `data/pipeline/validation/test1_first_trim_subsample.tsv`, `data/pipeline/validation/test1b_vs_balanced.tsv` |
 | Supp S7 | Split-half validation | `scripts/fig_validation.R` | `data/pipeline/validation/test3_split_half.tsv` |
+| Permutation null | Label-permutation null versus the real run | `scripts/fig_permutation.R` | `data/pipeline/validation/permutation_null.tsv` |
 | (extra) | Three-way Venn | `scripts/fig_venn.R` | `data/pipeline/main/difexp_significant_*.tsv`, `data/references/lykhenko_2021_deg.csv` |
 | (extra) | GO / KEGG dotplots | `scripts/fig_enrichment.R` | `data/pipeline/main/difexp_*.tsv` |
 

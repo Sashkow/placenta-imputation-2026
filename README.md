@@ -266,42 +266,6 @@ Rscript scripts/verify/verify_article_claims.R
 
 Produces `replication_report.md` with a claim-by-claim comparison against companion data.
 
-## Old script names
-
-The article cites paths at tag `v1.0.0`, which still resolve to the old layout. Mapping
-from the old names to this layout:
-
-| Old (`v1.0.0`) | Now |
-|---|---|
-| `scripts/pipeline/run_phase2b.R` | `scripts/pipeline.R` |
-| `scripts/pipeline/normalization.R` | `scripts/lib/batch_correction.R` (ComBat and ComBat-ref only) |
-| `scripts/pipeline/imputation.R` | `scripts/lib/imputation.R` |
-| `scripts/pipeline/plot_na_staircase.R` | `scripts/lib/staircase_plot.R` |
-| `scripts/pipeline/subsampling_helpers.R` | `scripts/lib/subsampling.R` |
-| `scripts/pipeline/test1_first_trim_subsample.R` | `scripts/validation/subsample_first_trimester.R` |
-| `scripts/pipeline/test1b_vs_balanced.R` | `scripts/validation/subsample_vs_balanced_reference.R` |
-| `scripts/pipeline/test2_balanced_subsample.R` | `scripts/validation/subsample_balanced_cohort.R` |
-| `scripts/pipeline/test3_split_half.R` | `scripts/validation/split_half.R` |
-| `scripts/pipeline/test_permutation.R` | `scripts/validation/label_permutation.R` |
-| `scripts/pipeline/test_lodo.R` | `scripts/validation/leave_one_dataset_out.R` |
-| `scripts/pipeline/combat_sensitivity.R` | `scripts/analysis/combat_sensitivity.R` |
-| `scripts/holdout_common.R` | `scripts/validation/_holdout_common.R` |
-| `scripts/holdout_unified.R` | `scripts/validation/holdout_masked_runs.R` |
-| `scripts/holdout_{reference_runs,tables,confusion,by_dataset}.R` | same names in `scripts/validation/` |
-| `scripts/test4_coverage_patterns.R` | `scripts/analysis/gene_coverage_census.R` |
-| `scripts/missmda_ncp_selection.R` | `scripts/analysis/imputepca_ncp_selection.R` |
-| `scripts/lambda_selection_path.R` / `lambda_selection_table.R` | `scripts/analysis/softimpute_lambda_selection.R` / `softimpute_lambda_table.R` |
-| `scripts/de_sweep_numbers.R` | `scripts/verify/collect_article_numbers.R` |
-| `scripts/verify_*_claims.R` | `scripts/verify/verify_*_claims.R` |
-| `scripts/fig_*.R`, `scripts/_common.R` | `scripts/figures/` |
-| `scripts/{covariate_sweep,ga_matched_prater,qpcr_recovery,table_platform_coverage}.R` | `scripts/analysis/` |
-| `config/config_<name>.yaml` | `config/<name>.yaml` (`pipeline` -> `main`, `sensitivity` -> `sensitivity_no_covariates`, `holdout_unified` -> `holdout`, `holdout_w1` -> `holdout_weight1`) |
-
-Material the article does not use (the exploratory batch-in-limma model, the superseded
-`test4*` holdout stages, `cv_comparators.R`, unused normalization methods, the Venn
-figure, `generate_all.R`) is not in this repository; it is kept in the research
-repository.
-
 ## Data sources
 
 Expression data is derived from six GEO datasets:

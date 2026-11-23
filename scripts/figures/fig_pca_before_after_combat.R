@@ -45,17 +45,17 @@ make_pca_plot <- function(exprs_file, pd, color_by, title, legend_title) {
 p1 <- make_pca_plot("exprs_imputed_softimpute.tsv", pheno,
                     "dataset_id", "Before ComBat (dataset)", "Dataset")
 p2 <- make_pca_plot("exprs_softimpute_combat_ref.tsv", pheno,
-                    "dataset_id", "After ComBat-ref (dataset)", "Dataset")
+                    "dataset_id", "After ComBat (dataset)", "Dataset")
 p3 <- make_pca_plot("exprs_imputed_softimpute.tsv", pheno,
                     "trimester", "Before ComBat (trimester)", "Trimester")
 p4 <- make_pca_plot("exprs_softimpute_combat_ref.tsv", pheno,
-                    "trimester", "After ComBat-ref (trimester)", "Trimester")
+                    "trimester", "After ComBat (trimester)", "Trimester")
 
 w <- TW * 0.75
 out_file <- file.path(fig_dir, "fig_pca_before_after_combat.png")
 png(out_file, width = w, height = w * 1.0, units = "in", res = DPI)
 grid.arrange(p1, p2, p3, p4, ncol = 2,
-             top = textGrob("PCA: Before/After ComBat-ref (softImpute, 17,531 genes)",
+             top = textGrob("PCA before and after reference-batch ComBat\n(softImpute, 17,531 genes)",
                             gp = gpar(fontsize = 11, fontface = "bold")))
 dev.off()
 cat("Saved:", out_file, "\n")

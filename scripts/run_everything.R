@@ -19,7 +19,7 @@
 #     Rscript scripts/run_everything.R --full --force
 #     Rscript scripts/run_everything.R --full --force --no-archive   # no archive/ copies of replaced outputs
 #     Rscript scripts/run_everything.R --full --only=pipeline,validation
-#     Rscript scripts/run_everything.R --full --only=holdout,analysis   # groups: selection, pipeline, validation, holdout, analysis, figures
+#     Rscript scripts/run_everything.R --full --only=holdout,analysis   # groups: selection, pipeline, validation, holdout, routes, analysis, figures
 #
 # A note on reproducing --full exactly: the committed data/pipeline/ outputs
 # predate the addition of a fixed RNG seed to the softImpute call, so a fresh
@@ -134,6 +134,25 @@ holdout_stages <- list(
                      run_r("scripts/validation/holdout_masked_runs.R", c("--config=config/holdout_plain_combat.yaml", "--methods=softimpute")) })
 )
 
+## Routes without imputation, influence of the imputed cells, subsampling with
+## re-imputation (the routes read the stored holdout masks and reference runs)
+routes_stages <- list(
+  stage("routes:dissection_harmonizr", "routes", "data/pipeline/routes/partB_summary.csv",
+        function() { st <- run_r("scripts/validation/routes_dissection_and_harmonizr.R")
+                     if (st != 0) return(st)
+                     st <- run_r("scripts/validation/routes_batch_in_limma.R")
+                     if (st != 0) return(st)
+                     run_r("scripts/validation/routes_bert.R") }),
+  stage("routes:rnaseq", "routes", "data/pipeline/routes/rnaseq_concordance_ga_matched.csv",
+        function() { st <- run_r("scripts/validation/routes_rnaseq_concordance.R", c("--config=config/main.yaml", "--label=main"))
+                     if (st != 0) return(st)
+                     run_r("scripts/validation/routes_rnaseq_concordance.R", c("--config=config/ga_matched_prater.yaml", "--label=ga_matched")) }),
+  stage("routes:imputed_influence", "routes", "data/pipeline/imputed_influence/imputed_influence.csv",
+        function() run_r("scripts/validation/imputed_cells_influence.R")),
+  stage("routes:subsample_reimpute", "routes", "data/pipeline/validation/subsample_reimpute_summary.csv",
+        function() run_r("scripts/validation/subsample_reimpute.R", "--n_iter=30"))
+)
+
 ## subsampling stability for the three non-primary ComBat covariate variants
 for (v in c("linear", "categorical", "poly2", "ns3")) {
   local({
@@ -181,7 +200,7 @@ figure_stages[[length(figure_stages) + 1]] <- stage(
   function() run_r("scripts/analysis/table_platform_coverage.R"))
 
 stages <- if (FULL) {
-  c(selection_stages, pipeline_stages, validation_stages, holdout_stages, analysis_stages, figure_stages)
+  c(selection_stages, pipeline_stages, validation_stages, holdout_stages, routes_stages, analysis_stages, figure_stages)
 } else {
   ## figures-only: the ported summary analyses are cheap and read shipped data,
   ## so they run too; nothing that regenerates data/pipeline/ does.

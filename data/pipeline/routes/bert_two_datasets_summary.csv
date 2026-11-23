@@ -1,0 +1,3 @@
+"reference","genes","samples_bert","deg_bert","deg_reference","shared","logFC_r","logFC_slope","deg_bert_measured_by_both","deg_bert_measured_by_one"
+"balanced_two_datasets",17531,57,412,484,381,0.945679983174686,0.961058840958742,373,39
+"full_six_datasets",17531,57,412,541,371,0.911616472866551,0.883359910131732,373,39

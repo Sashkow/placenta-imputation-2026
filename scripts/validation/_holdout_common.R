@@ -11,8 +11,11 @@ source("scripts/lib/subsampling.R")   # loads the rest of scripts/lib/
 ## when --config is not given
 config <- config_from_cli(if (exists("HOLDOUT_DEFAULT_CONFIG")) HOLDOUT_DEFAULT_CONFIG
                           else "config/holdout.yaml")
-OUT_DIR <- get_arg("out", config$paths$output %||% "output")
-for (d in c("", "masks", "checkpoints", "reference", "values", "de"))
+## a sourcing script that only reads the holdout outputs sets HOLDOUT_DEFAULT_OUT
+## to its own output folder; the holdout sub-folders are then not created there
+OWN_OUT <- exists("HOLDOUT_DEFAULT_OUT")
+OUT_DIR <- get_arg("out", if (OWN_OUT) HOLDOUT_DEFAULT_OUT else config$paths$output %||% "output")
+for (d in if (OWN_OUT) "" else c("", "masks", "checkpoints", "reference", "values", "de"))
   dir.create(file.path(OUT_DIR, d), recursive = TRUE, showWarnings = FALSE)
 
 HCFG      <- config$holdout

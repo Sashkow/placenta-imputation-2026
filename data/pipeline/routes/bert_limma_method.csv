@@ -1,0 +1,4 @@
+"method","covariates","result","deg","shared_with_541","logFC_r","logFC_slope"
+"limma","trimester","ok",11996,487,0.185657768554998,0.650083621008645
+"limma","trimester+sex","Not enough samples at batch/covariate level.",NA,NA,NA,NA
+"limma","","ok",90,90,0.938764447659152,0.571515186670226

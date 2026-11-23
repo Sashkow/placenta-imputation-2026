@@ -19,3 +19,6 @@ data/pipeline/sensitivity/exprs_*.tsv
 # archive copies of replaced holdout outputs (git history keeps the old versions)
 data/pipeline/holdout/*/archive/
 .~lock.*#
+# regenerable corrected matrices of the route comparison and the seed runs
+data/pipeline/routes/corrected_*.rds
+data/pipeline/imputed_influence/seeds/*.rds

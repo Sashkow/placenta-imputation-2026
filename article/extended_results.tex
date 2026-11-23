@@ -1,5 +1,5 @@
 %% Extended results (full version of the supplementary analyses)
-%% Generated from the long supplement; the short supplement cites sections E1--E9.
+%% Generated from the long supplement; the short supplement cites sections E1--E12.
 %% Companion to: Filling the gaps: matrix completion imputation
 %% for broader gene coverage in cross-dataset full-merge
 %% expression analysis
@@ -49,7 +49,7 @@
 \noindent This document holds the full tables, figures and protocols
 behind the article and its Supplementary Materials, which report
 one table and at most one figure per analysis and cite the
-sections below as E1--E9. Section titles that mention the main
+sections below as E1--E12. Section titles that mention the main
 text refer to the long version of the article.
 
 \section*{What this document answers}
@@ -86,9 +86,9 @@ text refer to the long version of the article.
   \emph{Holdout validation of differential expression on imputed genes};
   Methods, \emph{Masking schemes for holdout validation}. \\
 \addlinespace
-\textbf{E6} & \textbf{Is the disagreement with RNA-seq a matter of technology
-  or of gestational age?} A gestational-age-matched re-run of the Prater
-  comparison. \emph{Reached from} Results, \emph{Cross-technology
+\textbf{E6} & \textbf{Where does the disagreement with RNA-seq come
+  from?} The genes the reference dataset does not measure; a
+  gestational-age-matched re-run of the Prater comparison adds little. \emph{Reached from} Results, \emph{Cross-technology
   concordance with independent RNA-seq data}. \\
 \addlinespace
 \textbf{E7} & \textbf{Does the choice of biological covariate in ComBat change
@@ -103,6 +103,20 @@ text refer to the long version of the article.
 \textbf{E9} & \textbf{How many DEGs does each imputation and normalization
   combination give?} \emph{Reached from} Results,
   \emph{Differential expression}. \\
+\addlinespace
+\textbf{E10} & \textbf{Is imputation needed at all?} Routes without
+  imputation --- matrix dissection, batch in the limma model, and the
+  published tools HarmonizR and BERT --- on the full data, in the
+  holdout and against RNA-seq. \emph{Reached from} Results,
+  \emph{Routes without imputation}. \\
+\addlinespace
+\textbf{E11} & \textbf{How far do the imputed values move the result, given
+  that they have zero weight in the test?} Other imputers and other
+  random seeds. \emph{Reached from} Methods and Results. \\
+\addlinespace
+\textbf{E12} & \textbf{Is the subsampling test optimistic because the imputed
+  matrix is reused?} Imputation repeated on every subsample.
+  \emph{Reached from} Results, \emph{Subsampling validation}. \\
 \bottomrule
 \end{tabularx}
 
@@ -745,7 +759,7 @@ genes.
 %% -----------------------------------------------------------------
 
 Masking real measurements and re-running the whole pipeline
-shows that it is conservative rather than credulous: under
+shows that it rarely creates false calls and often loses true ones: under
 every masking scheme fewer than $0.15\%$ of masked non-DEGs are
 newly called, while $8$--$67\%$ of true DEGs are lost. What
 decides the loss is not how much coverage a gene keeps but
@@ -865,7 +879,7 @@ GSE100051 masked & 2{,}125 & 0 $\pm$ 0 & 57 $\pm$ 10 & 0 $\pm$ 0 & 2068 $\pm$ 14
 \label{tab:supp-confusion}
 \end{table}
 
-\paragraph{Result: conservative, not credulous.}
+\paragraph{Result: few false calls.}
 Under every scheme the number of genes that newly cross the DEG
 threshold is tiny --- $0.13\%$ of the masked non-DEGs under
 each of the three schemes for random cells, gene--dataset block and
@@ -1169,23 +1183,28 @@ masking experiment on observed genes can close.
 \label{sec:supp-rnaseq}
 %% -----------------------------------------------------------------
 
-Most of the attenuation in the Prater comparison is a
-gestational-age mismatch, not a cross-technology one: matching
-the two studies' gestational-age ranges raises the log
-fold-change correlation over shared genes from $r = 0.656$ to
-$r = 0.808$. To establish that, we re-ran the pipeline on a
+The attenuation in the Prater comparison ($r = 0.656$ over 2{,}560
+shared genes) comes from the genes that the reference dataset
+GSE100051 does not measure, not from a difference in gestational
+age. Over the 1{,}992 genes of the RNA-seq table that GSE100051
+measures, the full cohort gives $r = 0.806$ (CCC~$= 0.735$); over
+the other 568 it gives $r = 0.51$ (CCC~$= 0.08$, slope $0.05$),
+because the pipeline shrinks the fold changes of these genes
+(Section~\ref{sec:supp-routes}). An earlier version of this section
+attributed the attenuation to gestational age, on the basis of the
+re-run below; that reading was wrong, because the re-run also
+removes the 568 genes. We re-ran the pipeline on a
 trimmed cohort restricted to first-trimester samples at
 7--8~weeks gestation (31 samples from GSE100051, GSE122214,
 GSE93520, and GSE9984) with 5~second-trimester samples at
 week~14 (GSE100051 only; 11{,}761 testable genes, 603~DEGs).
-The log fold-change correlation with Prater increased to
+The log fold-change correlation with Prater was
 $r = 0.808$ (CCC~$= 0.755$) across 1{,}992 shared genes,
 with 375 shared significant DEGs (99.7\% directionally concordant,
 374/375).
-The improved correlation confirms that the moderate attenuation in
-the full-pipeline comparison is attributable primarily to
-gestational-age range differences rather than cross-technology
-discordance.
+This is almost the value the full cohort gives on the genes
+GSE100051 measures ($0.806$), so matching the gestational-age
+ranges adds little.
 
 Notably, the two technologies show complementary strengths. At
 the FDR~$< 0.05$ threshold alone (without a fold-change cutoff),
@@ -1446,6 +1465,284 @@ softImpute & ComBat-ref & 6 & 17{,}531 & 541 & 448 &  93 \\
 
 
 %% -----------------------------------------------------------------
+\section{Routes without imputation}
+\label{sec:supp-routes}
+%% -----------------------------------------------------------------
+
+Imputation is not the only way to keep partially measured genes.
+Two routes without it give nearly the same result as the
+article's route wherever the reference dataset GSE100051 measures
+the gene; the routes part only on the 5{,}770 genes it does not
+measure. There the article's route shrinks fold changes and calls
+no DEG, although 1{,}428 of these genes pass FDR~$< 0.05$ (largest
+$|\text{logFC}|$ $0.94$). All 95 calls of dissection on these genes
+are FDR-significant in the article's route with the same sign, at a
+median $|\text{logFC}|$ of $0.39$ against $1.36$ (median ratio
+$0.25$); 24 of the 31 calls of batch in the limma model are among
+the 95. We
+compared, on the same six datasets and the same 17{,}531 genes:
+
+\begin{itemize}
+\item \textbf{Imputation} (the article): \textit{softImpute},
+  reference-batch ComBat, limma with weight~0 on imputed cells.
+\item \textbf{Dissection with the model.} The matrix is cut into
+  blocks of genes measured by the same set of datasets, as in
+  HarmonizR \citep{Voss2022}, and ComBat is run on each block with
+  the article's model (gestational age and fetal sex) and
+  GSE100051 as the reference batch where the block contains it.
+  This is our own code: the published package accepts neither
+  covariates nor a reference batch. The data form 11~blocks; the
+  largest holds the 8{,}260 genes measured by all six datasets.
+\item \textbf{Batch in the limma model.} No imputation and no
+  ComBat; the limma design is trimester + dataset + fetal sex, on
+  measured cells. A gene is tested only if at least one dataset
+  measures it in both trimesters.
+\item \textbf{Published tools as distributed:} the HarmonizR
+  package (version 1.6.0, ComBat mode~1) and its successor BERT
+  \citep[Batch-Effect Reduction Trees, version 1.4.0;][]{Schumann2025}.
+\end{itemize}
+
+Routes without imputation run limma on the measured cells only.
+
+\begin{table}[htbp]
+\centering
+\caption{Differentially expressed genes per route on the full data
+  (FDR~$< 0.05$, $|\text{logFC}| > 1$). ``Shared'': with the
+  article's 541. Strata: genes measured by all six datasets
+  (8{,}260); partially measured genes that GSE100051 measures
+  (3{,}501); genes that GSE100051 does not measure (5{,}770).}
+\label{tab:supp-routes}
+\begin{tabular}{lrrrrr}
+\toprule
+Route & DEGs & Shared & All six & Partial, & Partial, \\
+ & & & & ref.\ measured & ref.\ not measured \\
+\midrule
+Imputation (article)      & 541 & --- & 304 & 237 & 0 \\
+Dissection with the model & 614 & 508 & 277 & 242 & 95 \\
+Batch in the limma model  & 444 & 393 & 216 & 197 & 31 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Where GSE100051 measures the gene (11{,}761 genes), dissection with
+the model and imputation give the same log fold changes
+($r = 0.999$ in both strata) and almost the same calls: 242
+against 237 DEGs among the partially measured genes, 232 shared.
+On genes measured by all six datasets, dissection gives 277~DEGs
+--- the count of the intersection-only analysis, as it must,
+since the block of these genes is corrected alone --- against 304
+with imputation, 276 shared. The median share of variance
+explained by dataset among first-trimester samples (genes in all
+six datasets) falls from $0.97$ uncorrected to $0.014$
+(imputation) and $0.017$ (dissection).
+
+The routes differ on the 5{,}770 genes that GSE100051 does not
+measure: imputation calls none, dissection 95, batch in the limma
+model 31. Of the 95, 63 lie in one block of 3{,}307 genes measured
+only by three small datasets (GSE122214, GSE37901, GSE9984).
+
+\paragraph{Holdout with known truth.}
+Whether these extra calls can be trusted is answered by the
+holdout masks of Section~\ref{sec:supp-blockholdout}: the masked
+genes are called by each route and scored against the full-data
+run (Table~\ref{tab:supp-routes-holdout}). With the reference
+dataset visible, imputation and dissection are equivalent and
+batch in the limma model recovers fewer true DEGs. With the
+reference hidden, imputation loses almost every true DEG and makes
+no false call; dissection recovers about a third of them, with as
+many or far more false calls; batch in the limma model recovers
+fewer and stays cleaner. In the worst-case scheme, 1{,}065 of the
+2{,}125 reference-hidden genes cannot be tested by batch in the
+limma model at all, because no visible dataset has both
+trimesters. The truth here is the article's own full-data run, so
+the test measures agreement with it, which favors imputation
+where the two disagree for reasons other than masking.
+
+\begin{table}[htbp]
+\centering
+\caption{Holdout: recovered true DEGs / false new DEGs per route,
+  mean of three repeats. ``True'': DEGs of the full-data run among
+  the masked genes.}
+\label{tab:supp-routes-holdout}
+\begin{tabular}{llrrrr}
+\toprule
+Scheme & Reference & True & Imputation & Dissection & Batch in limma \\
+\midrule
+Gene--dataset block & visible & 149 & 138 / 7 & 135 / 10 & 112 / 6 \\
+Gene--dataset block & hidden  &  42 &   1 / 0 &  14 / 16 &   9 / 3 \\
+Worst-case block    & visible &  33 &  30 / 4 &  30 / 6  &  28 / 6 \\
+Worst-case block    & hidden  &  57 &   0 / 0 &  21 / 274 &  6 / 4 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Agreement with RNA-seq.}
+No route is clearly better against the RNA-seq study
+(Table~\ref{tab:supp-routes-rnaseq}). On the gestational-age-matched
+cohort of Section~\ref{sec:supp-rnaseq} the three are
+indistinguishable ($r = 0.808$ each). On the 568 genes of the
+RNA-seq table that GSE100051 does not measure, imputation calls no
+DEG. Of the dissection calls, 21 are in the table: 20 are DEGs
+there, 17 in the same direction and 3 in the opposite one; for
+batch in the limma model the numbers are 13, 11 and 10. Over all
+568 genes the fold changes agree with RNA-seq in sign for $80\%$ of
+genes with imputation, $69\%$ with dissection and $67\%$ with batch
+in the limma model (slopes $0.05$, $0.10$, $0.10$). The RNA-seq
+table lists only genes that passed that study's filter, so calls
+outside it cannot be scored.
+
+\begin{table}[htbp]
+\centering
+\caption{Agreement with RNA-seq per route. ``Both'': significant
+  in both studies; ``same'': of these, same direction.}
+\label{tab:supp-routes-rnaseq}
+\begin{tabular}{llrrrrr}
+\toprule
+Cohort & Route & DEGs & $r$ & CCC & Both & Same \\
+\midrule
+Six datasets (2{,}560 genes) & Imputation      & 541 & 0.656 & 0.538 & 371 & 371 \\
+                             & Dissection      & 614 & 0.670 & 0.554 & 384 & 381 \\
+                             & Batch in limma  & 444 & 0.686 & 0.537 & 332 & 331 \\
+\addlinespace
+Age-matched (1{,}992 genes)  & Imputation      & 603 & 0.808 & 0.755 & 375 & 374 \\
+                             & Dissection      & 605 & 0.808 & 0.756 & 377 & 376 \\
+                             & Batch in limma  & 570 & 0.808 & 0.756 & 363 & 362 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Published tools as distributed.}
+The published tools cannot be given the article's model on this
+design, so their results describe the scope of the tools, not a
+ranking of methods. Trimester is almost confounded with dataset
+here: only GSE100051 and GSE9984 contain both trimesters.
+
+\begin{itemize}
+\item \textbf{HarmonizR package} (no covariates): 76~DEGs, all
+  among the 541; log fold changes are halved (slope $0.55$ against
+  the article). Without the model, the correction removes about
+  half of the trimester effect. In the holdout it recovers 30 of
+  190 true DEGs (gene--dataset block scheme) with no false call.
+\item \textbf{BERT without covariates}: 68~DEGs, all among the 541
+  (slope $0.54$); 27 of 190 true DEGs in the holdout, no false
+  call.
+\item \textbf{BERT with trimester as covariate} stops with ``The
+  covariate is confounded with batch'', in each of four dataset
+  orders tried. BERT accepts categorical covariates only, so
+  gestational age in weeks cannot be given.
+\item \textbf{BERT with trimester and fetal sex} stops with ``Not
+  enough samples at batch/covariate level'': GSE37901 has one
+  female sample and GSE9984 one male second-trimester sample.
+\item \textbf{BERT with its limma method and trimester} runs
+  without an error and returns 11{,}996 DEGs, with log fold
+  changes unrelated to those of every other route ($r = 0.19$
+  against the article). We regard this output as invalid.
+\item \textbf{The one like-for-like case.} On the two datasets that
+  contain both trimesters (57~samples), BERT accepts trimester as
+  covariate and gives 412~DEGs, against 484 of the balanced
+  two-dataset reference of Section~\ref{sec:supp-validation}: 381
+  shared, log fold change $r = 0.946$, slope $0.96$.
+\end{itemize}
+
+BERT's ``references'' are bridge samples shared between batches,
+not a reference batch, and cannot be combined with covariates.
+BERT 1.4.0 is the release for the R version of this repository;
+the documentation of the current release states the same rules.
+
+%% -----------------------------------------------------------------
+\section{Influence of the imputed cells on the result}
+\label{sec:supp-influence}
+%% -----------------------------------------------------------------
+
+Imputed cells have weight~0 in limma, so they can act on the
+result only through the parameters that ComBat estimates from the
+completed matrix. We measured this effect by replacing the imputer
+and keeping everything else: where GSE100051 measures the gene,
+any centered imputer gives nearly the same calls as
+\textit{softImpute}; where it does not, the imputer decides
+whether calls appear at all (Table~\ref{tab:supp-influence}).
+
+The comparators are the full-data runs of
+Section~\ref{sec:supp-blockholdout} and \textit{softImpute} fitted
+with five other random seeds. The five seeds reproduce the
+article's run: the largest difference in any corrected measured
+value is $0.002$, and the DEG lists are identical.
+
+\begin{table}[htbp]
+\centering
+\caption{DEG calls with another imputer against the article's
+  \textit{softImpute} run, by stratum. ``$J$'': Jaccard index of
+  the two DEG lists. Gene mean and batch mean give identical
+  results here. \textit{softImpute} calls 304, 237 and 0 DEGs in
+  the three strata.}
+\label{tab:supp-influence}
+\begin{tabular}{lrrrrr}
+\toprule
+ & \multicolumn{2}{c}{All six datasets} & \multicolumn{2}{c}{Partial, ref.\ measured} & Ref.\ not measured \\
+Imputer & DEGs & $J$ & DEGs & $J$ & DEGs \\
+\midrule
+\textit{softImpute}, other seeds & 304 & 1.000 & 237 & 1.000 & 0 \\
+biScale fill            & 304 & 1.000 & 234 & 0.987 & 0 \\
+KNN                     & 304 & 1.000 & 236 & 0.996 & 0 \\
+Sample KNN (centered)   & 301 & 0.990 & 235 & 0.992 & 2 \\
+KNN (centered)          & 304 & 1.000 & 239 & 0.967 & 27 \\
+imputePCA               & 288 & 0.941 & 236 & 0.971 & 61 \\
+Sample KNN              & 297 & 0.977 & 241 & 0.983 & 75 \\
+Gene mean               & 277 & 0.905 & 1{,}834 & 0.024 & 2{,}488 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+With the gene mean, the genes a dataset lacks are constant within
+that dataset; the genes measured by all six datasets are then
+corrected as in the intersection-only analysis (277~DEGs), and the
+partially measured genes are not corrected usefully at all.
+
+%% -----------------------------------------------------------------
+\section{Subsampling with imputation repeated}
+\label{sec:supp-reimpute}
+%% -----------------------------------------------------------------
+
+The subsampling test of Section~\ref{sec:supp-validation} reuses
+the imputed matrix of the full cohort, so the imputation of each
+subsample has seen the samples left out. Repeating the imputation
+on every subsample changes nothing measurable
+(Table~\ref{tab:supp-reimpute}): the two DEG lists of one
+subsample have a median Jaccard index of $0.995$ to $0.998$.
+
+Each subsample (30 per setting, same seeds as the original test)
+was run twice: with the reused matrix, and with
+\textit{softImpute} fitted on the subsample alone. We also drew
+10 of the 15 second-trimester samples, which the original test
+always keeps in full.
+
+\begin{table}[htbp]
+\centering
+\caption{Median retention of the 541 full-run DEGs, and median
+  number of DEGs, over 30 subsamples.}
+\label{tab:supp-reimpute}
+\begin{tabular}{rrrrrr}
+\toprule
+First & Second & \multicolumn{2}{c}{Retention} & \multicolumn{2}{c}{DEGs} \\
+trimester & trimester & Reused & Re-imputed & Reused & Re-imputed \\
+\midrule
+10 & 15 & 0.909 & 0.909 & 765 & 764.5 \\
+30 & 15 & 0.930 & 0.930 & 635.5 & 636 \\
+60 & 15 & 0.957 & 0.957 & 572 & 572.5 \\
+10 & 10 & 0.911 & 0.914 & 821 & 828 \\
+30 & 10 & 0.891 & 0.892 & 635.5 & 636.5 \\
+60 & 10 & 0.927 & 0.928 & 581 & 581.5 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Small subsamples call more DEGs than the full cohort (765 against
+541 at 10 first-trimester samples), so retention is high while the
+Jaccard index against the full list is lower ($0.54$ at 10, $0.85$
+at 60 first-trimester samples). Retention alone therefore
+overstates the stability of the list at small sizes.
+
+%% -----------------------------------------------------------------
 %% References (only those cited in supplement)
 %% -----------------------------------------------------------------
 \begin{thebibliography}{99}
@@ -1515,6 +1812,21 @@ Thousands of samples are needed to generate a robust gene list
 for predicting outcome in cancer. \emph{Proceedings of the National
 Academy of Sciences}, 103(15), 5923--5928.
 \url{https://doi.org/10.1073/pnas.0601231103}
+
+\bibitem[Vo{\ss} et al.(2022)]{Voss2022}
+Vo{\ss}, H., Schlumbohm, S., Barwikowski, P., Wurlitzer, M.,
+Dottermusch, M., Neumann, P., Schl{\"u}ter, H., Neumann, J.~E., \&
+Krisp, C. (2022). HarmonizR enables data harmonization across
+independent proteomic datasets with appropriate handling of missing
+values. \emph{Nature Communications}, 13, 3523.
+\url{https://doi.org/10.1038/s41467-022-31007-x}
+
+\bibitem[Schumann et al.(2025)]{Schumann2025}
+Schumann, Y., Schlumbohm, S., Neumann, J.~E., \& Neumann, P. (2025).
+High performance data integration for large-scale analyses of
+incomplete Omic profiles using Batch-Effect Reduction Trees (BERT).
+\emph{Nature Communications}, 16, 7104.
+\url{https://doi.org/10.1038/s41467-025-62237-4}
 
 \end{thebibliography}
 

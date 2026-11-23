@@ -20,6 +20,8 @@ This repository contains the data, scripts, and pre-generated figures for:
 │   │   ├── balanced/         Balanced 2-dataset reference
 │   │   ├── validation/       Subsampling, split-half, permutation and leave-one-dataset-out results
 │   │   ├── holdout/          Masked-cell holdout validation (main, weight1, plain)
+│   │   ├── routes/           Routes without imputation compared with the article's route
+│   │   ├── imputed_influence/  Influence of the imputed cells on the result
 │   │   └── ...               covariate variants, GA-matched cohort, lambda selection, census
 │   └── references/           Lykhenko 2021 DEG lists, Prater 2021 supplementary tables
 └── scripts/
@@ -50,6 +52,12 @@ This repository contains the data, scripts, and pre-generated figures for:
     │   ├── holdout_tables.R                 Supp Tables S1, S2, S5, S6
     │   ├── holdout_confusion.R              main-text holdout table, Supp Table S3
     │   ├── holdout_by_dataset.R             Supp Table S4: by hidden dataset, ComBat-ref vs plain
+    │   ├── routes_dissection_and_harmonizr.R  routes without imputation: own dissection + ComBat, HarmonizR package
+    │   ├── routes_batch_in_limma.R          ... dataset as a term of the limma model
+    │   ├── routes_bert.R                    ... BERT (Batch-Effect Reduction Trees)
+    │   ├── routes_rnaseq_concordance.R      ... agreement of each route with RNA-seq
+    │   ├── imputed_cells_influence.R        how far the imputed cells move the result (other imputers, other seeds)
+    │   ├── subsample_reimpute.R             subsampling with imputation repeated in every iteration
     │   └── _holdout_common.R, _lodo_permutation_common.R   shared setup
     ├── analysis/             Supporting analyses
     │   ├── covariate_sweep.R                Supp Tables S3/S4: ComBat covariate variants
@@ -86,7 +94,7 @@ Rscript scripts/run_everything.R          # minutes: regenerate every figure and
                                           # then verify the article's numbers
 Rscript scripts/run_everything.R --full   # hours: regenerate data/pipeline/ itself
 Rscript scripts/run_everything.R --full --force        # ignore existing outputs
-Rscript scripts/run_everything.R --full --only=pipeline     # groups: pipeline, validation, holdout, analysis, figures
+Rscript scripts/run_everything.R --full --only=pipeline     # groups: pipeline, validation, holdout, routes, analysis, figures
 Rscript scripts/run_everything.R --dry-run             # print the plan, run nothing
 ```
 
@@ -189,6 +197,58 @@ saved masks), `reference/` (full-data DE tables and corrected matrices per imput
 (`table_s1.csv`, `table_s3_arms.csv`, `table_s2.csv`, `confusion_full_vs_masked.csv`,
 `by_dataset.csv`, `de_sweep_numbers.csv`, `claims_article.csv`). `run_everything.R
 --full` runs these as the `holdout` stage group and `analysis:holdout_tables`.
+
+### Routes without imputation, influence of imputed cells, re-imputation
+
+These three analyses answer one question: does the result depend on imputation?
+
+```bash
+# Routes without imputation, scored on the full data and on the stored holdout masks
+# (requires the holdout outputs above). The later scripts add arms to the same tables.
+Rscript scripts/validation/routes_dissection_and_harmonizr.R
+Rscript scripts/validation/routes_batch_in_limma.R
+Rscript scripts/validation/routes_bert.R
+Rscript scripts/validation/routes_rnaseq_concordance.R --config=config/main.yaml --label=main
+Rscript scripts/validation/routes_rnaseq_concordance.R --config=config/ga_matched_prater.yaml --label=ga_matched
+
+# Influence of the imputed cells: every imputer and five more softImpute seeds
+# against the article's softImpute run
+Rscript scripts/validation/imputed_cells_influence.R
+
+# Subsampling with softImpute fitted again on every subsample
+Rscript scripts/validation/subsample_reimpute.R --n_iter=30
+```
+
+The routes, by their names in the tables of `data/pipeline/routes/`:
+
+| Name | Route |
+|---|---|
+| `softimpute` | The article: softImpute, reference-batch ComBat (GSE100051), limma with weight 0 on imputed cells |
+| `hz_mod_ref` | Matrix dissection + ComBat per block of genes, with the article's model (gestational age + fetal sex) and GSE100051 as reference where the block contains it. **This is our own code, not the HarmonizR package**: the package accepts neither covariates nor a reference batch |
+| `hz_mod` | The same without a reference batch |
+| `hz_pkg` | The published HarmonizR package, ComBat mode 1 |
+| `batch_in_limma` | No imputation and no ComBat; limma design trimester + dataset + fetal sex. A gene is tested only if at least one dataset measures it in both trimesters |
+| `bert_nocov` | BERT 1.4.0 without covariates |
+| `bert_trim`, `bert_trim_sex` | BERT with categorical covariates. Both stop with an error on this design; the error text is kept in `partA_summary.csv` and the reasons in `bert_sample_counts.csv` and `bert_dataset_order_test.csv` |
+
+BERT takes categorical covariates only, each needing at least two samples per level
+in every dataset, and here trimester is nearly confounded with dataset. Its results
+on these data therefore show the scope of the tool, not a ranking of methods.
+`bert_two_datasets_summary.csv` holds the one like-for-like case: the two datasets
+that contain both trimesters, with trimester as covariate.
+
+| Output | Content | Script |
+|---|---|---|
+| `routes/partA_summary.csv`, `partA_per_gene.csv` | Full data: DEGs per route and stratum, overlap with the 541, log fold change agreement | `routes_dissection_and_harmonizr.R`, arms added by `routes_batch_in_limma.R`, `routes_bert.R` |
+| `routes/partA_status_census.csv`, `groups_hz_mod_ref.csv`, `partA_residual_dataset_effect.csv` | Blocks of the dissection, how each was corrected, residual dataset effect | `routes_dissection_and_harmonizr.R` |
+| `routes/partB_summary.csv`, `partB_by_repeat.csv`, `partB_calls_*.csv` | Holdout: recovered true DEGs and false new DEGs per route, scheme and stratum | same three scripts |
+| `routes/bert_*.csv` | BERT: comparison with the dissection route, sample counts, dataset-order test, limma method, two-dataset case | `routes_bert.R` |
+| `routes/rnaseq_concordance_{main,ga_matched}.csv` | Agreement of each route with RNA-seq (Prater 2021) | `routes_rnaseq_concordance.R` |
+| `imputed_influence/imputed_influence.csv` | Per imputer or seed and stratum: agreement of corrected measured cells, log fold changes and DEG calls with the softImpute run | `imputed_cells_influence.R` |
+| `validation/subsample_reimpute.tsv`, `subsample_reimpute_summary.csv` | Retention of the full DEG list with the reused and the re-imputed matrix | `subsample_reimpute.R` |
+
+The corrected matrices of the routes and of the seed runs (`*.rds`) are regenerable and
+not committed.
 
 Validation tests use parallel execution (`n_cores: 10` in config) and take ~30-60 minutes total.
 

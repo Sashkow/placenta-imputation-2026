@@ -86,6 +86,48 @@
       "Repository": "Bioconductor 3.21",
       "NeedsCompilation": "no"
     },
+    "BERT": {
+      "Package": "BERT",
+      "Version": "1.4.0",
+      "Source": "Repository",
+      "Priority": null,
+      "Depends": [
+        "R (>= 4.3.0)"
+      ],
+      "Imports": [
+        "cluster",
+        "comprehenr",
+        "foreach (>= 1.5.2)",
+        "invgamma",
+        "iterators\n(>= 1.0.14)",
+        "janitor (>= 2.2.0)",
+        "limma (>= 3.46.0)",
+        "logging (>=\n0.10-108)",
+        "sva (>= 3.38.0)",
+        "SummarizedExperiment",
+        "methods",
+        "BiocParallel"
+      ],
+      "LinkingTo": [
+        null
+      ],
+      "Suggests": [
+        "testthat (>= 3.0.0)",
+        "knitr",
+        "rmarkdown",
+        "BiocStyle"
+      ],
+      "Enhances": [
+        null
+      ],
+      "License": "GPL-3",
+      "License_is_FOSS": null,
+      "License_restricts_use": null,
+      "OS_type": null,
+      "NeedsCompilation": "no",
+      "Repository": "BioCsoft",
+      "Type": "source"
+    },
     "BH": {
       "Package": "BH",
       "Version": "1.90.0-1",
@@ -2871,6 +2913,36 @@
       "Maintainer": "Jeroen Ooms <jeroenooms@gmail.com>",
       "Repository": "CRAN"
     },
+    "comprehenr": {
+      "Package": "comprehenr",
+      "Version": "0.6.10",
+      "Source": "Repository",
+      "Priority": null,
+      "Depends": [
+        "R (>= 3.3.0)"
+      ],
+      "Imports": [
+        null
+      ],
+      "LinkingTo": [
+        null
+      ],
+      "Suggests": [
+        "knitr",
+        "tinytest",
+        "rmarkdown"
+      ],
+      "Enhances": [
+        null
+      ],
+      "License": "GPL-2",
+      "License_is_FOSS": null,
+      "License_restricts_use": null,
+      "OS_type": null,
+      "NeedsCompilation": "no",
+      "Repository": "CRAN",
+      "Type": "source"
+    },
     "cowplot": {
       "Package": "cowplot",
       "Version": "1.2.0",
@@ -5075,6 +5147,34 @@
       "Repository": "Bioconductor 3.21",
       "NeedsCompilation": "yes"
     },
+    "invgamma": {
+      "Package": "invgamma",
+      "Version": "1.2",
+      "Source": "Repository",
+      "Priority": null,
+      "Depends": [
+        null
+      ],
+      "Imports": [
+        null
+      ],
+      "LinkingTo": [
+        null
+      ],
+      "Suggests": [
+        "testthat (>= 3.0.0)"
+      ],
+      "Enhances": [
+        null
+      ],
+      "License": "MIT + file LICENSE",
+      "License_is_FOSS": null,
+      "License_restricts_use": null,
+      "OS_type": null,
+      "NeedsCompilation": "no",
+      "Repository": "CRAN",
+      "Type": "source"
+    },
     "irlba": {
       "Package": "irlba",
       "Version": "2.3.7",
@@ -5790,6 +5890,35 @@
       "SystemRequirements": "USE_C17",
       "NeedsCompilation": "yes",
       "Repository": "CRAN"
+    },
+    "logging": {
+      "Package": "logging",
+      "Version": "0.10-111",
+      "Source": "Repository",
+      "Priority": null,
+      "Depends": [
+        "R (>= 3.2.0)"
+      ],
+      "Imports": [
+        "methods"
+      ],
+      "LinkingTo": [
+        null
+      ],
+      "Suggests": [
+        "testthat",
+        "crayon"
+      ],
+      "Enhances": [
+        null
+      ],
+      "License": "GPL-3",
+      "License_is_FOSS": null,
+      "License_restricts_use": null,
+      "OS_type": null,
+      "NeedsCompilation": "no",
+      "Repository": "CRAN",
+      "Type": "source"
     },
     "lubridate": {
       "Package": "lubridate",

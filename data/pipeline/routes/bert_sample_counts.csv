@@ -1,0 +1,25 @@
+"dataset","trimester","sex","Freq"
+"GSE100051","First trimester","f",26
+"GSE122214","First trimester","f",2
+"GSE28551","First trimester","f",7
+"GSE37901","First trimester","f",0
+"GSE93520","First trimester","f",19
+"GSE9984","First trimester","f",2
+"GSE100051","Second trimester","f",5
+"GSE122214","Second trimester","f",0
+"GSE28551","Second trimester","f",0
+"GSE37901","Second trimester","f",1
+"GSE93520","Second trimester","f",0
+"GSE9984","Second trimester","f",3
+"GSE100051","First trimester","m",16
+"GSE122214","First trimester","m",2
+"GSE28551","First trimester","m",9
+"GSE37901","First trimester","m",0
+"GSE93520","First trimester","m",17
+"GSE9984","First trimester","m",2
+"GSE100051","Second trimester","m",2
+"GSE122214","Second trimester","m",0
+"GSE28551","Second trimester","m",0
+"GSE37901","Second trimester","m",3
+"GSE93520","Second trimester","m",0
+"GSE9984","Second trimester","m",1

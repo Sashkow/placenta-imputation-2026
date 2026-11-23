@@ -1,0 +1,5 @@
+"arm","stratum","genes","logFC_r","logFC_slope","deg_dissection","deg_bert","both","jaccard","measured_cells_set_NA"
+"bert_nocov","all",17531,0.957679173382464,0.513707938236141,614,68,68,0.110749185667752,0
+"bert_nocov","shared_all6",8260,0.969348095296555,0.506671599790573,277,23,23,0.0830324909747292,0
+"bert_nocov","partial_ref_visible",3501,0.959365122295403,0.587018449902743,242,45,45,0.18595041322314,0
+"bert_nocov","partial_ref_hidden",5770,0.955321287061333,0.397036207251066,95,0,0,0,0

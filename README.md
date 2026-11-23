@@ -56,6 +56,7 @@ This repository contains the data, scripts, and pre-generated figures for:
     │   ├── routes_batch_in_limma.R          ... dataset as a term of the limma model
     │   ├── routes_bert.R                    ... BERT (Batch-Effect Reduction Trees)
     │   ├── routes_rnaseq_concordance.R      ... agreement of each route with RNA-seq
+    │   ├── routes_holdout_by_two_group_dataset.R ... holdout calls of dissection, split by GSE9984
     │   ├── imputed_cells_influence.R        how far the imputed cells move the result (other imputers, other seeds)
     │   ├── subsample_reimpute.R             subsampling with imputation repeated in every iteration
     │   └── _holdout_common.R, _lodo_permutation_common.R   shared setup
@@ -208,6 +209,7 @@ These three analyses answer one question: does the result depend on imputation?
 Rscript scripts/validation/routes_dissection_and_harmonizr.R
 Rscript scripts/validation/routes_batch_in_limma.R
 Rscript scripts/validation/routes_bert.R
+Rscript scripts/validation/routes_holdout_by_two_group_dataset.R --config=config/main.yaml
 Rscript scripts/validation/routes_rnaseq_concordance.R --config=config/main.yaml --label=main
 Rscript scripts/validation/routes_rnaseq_concordance.R --config=config/ga_matched_prater.yaml --label=ga_matched
 
@@ -244,6 +246,7 @@ that contain both trimesters, with trimester as covariate.
 | `routes/partB_summary.csv`, `partB_by_repeat.csv`, `partB_calls_*.csv` | Holdout: recovered true DEGs and false new DEGs per route, scheme and stratum | same three scripts |
 | `routes/bert_*.csv` | BERT: comparison with the dissection route, sample counts, dataset-order test, limma method, two-dataset case | `routes_bert.R` |
 | `routes/rnaseq_concordance_{main,ga_matched}.csv` | Agreement of each route with RNA-seq (Prater 2021) | `routes_rnaseq_concordance.R` |
+| `routes/partB_dissection_by_two_group_dataset.csv` | Holdout calls of dissection on genes with GSE100051 masked, split by whether GSE9984 (the other dataset with both trimesters) still measures the gene | `routes_holdout_by_two_group_dataset.R` |
 | `imputed_influence/imputed_influence.csv` | Per imputer or seed and stratum: agreement of corrected measured cells, log fold changes and DEG calls with the softImpute run | `imputed_cells_influence.R` |
 | `validation/subsample_reimpute.tsv`, `subsample_reimpute_summary.csv` | Retention of the full DEG list with the reused and the re-imputed matrix | `subsample_reimpute.R` |
 

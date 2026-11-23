@@ -1576,6 +1576,21 @@ Worst-case block    & hidden  &  57 &   0 / 0 &  21 / 274 &  6 / 4 \\
 \end{tabular}
 \end{table}
 
+\paragraph{What decides the calls of dissection.}
+With the GSE100051 block masked, the false calls of dissection arise
+almost only where GSE9984, the other dataset that holds both
+trimesters, is masked as well. Pooled over the three repeats of the
+gene--dataset block scheme, 37 of 46 calls are true when GSE9984
+still measures the gene and 5 of 45 when it does not
+(\texttt{routes/partB\_dissection\_by\_two\_group\_dataset.csv}). By
+the number of datasets that still measure the gene the counts are 22
+of 26 with five, 14 of 21 with four, 6 of 37 with three and 0 of 7
+with two, but 33 of the 37 three-dataset calls are on genes with
+GSE9984 masked. In the real data GSE9984 measures every gene that
+GSE100051 does not. The holdout contains only 2 calls on the pattern
+that carries 63 of the 95 real calls (only the three Affymetrix
+datasets remain), so it gives no precision for them.
+
 \paragraph{Agreement with RNA-seq.}
 No route is clearly better against the RNA-seq study
 (Table~\ref{tab:supp-routes-rnaseq}). On the gestational-age-matched

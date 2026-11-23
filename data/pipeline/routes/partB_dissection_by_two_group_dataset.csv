@@ -1,0 +1,13 @@
+"k_visible","second_two_group_dataset_visible","genes","true_degs","dissection_calls","dissection_calls_true"
+"1",FALSE,7,0,0,0
+"2",FALSE,50,1,5,0
+"3",FALSE,204,8,33,4
+"4",FALSE,297,9,7,1
+"all",FALSE,558,18,45,5
+"1",TRUE,1,0,0,0
+"2",TRUE,35,0,2,0
+"3",TRUE,314,5,4,2
+"4",TRUE,1136,42,14,13
+"5",TRUE,1693,60,26,22
+"all",TRUE,3179,107,46,37
+"affymetrix_trio_only",TRUE,43,1,2,1

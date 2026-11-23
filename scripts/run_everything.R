@@ -142,7 +142,9 @@ routes_stages <- list(
                      if (st != 0) return(st)
                      st <- run_r("scripts/validation/routes_batch_in_limma.R")
                      if (st != 0) return(st)
-                     run_r("scripts/validation/routes_bert.R") }),
+                     st <- run_r("scripts/validation/routes_bert.R")
+                     if (st != 0) return(st)
+                     run_r("scripts/validation/routes_holdout_by_two_group_dataset.R", "--config=config/main.yaml") }),
   stage("routes:rnaseq", "routes", "data/pipeline/routes/rnaseq_concordance_ga_matched.csv",
         function() { st <- run_r("scripts/validation/routes_rnaseq_concordance.R", c("--config=config/main.yaml", "--label=main"))
                      if (st != 0) return(st)
